@@ -25,12 +25,6 @@ export const categorySchema = new Schema(
 				imageUrl: { type: String },
 			},
 		],
-		category_products: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'Product',
-			},
-		],
 		category_isActive: { type: Boolean, default: true },
 		isMarkedDelete: { type: Boolean, default: false },
 	},

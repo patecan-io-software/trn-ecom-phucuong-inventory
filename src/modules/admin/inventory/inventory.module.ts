@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
+import { MongooseModule } from '@infras/mongoose'
 import { InventoryService } from './services/inventory.service'
 import { InventoryController } from './controllers/inventory.controller'
-import { MongooseModule } from '@infras/mongoose'
 import {
 	CatSchema,
 	CategoryRepository,
@@ -9,6 +9,7 @@ import {
 	categorySchema,
 } from './database'
 import { CATEGORY_MODEL, CAT_MODEL } from './constants'
+import { CategoryController } from './controllers/category.controller'
 
 @Module({
 	imports: [
@@ -24,6 +25,6 @@ import { CATEGORY_MODEL, CAT_MODEL } from './constants'
 		]),
 	],
 	providers: [InventoryService, InventoryRepository, CategoryRepository],
-	controllers: [InventoryController],
+	controllers: [InventoryController, CategoryController],
 })
 export class InventoryModule {}

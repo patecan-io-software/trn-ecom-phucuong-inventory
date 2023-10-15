@@ -20,7 +20,7 @@ async function bootstrap() {
 	app.useGlobalFilters(new GlobalExceptionFilter())
 	app.useGlobalPipes(
 		new ValidationPipe({
-			transform: false,
+			transform: true,
 			exceptionFactory: (errors) => new BadRequestException(errors),
 		}),
 	)

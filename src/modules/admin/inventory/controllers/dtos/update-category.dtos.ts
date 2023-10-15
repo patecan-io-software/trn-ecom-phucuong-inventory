@@ -1,11 +1,10 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { CategoryDTO, CategoryImage } from './common.dto'
 import { SuccessResponseDTO } from '@libs'
-import { Expose, Type } from 'class-transformer'
+import { Type } from 'class-transformer'
 
-export class CreateCategoryRequestDTO {
+export class UpdateCategoryRequestDTO {
 	@ApiProperty()
-	@Expose()
 	category_name: string
 
 	@ApiProperty()
@@ -20,15 +19,14 @@ export class CreateCategoryRequestDTO {
 	category_images: CategoryImage[]
 }
 
-export class CreateCategoryResponseDTO extends PartialType(SuccessResponseDTO) {
+export class UpdateCategoryResponseDTO extends PartialType(SuccessResponseDTO) {
 	@ApiProperty({
 		type: CategoryDTO,
 	})
 	@Type(() => CategoryDTO)
-	@Expose()
 	data: CategoryDTO
 
-	constructor(props: any) {
+	constructor(props: Partial<UpdateCategoryResponseDTO>) {
 		super(props)
 		Object.assign(this, props)
 	}
