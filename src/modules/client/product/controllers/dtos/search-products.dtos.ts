@@ -1,7 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { ProductDTO } from './common.dtos'
 
-export class SearchProductsQueryDTO {}
+export class SearchProductsQueryDTO {
+	@ApiProperty({
+		required: false,
+		default: 1,
+	})
+	page: number
+
+	@ApiProperty({
+		required: false,
+		default: 10,
+	})
+	page_size: number
+}
 
 export class SearchProductsResponseDTO {
 	@ApiProperty()
