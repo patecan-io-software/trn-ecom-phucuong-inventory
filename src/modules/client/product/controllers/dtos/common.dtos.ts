@@ -57,6 +57,12 @@ export class ProductVariant {
 	@ApiProperty()
 	price: number
 
+	@ApiProperty()
+	discountPercentage: number
+
+	@ApiProperty()
+	discountPrice: number
+
 	@ApiProperty({
 		type: [ProductImage],
 	})
@@ -98,6 +104,12 @@ export class ProductDTO {
 
 	@ApiProperty()
 	price: number
+
+	@ApiProperty()
+	discountPercentage: number
+
+	@ApiProperty()
+	discountPrice: number
 
 	@ApiProperty()
 	quantity: number

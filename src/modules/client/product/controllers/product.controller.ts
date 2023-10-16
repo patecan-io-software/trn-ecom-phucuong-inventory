@@ -48,6 +48,8 @@ export class ProductController {
 					product_slug: 'quan-jean-cao-cap',
 					sku: 'SKU01',
 					price: 100000,
+					discountPercentage: 50,
+					discountPrice: 50000,
 					quantity: 15,
 					image: {
 						imageName: 'image_01',
@@ -81,6 +83,8 @@ export class ProductController {
 					product_slug: 'quan-jean-cao-cap',
 					sku: 'SKU02',
 					price: 9000,
+					discountPercentage: 10,
+					discountPrice: 8100,
 					quantity: 10,
 					image: {
 						imageName: 'image_01',
@@ -151,6 +155,8 @@ export class ProductController {
 					},
 					material: 'Sylko',
 					price: 100000,
+					discountPercentage: 10,
+					discountPrice: 90000,
 					quantity: 15,
 					image_list: [
 						{
@@ -173,6 +179,8 @@ export class ProductController {
 					},
 					material: 'Cao su',
 					price: 200000,
+					discountPercentage: 20,
+					discountPrice: 180000,
 					quantity: 15,
 					image_list: [
 						{
@@ -190,6 +198,8 @@ export class ProductController {
 			],
 			sku: 'SKU01',
 			price: 100000,
+			discountPercentage: 10,
+			discountPrice: 90000,
 			quantity: 15,
 			image: {
 				imageName: 'image_01',
