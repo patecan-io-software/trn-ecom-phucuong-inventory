@@ -66,6 +66,12 @@ export class GetProductDetailResponseDTO {
 	price: number
 
 	@ApiProperty()
+	discountPercentage: number
+
+	@ApiProperty()
+	discountPrice: number
+
+	@ApiProperty()
 	quantity: number
 
 	@ApiProperty({
