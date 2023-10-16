@@ -11,7 +11,7 @@ import {
 	UseInterceptors,
 } from '@nestjs/common'
 import { InventoryService } from '../services/inventory.service'
-import { CategoryDTO, CategoryIdParam } from './dtos/common.dto'
+import { CategoryDTO, ObjectIdParam } from './dtos/common.dto'
 import {
 	CreateCategoryRequestDTO,
 	CreateCategoryResponseDTO,
@@ -66,14 +66,14 @@ export class CategoryController {
 		status: 201,
 		type: CategoryDTO,
 	})
-	async getById(@Param() { id }: CategoryIdParam): Promise<CategoryDTO> {
+	async getById(@Param() { id }: ObjectIdParam): Promise<CategoryDTO> {
 		const category = await this.categoryRepo.getById(id)
 		return new CategoryDTO(category)
 	}
 
 	@Put('/:id')
 	async updateCategory(
-		@Param() { id }: CategoryIdParam,
+		@Param() { id }: ObjectIdParam,
 		@Body() body: UpdateCategoryRequestDTO,
 	) {
 		const category = await this.inventoryService.updateCategory({
@@ -88,7 +88,7 @@ export class CategoryController {
 		status: 200,
 		type: SuccessResponseDTO,
 	})
-	async deleteCategory(@Param() { id }: CategoryIdParam): Promise<void> {
+	async deleteCategory(@Param() { id }: ObjectIdParam): Promise<void> {
 		await this.inventoryService.deleteCategory(id)
 		return
 	}
