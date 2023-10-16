@@ -2,6 +2,7 @@ import { ConnectOptions } from 'mongoose'
 
 export interface MongoDBOptions extends ConnectOptions {
 	connectionString: string
+	debug?: boolean
 }
 
 export interface MongooseModuleForRootAsyncOptions {

@@ -1,16 +1,15 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
-import {
-	ClassSerializerInterceptor,
-	Logger,
-	ValidationPipe,
-} from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import {
 	BadRequestException,
-	GlobalExceptionFilter,
+	createExceptionFilter,
 	SuccessResponseInterceptor,
 } from '@libs'
+import { RESULT_CODE_MAPPING } from './config/result-code-mapping.config'
+
+const GlobalExceptionFilter = createExceptionFilter(RESULT_CODE_MAPPING)
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
@@ -20,7 +19,7 @@ async function bootstrap() {
 	app.useGlobalFilters(new GlobalExceptionFilter())
 	app.useGlobalPipes(
 		new ValidationPipe({
-			transform: false,
+			transform: true,
 			exceptionFactory: (errors) => new BadRequestException(errors),
 		}),
 	)

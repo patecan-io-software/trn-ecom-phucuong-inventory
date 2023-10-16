@@ -1,4 +1,4 @@
-export interface Category {
+export interface UpdateCategoryDTO {
 	_id: string
 	category_name: string
 	category_description: string
@@ -7,7 +7,4 @@ export interface Category {
 		imageName: string
 		imageUrl: string
 	}[]
-	category_isActive: boolean
-	createdAt?: Date
-	updatedAt?: Date
 }

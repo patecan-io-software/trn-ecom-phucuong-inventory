@@ -4,6 +4,7 @@ import {
 	Logger,
 	Module,
 	OnApplicationBootstrap,
+	Optional,
 } from '@nestjs/common'
 import {
 	DATABASE_CONNECTION,
@@ -21,9 +22,15 @@ import mongoose, { Connection } from 'mongoose'
 export class MongooseModule implements OnApplicationBootstrap {
 	private readonly logger = new Logger(MongooseModule.name)
 
-	constructor(@Inject(IS_GLOBAL) private readonly isGlobal: boolean) {}
+	constructor(
+		@Inject(IS_GLOBAL) private readonly isGlobal: boolean,
+		@Optional() // options is undefined when module is imported using `forFeature`
+		@Inject(MONGODB_OPTION_PROVIDER)
+		private readonly options: MongoDBOptions,
+	) {}
 	onApplicationBootstrap() {
 		if (this.isGlobal) {
+			this.options.debug && mongoose.set('debug', true)
 			this.logger.log('Connect to MongoDB successfully')
 			return
 		}
@@ -52,7 +59,8 @@ export class MongooseModule implements OnApplicationBootstrap {
 				{
 					provide: DATABASE_CONNECTION,
 					useFactory: async (options: MongoDBOptions) => {
-						const { connectionString, ...mongoDbOptions } = options
+						const { connectionString, debug, ...mongoDbOptions } =
+							options
 						const connection = await mongoose.connect(
 							connectionString,
 							mongoDbOptions,

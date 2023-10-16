@@ -7,7 +7,8 @@ export class SuccessResponseInterceptor implements NestInterceptor {
 		return next.handle().pipe(
 			map((data) => {
 				return {
-					resultCode: data.resultCode || ResultCode.Success, // fallback for result code
+					resultCode: data?.resultCode || ResultCode.Success, // fallback for result code
+					resultMessage: data?.resultMessage || 'Success',
 					...data,
 				}
 			}),
