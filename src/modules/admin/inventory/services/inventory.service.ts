@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { CategoryRepository, InventoryRepository } from '../database'
-import { Category } from '../domain'
+import { Category, CreateProductDTO, Product } from '../domain'
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { UpdateCategoryDTO } from './dtos/update-category.dto'
 import { CreateCategoryDTO } from './dtos/create-category.dto'
@@ -11,6 +11,12 @@ export class InventoryService {
 		private readonly inventoryRepo: InventoryRepository,
 		private readonly categoryRepo: CategoryRepository,
 	) {}
+
+	async createProduct(dto: CreateProductDTO) {
+		const product = Product.createProduct(dto)
+		const result = await this.inventoryRepo.createProduct(product)
+		return result
+	}
 
 	async createCategory(dto: CreateCategoryDTO) {
 		const category: Category = {
