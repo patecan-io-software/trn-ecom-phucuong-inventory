@@ -5,7 +5,9 @@ import { IsNotEmpty, Validate } from 'class-validator'
 
 export class ObjectIdParam {
 	@ApiProperty()
-	@Validate(ValidateMongoObjectId)
+	@Validate(ValidateMongoObjectId, {
+		message: 'Invalid Params',
+	})
 	@IsNotEmpty()
 	id: string
 }

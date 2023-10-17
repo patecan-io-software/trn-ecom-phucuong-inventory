@@ -13,3 +13,24 @@ export class CreateProductFailedException extends BaseException {
 		super('Create product failed')
 	}
 }
+
+export class DuplicateImageNameException extends BaseException {
+	public code = 'DUPLICATE_IMAGE_NAME'
+	constructor(image_name: string) {
+		super(`Image name is duplicated: ${image_name}`)
+	}
+}
+
+export class SkuAlreadyExistsException extends BaseException {
+	public code = 'SKU_ALREADY_EXISTS'
+	constructor(skuList: string[]) {
+		super(`Following SKUs already exists: ${skuList.join(', ')}`)
+	}
+}
+
+export class ProductNotFoundException extends BaseException {
+	public code = 'PRODUCT_NOT_FOUND'
+	constructor(productId: string) {
+		super(`Product with id ${productId} not found`)
+	}
+}

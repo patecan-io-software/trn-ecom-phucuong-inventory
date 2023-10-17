@@ -81,21 +81,32 @@ export class BrandRepository {
 		return result._id?.toString?.()
 	}
 
-	async find(options: { page: number; page_size: number }): Promise<{
+	async find(options: {
+		page: number
+		page_size: number
+		brand_name: string
+	}): Promise<{
 		items: Brand[]
 		page_size: number
 		page: number
 		total_page: number
 		total_count: number
 	}> {
-		const { page = 1, page_size = 10 } = options
+		const { page = 1, page_size = 10, brand_name } = options
+
+		const filter = {
+			isMarkedDelete: false,
+			...(brand_name && {
+				$text: { $search: brand_name },
+			}),
+		}
 		const [categoryList, count] = await Promise.all([
-			BrandModel.find({ isMarkedDelete: false })
+			BrandModel.find(filter)
 				.select('-__v -isMarkedDelete -brand_products')
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),
-			BrandModel.countDocuments({ isMarkedDelete: false }),
+			BrandModel.countDocuments(filter),
 		])
 
 		return {

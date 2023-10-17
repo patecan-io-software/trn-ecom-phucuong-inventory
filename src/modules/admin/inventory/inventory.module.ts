@@ -3,15 +3,17 @@ import { MongooseModule } from '@infras/mongoose'
 import { InventoryService } from './services/inventory.service'
 import { InventoryController } from './controllers/inventory.controller'
 import {
+	BrandRepository,
 	CategoryRepository,
 	InventoryRepository,
+	brandSchema,
 	categorySchema,
+	inventorySchema,
 } from './database'
-import { BRAND_MODEL, CATEGORY_MODEL } from './constants'
+import { BRAND_MODEL, CATEGORY_MODEL, INVENTORY_MODEL } from './constants'
 import { CategoryController } from './controllers/category.controller'
 import { BrandController } from './controllers/brand.controller'
-import { brandSchema } from './database/models/brand.model'
-import { BrandRepository } from './database/brand.repository'
+import { ProductController } from './controllers/product.controller'
 
 @Module({
 	imports: [
@@ -24,6 +26,10 @@ import { BrandRepository } from './database/brand.repository'
 				name: BRAND_MODEL,
 				schema: brandSchema,
 			},
+			{
+				name: INVENTORY_MODEL,
+				schema: inventorySchema,
+			},
 		]),
 	],
 	providers: [
@@ -32,6 +38,11 @@ import { BrandRepository } from './database/brand.repository'
 		CategoryRepository,
 		BrandRepository,
 	],
-	controllers: [InventoryController, CategoryController, BrandController],
+	controllers: [
+		InventoryController,
+		CategoryController,
+		BrandController,
+		ProductController,
+	],
 })
 export class InventoryModule {}

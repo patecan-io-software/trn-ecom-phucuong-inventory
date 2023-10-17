@@ -1,29 +1,46 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsNotEmpty, IsNumber } from 'class-validator'
+import { IsNotEmpty } from 'class-validator'
+import { BrandDTO } from '../brand/brand.dtos'
+import { CategoryDTO } from '../common.dto'
+import { DateStringToTimestamp } from 'src/libs/decorators'
 
-class ProductWeight {
+export class ProductColor {
 	@ApiProperty()
-	type: number
-
-	@ApiProperty()
+	@IsNotEmpty()
 	value: string
+
+	@ApiProperty()
+	@IsNotEmpty()
+	label: string
 }
 
-class ProductImage {
+export class ProductWeight {
 	@ApiProperty()
+	@IsNotEmpty()
+	unit: string
+
+	@ApiProperty()
+	@IsNotEmpty()
+	value: number
+}
+
+export class ProductImage {
+	@ApiProperty()
+	@IsNotEmpty()
 	imageName: string
 
 	@ApiProperty()
+	@IsNotEmpty()
 	imageUrl: string
 }
 
-export class CreateProductVariantDTO {
+export class ProductVariantDTO {
 	@ApiProperty()
 	sku: string
 
 	@ApiProperty()
-	color: string
+	color: ProductColor
 
 	@ApiProperty()
 	material: string
@@ -34,6 +51,9 @@ export class CreateProductVariantDTO {
 	@ApiProperty()
 	price: number
 
+	@ApiProperty()
+	discount_price: number
+
 	@ApiProperty({
 		type: [ProductImage],
 	})
@@ -42,28 +62,29 @@ export class CreateProductVariantDTO {
 }
 
 export class ProductDTO {
-	@ApiProperty({
-		required: false,
-	})
-	product_code: string
-
 	@ApiProperty()
 	product_name: string
 
 	@ApiProperty()
 	product_description: string
 
-	@ApiProperty()
-	product_banner_image: string
+	@ApiProperty({
+		type: ProductImage,
+	})
+	@Type(() => ProductImage)
+	product_banner_image: ProductImage
 
-	@ApiProperty()
-	product_type: string
+	@ApiProperty({
+		type: BrandDTO,
+	})
+	@Type(() => BrandDTO)
+	product_brand: BrandDTO
 
-	@ApiProperty()
-	product_brand: string
-
-	@ApiProperty()
-	product_categories: string[]
+	@ApiProperty({
+		type: [CategoryDTO],
+	})
+	@Type(() => CategoryDTO)
+	product_categories: CategoryDTO[]
 
 	@ApiProperty()
 	product_height: number
@@ -82,11 +103,27 @@ export class ProductDTO {
 	product_weight: ProductWeight
 
 	@ApiProperty({
-		type: [CreateProductVariantDTO],
+		type: [ProductVariantDTO],
 	})
-	@Type(() => CreateProductVariantDTO)
-	product_variant_list: CreateProductVariantDTO[]
+	@Type(() => ProductVariantDTO)
+	product_variants: ProductVariantDTO[]
 
 	@ApiProperty()
 	status: string
+
+	@ApiProperty({
+		type: Number,
+	})
+	@DateStringToTimestamp()
+	createdAt: Date
+
+	@ApiProperty({
+		type: Number,
+	})
+	@DateStringToTimestamp()
+	updatedAt: Date
+
+	constructor(props: any) {
+		Object.assign(this, props)
+	}
 }
