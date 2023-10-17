@@ -1,6 +1,4 @@
-'use strict'
-
-import { Schema, model } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import { BRAND_MODEL } from '../../constants'
 
 export const brandSchema = new Schema(
@@ -53,4 +51,4 @@ export interface Brand {
 // Create Index //
 brandSchema.index({ brand_name: 'text' })
 
-export const BrandModel = model(BRAND_MODEL, brandSchema)
+export const BrandModel = mongoose.model(BRAND_MODEL, brandSchema)

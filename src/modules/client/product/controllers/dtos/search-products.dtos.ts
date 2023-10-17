@@ -1,30 +1,33 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { ProductDTO } from './common.dtos'
+import { SuccessResponseDTO } from '@libs'
+import { BrandDTO } from '@modules/admin/inventory/controllers/dtos/brand/brand.dtos'
+import { Type } from 'class-transformer'
 
 export class SearchProductsQueryDTO {
 	@ApiProperty({
 		required: false,
-		default: 1,
 	})
-	page: number
+	@Type(() => Number)
+	page: number = 1
 
 	@ApiProperty({
 		required: false,
-		default: 10,
 	})
-	page_size: number
+	@Type(() => Number)
+	page_size: number = 20
 }
 
-export class SearchProductsResponseDTO {
+
+
+export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO){
 	@ApiProperty()
 	resultCode: string
 
 	@ApiProperty()
 	resultMessage: string
 
-	@ApiProperty({
-		type: [ProductDTO],
-	})
+	@Type(() => ProductDTO)
 	items: ProductDTO[]
 
 	@ApiProperty()
@@ -35,4 +38,10 @@ export class SearchProductsResponseDTO {
 
 	@ApiProperty()
 	page_size: number
+
+	constructor(props: any) {
+		super(props)
+		Object.assign(this, props)
+	}
 }
+

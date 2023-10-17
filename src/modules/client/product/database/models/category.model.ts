@@ -1,5 +1,5 @@
 import mongoose, { Schema, mongo } from 'mongoose'
-import { CATEGORY_MODEL } from '../../constants'
+import { CATEGORY_MODEL } from '../../../constants'
 
 export const categorySchema = new Schema(
 	{
@@ -35,4 +35,4 @@ export const categorySchema = new Schema(
 	},
 )
 
-export const CategoryModel = mongoose.model(CATEGORY_MODEL, categorySchema)
+export const CategoryModel = mongoose.model("Category", categorySchema)
