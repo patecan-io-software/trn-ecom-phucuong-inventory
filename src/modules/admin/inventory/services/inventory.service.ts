@@ -1,9 +1,19 @@
 import { Injectable } from '@nestjs/common'
 import { CategoryRepository, InventoryRepository } from '../database'
-import { Category, CreateProductDTO, Product } from '../domain'
+import {
+	Category,
+	CreateProductDTO,
+	Product,
+	UpdateProductDTO,
+} from '../domain'
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { UpdateCategoryDTO } from './dtos/update-category.dto'
 import { CreateCategoryDTO } from './dtos/create-category.dto'
+import {
+	ProductNotFoundException,
+	SkuAlreadyExistsException,
+} from '../errors/product.errors'
+import { PRODUCT_MODEL } from '../constants'
 
 @Injectable()
 export class InventoryService {
@@ -14,8 +24,19 @@ export class InventoryService {
 
 	async createProduct(dto: CreateProductDTO) {
 		const product = Product.createProduct(dto)
-		const result = await this.inventoryRepo.createProduct(product)
-		return result
+
+		const newProduct = await this.inventoryRepo.save(product)
+		return newProduct
+	}
+
+	async updateProduct(productId: string, dto: UpdateProductDTO) {
+		const product = await this.inventoryRepo.getProductById(productId)
+		if (!product) {
+			throw new ProductNotFoundException(productId)
+		}
+		product.update(dto)
+		const updatedProduct = await this.inventoryRepo.save(product)
+		return updatedProduct
 	}
 
 	async createCategory(dto: CreateCategoryDTO) {

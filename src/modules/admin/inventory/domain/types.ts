@@ -1,4 +1,19 @@
 export enum ProductStatus {
-	Draft = 1,
-	Published = 2,
+	Draft = 'Draft',
+	Published = 'Published',
+}
+
+export interface ProductImage {
+	imageName: string
+	imageUrl: string
+}
+
+export interface ProductColor {
+	label: string
+	value: string
+}
+
+export interface ProductWeight {
+	value: number
+	unit: string
 }

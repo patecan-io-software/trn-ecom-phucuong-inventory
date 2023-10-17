@@ -1,114 +1,130 @@
 import { DuplicateProductVariantException } from '../errors/product.errors'
-import { ProductStatus } from './types'
+import {
+	CreateProductVariantProps,
+	ProductVariant,
+	SerializedProductVariant,
+} from './product-variant'
+import { ProductImage, ProductStatus, ProductWeight } from './types'
 
 export interface CreateProductDTO {
-	product_code: string
 	product_name: string
 	product_description: string
-	product_banner_image: string
-	product_type: string
+	product_banner_image: ProductImage
 	product_brand: string
 	product_categories: string[]
 	product_height: number
 	product_width: number
 	product_length: number
-	product_size_unit: string[]
-	product_weight: {
-		type: number
-		value: string
-	}
-	price: number
-	quantity: number
-	image_list?: {
-		imageName: string
-		imageUrl: string
-	}[]
-	product_variant_list: ProductVariant[]
+	product_size_unit: string
+	product_weight: ProductWeight
+	product_variants: CreateProductVariantProps[]
 	isPublished?: boolean
 }
 
-export interface ProductVariant {
-	sku?: string
-	color: string
-	material: string
-	price: number
-	quantity: number
-	image_list?: {
-		imageName: string
-		imageUrl: string
-	}[]
+export interface UpdateProductDTO {
+	product_name: string
+	product_description: string
+	product_banner_image: ProductImage
+	product_brand: string
+	product_categories: string[]
+	product_height: number
+	product_width: number
+	product_length: number
+	product_size_unit: string
+	product_weight: ProductWeight
+	product_variants: CreateProductVariantProps[]
+	isPublished?: boolean
+}
+
+export interface ProductProps {
+	product_name: string
+	product_description: string
+	product_banner_image: ProductImage
+	product_brand: string
+	product_categories: string[]
+	product_height: number
+	product_width: number
+	product_length: number
+	product_size_unit: string
+	product_weight: ProductWeight
+	product_variants: ProductVariant[]
+	product_status: ProductStatus
+}
+
+export type SerializedProduct = Omit<ProductProps, 'product_variants'> & {
+	product_variants: SerializedProductVariant[]
 }
 
 export class Product {
-	constructor(props: any) {
-		Object.assign(this, props)
+	constructor(props: ProductProps) {
+		this.props = props
 		this.validate()
 	}
 
-	public readonly product_code: string
-	public readonly product_name: string
-	public readonly product_description: string
-	public readonly product_banner_image: string
-	public readonly product_type: string
-	public readonly product_brand: string
-	public readonly product_categories: string[]
-	public readonly product_variant_list: ProductVariant[]
-	public readonly product_status: ProductStatus
-	public readonly product_height: number
-	public readonly product_width: number
-	public readonly product_length: number
-	public readonly product_size_unit: string[]
-	public readonly product_weight: string[]
+	update(dto: UpdateProductDTO) {
+		if (dto.isPublished !== undefined) {
+			this.props.product_status = dto.isPublished
+				? ProductStatus.Published
+				: ProductStatus.Draft
+		}
+		this.props.product_name = dto.product_name
+		this.props.product_description = dto.product_description
+		this.props.product_banner_image = dto.product_banner_image
+		this.props.product_brand = dto.product_brand
+		this.props.product_categories = dto.product_categories
+		this.props.product_height = dto.product_height
+		this.props.product_width = dto.product_width
+		this.props.product_length = dto.product_length
+		this.props.product_size_unit = dto.product_size_unit
+		this.props.product_weight = dto.product_weight
+		this.props.product_variants.length = 0
+		this.props.product_variants = dto.product_variants.map((variant) =>
+			ProductVariant.create(variant),
+		)
+
+		this.validate()
+	}
+
+	serialize(): SerializedProduct {
+		const { product_variants, ...raw } = this.props as any
+		const rawVariants = product_variants.map((variant) =>
+			variant.serialize(),
+		)
+		raw.product_variants = rawVariants
+		return raw
+	}
+
+	private props: ProductProps
 
 	protected validate() {
-		this.validateVariant()
+		this.validateVariantUnique()
 	}
 
-	private validateVariant() {
+	private validateVariantUnique() {
 		const variantSet = new Set()
-		for (const variant of this.product_variant_list) {
-			const key = `${variant.sku}-${variant.color}-${variant.material}`
-			if (variantSet.has(key)) {
-				throw new DuplicateProductVariantException(key)
+		for (const variant of this.props.product_variants) {
+			if (variantSet.has(variant.id)) {
+				throw new DuplicateProductVariantException(variant.id)
 			}
-			variantSet.add(
-				`${variant.sku}-${variant.color}-${variant.material}`,
-			)
-		}
-	}
-
-	private static createDefaultVariant(
-		quantity: number,
-		price: number,
-		image_list: {
-			imageName: string
-			imageUrl: string
-		}[] = [],
-	): ProductVariant {
-		return {
-			color: '*',
-			material: '*',
-			image_list: image_list || [],
-			quantity,
-			price,
+			variantSet.add(variant.id)
 		}
 	}
 
 	static createProduct(dto: CreateProductDTO) {
+		const { isPublished, product_variants, ...props } = dto
+
 		const status = dto.isPublished
 			? ProductStatus.Published
 			: ProductStatus.Draft
 
-		const defaultVariant = Product.createDefaultVariant(
-			dto.quantity,
-			dto.price,
-			dto.image_list || [],
+		const variants = dto.product_variants.map((variant) =>
+			ProductVariant.create(variant),
 		)
-		dto.product_variant_list.push(defaultVariant)
 
 		return new Product({
-			...dto,
-			status,
+			...props,
+			product_variants: variants,
+			product_status: status,
 		})
 	}
 }

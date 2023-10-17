@@ -1,43 +1,35 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import {
 	IsArray,
+	IsIn,
 	IsNotEmpty,
 	IsNumber,
 	IsOptional,
 	IsPositive,
 	MinLength,
+	ValidateNested,
 } from 'class-validator'
-
-class ProductWeight {
-	@ApiProperty()
-	@IsNotEmpty()
-	@IsNumber()
-	type: number
-
-	@ApiProperty()
-	@IsNotEmpty()
-	value: string
-}
-
-class ProductImage {
-	@ApiProperty()
-	@IsNotEmpty()
-	imageName: string
-
-	@ApiProperty()
-	@IsNotEmpty()
-	imageUrl: string
-}
+import { SIZE_UNIT } from '../../../constants'
+import { SuccessResponseDTO } from '@libs'
+import {
+	ProductColor,
+	ProductDTO,
+	ProductImage,
+	ProductWeight,
+} from './product.dtos'
 
 export class CreateProductVariantDTO {
 	@ApiProperty()
 	@IsNotEmpty()
 	sku: string
 
-	@ApiProperty()
+	@ApiProperty({
+		type: ProductColor,
+	})
 	@IsNotEmpty()
-	color: string
+	@ValidateNested()
+	color: ProductColor
 
 	@ApiProperty()
 	@IsNotEmpty()
@@ -54,21 +46,22 @@ export class CreateProductVariantDTO {
 	price: number
 
 	@ApiProperty({
+		required: false,
+	})
+	@IsOptional()
+	discount_price: number = 0
+
+	@ApiProperty({
 		type: [ProductImage],
 	})
 	@Type(() => ProductImage)
 	@IsArray()
 	@IsOptional()
 	@MinLength(0)
-	image_list?: ProductImage[] = []
+	image_list: ProductImage[] = []
 }
 
 export class CreateProductRequestDTO {
-	@ApiProperty({
-		required: false,
-	})
-	product_code: string
-
 	@ApiProperty()
 	@IsNotEmpty()
 	product_name: string
@@ -78,16 +71,14 @@ export class CreateProductRequestDTO {
 	product_description: string
 
 	@ApiProperty()
-	product_banner_image: string
-
-	@ApiProperty()
-	product_type: string
-
-	@ApiProperty()
 	product_brand: string
 
 	@ApiProperty()
 	product_categories: string[]
+
+	@ApiProperty()
+	@Type(() => ProductWeight)
+	product_weight: ProductWeight
 
 	@ApiProperty()
 	product_height: number
@@ -99,40 +90,40 @@ export class CreateProductRequestDTO {
 	product_length: number
 
 	@ApiProperty()
-	product_size_unit: string[]
-
-	@ApiProperty()
-	@Type(() => ProductWeight)
-	product_weight: ProductWeight
-
-	@ApiProperty()
 	@IsNotEmpty()
-	@IsPositive()
-	quantity: number
-
-	@ApiProperty()
-	@IsNotEmpty()
-	@IsPositive()
-	price: number
+	@IsIn(SIZE_UNIT)
+	product_size_unit: string
 
 	@ApiProperty({
-		type: [ProductImage],
+		type: ProductImage,
 	})
 	@Type(() => ProductImage)
-	@IsArray()
-	@IsOptional()
-	@MinLength(0)
-	image_list?: ProductImage[] = []
+	@ValidateNested()
+	@IsNotEmpty()
+	product_banner_image: ProductImage
 
 	@ApiProperty({
 		type: [CreateProductVariantDTO],
 	})
 	@Type(() => CreateProductVariantDTO)
-	product_variant_list: CreateProductVariantDTO[]
+	product_variants: CreateProductVariantDTO[]
 
 	@ApiProperty({
 		required: false,
 		default: false,
 	})
 	isPublished: boolean = false
+}
+
+export class CreateProductResponseDTO extends PartialType(SuccessResponseDTO) {
+	@ApiProperty({
+		type: ProductDTO,
+	})
+	@Type(() => ProductDTO)
+	data: ProductDTO
+
+	constructor(props: Partial<CreateProductResponseDTO>) {
+		super(props)
+		Object.assign(this, props)
+	}
 }
