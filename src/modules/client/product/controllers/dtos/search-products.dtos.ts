@@ -27,6 +27,9 @@ export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO){
 	@ApiProperty()
 	resultMessage: string
 
+	@ApiProperty({
+		type: [ProductDTO],
+	})
 	@Type(() => ProductDTO)
 	items: ProductDTO[]
 

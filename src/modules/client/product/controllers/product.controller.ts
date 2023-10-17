@@ -1,25 +1,39 @@
-import { Controller, Get, Param } from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { GetProductDetailResponseDTO } from './dtos/get-product-detail.dtos'
-import { SearchProductsResponseDTO } from './dtos/search-products.dtos'
+import {
+	SearchProductsQueryDTO,
+	SearchProductsResponseDTO,
+} from './dtos/search-products.dtos'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { CategoryDTO, ObjectIdParam } from '@modules/admin/inventory/controllers/dtos/common.dto'
-import { ProductRepository } from '../database'
+import { ProductDTO } from '@modules/client/product/controllers/dtos/common.dtos'
 import { InventoryService } from '@modules/admin/inventory/services'
-import { CategoryRepository } from '@modules/admin/inventory/database'
-import { ProductDTO } from '@modules/client/product/controllers/dtos/product/product.dtos'
+import { ProductRepository } from '@modules/client/product/database'
 
 @Controller('v1/products')
 @ApiTags('Client - Product')
 export class ProductController {
-	constructor(
-		private readonly productRepo: ProductRepository
-	) {}
+	constructor(private readonly productRepo: ProductRepository) {
+
+	}
+
+	@Get('/search/:keyword')
+	@ApiResponse({
+		status: 201,
+		type: ProductDTO,
+	})
+	async searchProductsByKeyword(@Param('keyword') keyword: string): Promise<SearchProductsResponseDTO> {
+		const products = await this.productRepo.searchProductsByKeyword(keyword)
+		return new SearchProductsResponseDTO(products)
+	}
+
 
 	@Get()
 	@ApiOkResponse({
 		type: SearchProductsResponseDTO,
 	})
-	async searchProducts(): Promise<SearchProductsResponseDTO> {
+	async searchProducts(
+		@Query() q: SearchProductsQueryDTO,
+	): Promise<SearchProductsResponseDTO> {
 		return {
 			resultCode: '00',
 			resultMessage: 'Success',
@@ -47,12 +61,17 @@ export class ProductController {
 							category_name: 'Đồ dùng',
 						},
 					],
-					variant_color: 'red',
-					variant_material: 'cotton',
-					variant_price: 100000,
 					product_slug: 'quan-jean-cao-cap',
-					variant_image:
-						'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+					sku: 'SKU01',
+					price: 100000,
+					discountPercentage: 50,
+					discountPrice: 50000,
+					quantity: 15,
+					image: {
+						imageName: 'image_01',
+						imageUrl:
+							'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+					},
 				},
 				{
 					_id: '65251627901c48887e58c5ec',
@@ -77,12 +96,17 @@ export class ProductController {
 							category_name: 'Đồ dùng',
 						},
 					],
-					variant_color: 'red',
-					variant_material: 'cotton',
-					variant_price: 100000,
 					product_slug: 'quan-jean-cao-cap',
-					variant_image:
-						'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+					sku: 'SKU02',
+					price: 9000,
+					discountPercentage: 10,
+					discountPrice: 8100,
+					quantity: 10,
+					image: {
+						imageName: 'image_01',
+						imageUrl:
+							'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+					},
 				},
 			],
 			page: 1,
@@ -91,28 +115,17 @@ export class ProductController {
 		}
 	}
 
-	@Get('/search/:keyword')
-	@ApiResponse({
-		status: 201,
-		type: ProductDTO,
-	})
-	async searchProductsByKeyword(@Param('keyword') keyword: string): Promise<SearchProductsResponseDTO> {
-		const products = await this.productRepo. searchProductsByKeyword(keyword)
-		return new SearchProductsResponseDTO(products)
-	}
-
-	@Get('/:id')
+	@Get('/:slug')
 	@ApiOkResponse({
 		type: GetProductDetailResponseDTO,
 	})
 	async getProductDetail(
-		@Param('id') productId: string,
+		@Param('slug') slug: string,
 	): Promise<GetProductDetailResponseDTO> {
 		return {
 			resultCode: '00',
 			resultMessage: 'Success',
-
-			_id: productId,
+			_id: '65251627901c48887e58c5eb',
 			product_name:
 				'Dép Đi Trong Nhà Bằng EVA Chống Trượt Thời Trang Mùa Hè Cho Nam',
 			product_description:
@@ -133,32 +146,83 @@ export class ProductController {
 				},
 			],
 			product_materials: ['Sợi tổng hợp', 'Cao su', 'Da PU'],
-			product_colors: ['red', 'green', 'blue'],
+			product_colors: [
+				{
+					value: '#ff0000',
+					label: 'Đỏ',
+				},
+				{
+					value: '#0000ff',
+					label: 'Xanh nước biển',
+				},
+			],
 			product_banner_image:
 				'https://giaydepsafa.com/wp-content/uploads/2019/01/home_banner_2.jpg',
 			product_images: [
 				'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
 			],
-			product_slug: 'quan-jean-cao-cap',
+			product_slug: slug,
 			product_variants: [
 				{
-					variant_sku: '1',
-					variant_color: 'red',
-					variant_material: 'Sylko',
-					variant_price: 100000,
+					sku: 'SKU01',
+					color: {
+						value: '#ff0000',
+						label: 'Đỏ',
+					},
+					material: 'Sylko',
+					price: 100000,
+					discountPercentage: 10,
+					discountPrice: 90000,
+					quantity: 15,
+					image_list: [
+						{
+							imageName: 'image_01',
+							imageUrl:
+								'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+						},
+						{
+							imageName: 'image_02',
+							imageUrl:
+								'https://concung.com/2023/05/62771-101619-large_mobile/dep-suc-be-trai-animo-a2303-jk004-21-mau-be.jpg',
+						},
+					],
 				},
 				{
-					variant_sku: '2',
-					variant_color: 'green',
-					variant_material: 'Cao su',
-					variant_price: 200000,
+					sku: 'SKU02',
+					color: {
+						value: '#00ff00',
+						label: 'Xanh lá cây',
+					},
+					material: 'Cao su',
+					price: 200000,
+					discountPercentage: 20,
+					discountPrice: 180000,
+					quantity: 15,
+					image_list: [
+						{
+							imageName: 'image_03',
+							imageUrl:
+								'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+						},
+						{
+							imageName: 'image_04',
+							imageUrl:
+								'https://concung.com/2023/05/62771-101619-large_mobile/dep-suc-be-trai-animo-a2303-jk004-21-mau-be.jpg',
+						},
+					],
 				},
 			],
-			variant_price: 100000,
-			variant_material: 'Sylko',
-			variant_color: 'red',
-			variant_image:
-				'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+			sku: 'SKU01',
+			price: 100000,
+			discountPercentage: 10,
+			discountPrice: 90000,
+			quantity: 15,
+			image: {
+				imageName: 'image_01',
+				imageUrl:
+					'https://bizweb.dktcdn.net/thumb/large/100/400/362/products/z4077245243050-74d1fa2866141d19cd2aa599ca002724.jpg?v=1682920939550',
+			},
 		}
 	}
 }
+
