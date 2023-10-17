@@ -48,6 +48,9 @@ export class CategoryRepository {
 		const result = await CategoryModel.findByIdAndUpdate(
 			category._id,
 			category,
+			{
+				new: true,
+			},
 		)
 			.select('-__v -isMarkedDelete -category_products')
 			.exec()

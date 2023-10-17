@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 
 export class ProductBrand {
 	@ApiProperty()
@@ -9,6 +10,22 @@ export class ProductBrand {
 
 	@ApiProperty()
 	brand_logoUrl: string
+}
+
+export class ProductColor {
+	@ApiProperty()
+	label: string
+
+	@ApiProperty()
+	value: string
+}
+
+export class ProductImage {
+	@ApiProperty()
+	imageName: string
+
+	@ApiProperty()
+	imageUrl: string
 }
 
 export class ProductCategory {
@@ -24,16 +41,33 @@ export class ProductCategory {
 
 export class ProductVariant {
 	@ApiProperty()
-	variant_sku: string
+	sku: string
+
+	@ApiProperty({
+		type: ProductColor,
+	})
+	color: ProductColor
 
 	@ApiProperty()
-	variant_color: string
+	material: string
 
 	@ApiProperty()
-	variant_material: string
+	quantity: number
 
 	@ApiProperty()
-	variant_price: number
+	price: number
+
+	@ApiProperty()
+	discountPercentage: number
+
+	@ApiProperty()
+	discountPrice: number
+
+	@ApiProperty({
+		type: [ProductImage],
+	})
+	@Type(() => ProductImage)
+	image_list: ProductImage[]
 }
 
 export class ProductDTO {
@@ -65,16 +99,24 @@ export class ProductDTO {
 	})
 	product_categories: ProductCategory[]
 
-	// properties of first variant
 	@ApiProperty()
-	variant_color: string
+	sku: string
 
 	@ApiProperty()
-	variant_material: string
+	price: number
 
 	@ApiProperty()
-	variant_price: number
+	discountPercentage: number
 
 	@ApiProperty()
-	variant_image: string
+	discountPrice: number
+
+	@ApiProperty()
+	quantity: number
+
+	@ApiProperty({
+		type: ProductImage,
+	})
+	@Type(() => ProductImage)
+	image: ProductImage
 }

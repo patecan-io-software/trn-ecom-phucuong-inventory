@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ProductBrand, ProductCategory, ProductVariant } from './common.dtos'
+import {
+	ProductBrand,
+	ProductCategory,
+	ProductColor,
+	ProductVariant,
+	ProductImage,
+} from './common.dtos'
+import { Type } from 'class-transformer'
 
 export class GetProductDetailResponseDTO {
 	@ApiProperty()
@@ -34,8 +41,10 @@ export class GetProductDetailResponseDTO {
 	})
 	product_brand: ProductBrand
 
-	@ApiProperty()
-	product_colors: string[]
+	@ApiProperty({
+		type: [ProductColor],
+	})
+	product_colors: ProductColor[]
 
 	@ApiProperty()
 	product_materials: string[]
@@ -50,16 +59,24 @@ export class GetProductDetailResponseDTO {
 	})
 	product_categories: ProductCategory[]
 
-	// properties of first variant
 	@ApiProperty()
-	variant_color: string
+	sku: string
 
 	@ApiProperty()
-	variant_material: string
+	price: number
 
 	@ApiProperty()
-	variant_price: number
+	discountPercentage: number
 
 	@ApiProperty()
-	variant_image: string
+	discountPrice: number
+
+	@ApiProperty()
+	quantity: number
+
+	@ApiProperty({
+		type: ProductImage,
+	})
+	@Type(() => ProductImage)
+	image: ProductImage
 }
