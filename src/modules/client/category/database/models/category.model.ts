@@ -1,5 +1,4 @@
 import mongoose, { Schema, mongo } from 'mongoose'
-import { CATEGORY_MODEL } from '../../../constants'
 
 export const categorySchema = new Schema(
 	{
@@ -34,5 +33,7 @@ export const categorySchema = new Schema(
 		collection: 'Categories',
 	},
 )
+
+categorySchema.index({ category_name: 'text', category_description: 'text' })
 
 export const CategoryModel = mongoose.model("Category", categorySchema)

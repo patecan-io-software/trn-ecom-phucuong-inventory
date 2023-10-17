@@ -4,8 +4,10 @@ import { AppService } from './app.service'
 import { ConfigService } from '@nestjs/config'
 import { MongooseModule } from '@infras/mongoose'
 import { AppConfigModule, DATABASE_CONFIG } from './config'
-import { InventoryModule } from './modules/admin/inventory'
+import { InventoryModule } from '@modules/admin/inventory'
 import { ProductModule } from '@modules/client/product'
+import { CategoryModule } from '@modules/client/category/category.module'
+import { BrandModule } from '@modules/client/brand/brand.module'
 
 @Module({
 	imports: [
@@ -18,6 +20,8 @@ import { ProductModule } from '@modules/client/product'
 
 		// application module
 		InventoryModule,
+		CategoryModule,
+		BrandModule,
 		ProductModule,
 	],
 	controllers: [AppController],

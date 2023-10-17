@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import mongoose, { Model, Document } from 'mongoose'
-import { CATEGORY_MODEL } from '../../constants'
-import { Category } from '../../domain'
-import { CategoryExistsException } from '../../errors/category.errors'
+import { Category } from '@modules/client/category/domain'
+import { CategoryExistsException } from '../errors/category.errors'
 import { categorySchema } from './models/category.model'
+import { Utils } from '@libs'
+import { ProductModel } from '@modules/client/product/database'
 
 const CategoryModel = mongoose.model("Category", categorySchema)
 
@@ -12,24 +13,25 @@ export class CategoryRepository {
 	private logger: Logger = new Logger(CategoryRepository.name)
 	constructor() {}
 
-	async create(category: Category): Promise<Category> {
-		const cat = new CategoryModel({
-			_id: new mongoose.Types.ObjectId(),
-			...category,
-		})
+	async searchCategoriesByKeyword(keyword: string) {
+		const escapedKeyword = Utils.escapeRegExp(keyword)
+		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+
 		try {
-			const result = await cat.save()
-			return result.toObject({
-				versionKey: false,
-				flattenObjectIds: true,
-				transform: (doc, ret) => {
-					delete ret.__v
-					delete ret.isMarkedDelete
-				},
-			})
+			const query: Record<string, any> = {
+				$text: { $search: regexSearch.source },
+			}
+
+			const results = await CategoryModel
+				.find(query)
+				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
+				.lean()
+				.exec()
+
+			return results
 		} catch (error) {
-			this.logger.error(error)
-			throw new CategoryExistsException(category.category_name)
+			console.error('Error while searching by keyword:', error)
+			throw error
 		}
 	}
 
@@ -42,25 +44,6 @@ export class CategoryRepository {
 		return result.toObject({
 			flattenObjectIds: true,
 		})
-	}
-
-	async update(category: Category): Promise<Category> {
-		const result = await CategoryModel.findByIdAndUpdate(
-			category._id,
-			category,
-		)
-			.select('-__v -isMarkedDelete -category_products')
-			.exec()
-		return result.toObject({
-			flattenObjectIds: true,
-		})
-	}
-
-	async deleteById(id: string): Promise<boolean> {
-		const result = await CategoryModel.findByIdAndUpdate(id, {
-			isMarkedDelete: true,
-		}).exec()
-		return result ? true : false
 	}
 
 	async find(options: { page: number; page_size: number }): Promise<{
