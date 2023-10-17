@@ -7,10 +7,11 @@ import {
 	InventoryRepository,
 	categorySchema,
 } from './database'
-import { CATEGORY_MODEL } from './constants'
+import { BRAND_MODEL, CATEGORY_MODEL } from './constants'
 import { CategoryController } from './controllers/category.controller'
 import { BrandController } from './controllers/brand.controller'
 import { brandSchema } from './database/models/brand.model'
+import { BrandRepository } from './database/brand.repository'
 
 @Module({
 	imports: [

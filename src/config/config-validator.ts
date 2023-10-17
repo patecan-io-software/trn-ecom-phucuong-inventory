@@ -12,7 +12,7 @@ const validateConfig = (config: Record<string, unknown>) => {
 
 const checkMissingVars = (config: Record<string, unknown>) => {
 	const configKeys = Object.keys(config)
-	const requiredKeys = Object.keys(dotenv.parse(readFileSync('.env.example')))
+	const requiredKeys = Object.keys(dotenv.parse(readFileSync('.env')))
 	const missingKeys = requiredKeys.filter((a) => configKeys.indexOf(a) < 0)
 	return missingKeys
 }

@@ -2,11 +2,18 @@ import { Controller, Get, Param } from '@nestjs/common'
 import { GetProductDetailResponseDTO } from './dtos/get-product-detail.dtos'
 import { SearchProductsResponseDTO } from './dtos/search-products.dtos'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { CategoryDTO, ObjectIdParam } from '@modules/admin/inventory/controllers/dtos/common.dto'
+import { ProductRepository } from '../database'
+import { InventoryService } from '@modules/admin/inventory/services'
+import { CategoryRepository } from '@modules/admin/inventory/database'
+import { ProductDTO } from '@modules/client/product/controllers/dtos/product/product.dtos'
 
 @Controller('v1/products')
 @ApiTags('Client - Product')
 export class ProductController {
-	constructor() {}
+	constructor(
+		private readonly productRepo: ProductRepository
+	) {}
 
 	@Get()
 	@ApiOkResponse({
@@ -82,6 +89,16 @@ export class ProductController {
 			page_size: 10,
 			total_count: 2,
 		}
+	}
+
+	@Get('/search/:keyword')
+	@ApiResponse({
+		status: 201,
+		type: ProductDTO,
+	})
+	async searchProductsByKeyword(@Param('keyword') keyword: string): Promise<SearchProductsResponseDTO> {
+		const products = await this.productRepo. searchProductsByKeyword(keyword)
+		return new SearchProductsResponseDTO(products)
 	}
 
 	@Get('/:id')
