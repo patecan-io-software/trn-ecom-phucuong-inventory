@@ -33,6 +33,26 @@ export class CategoryRepository {
 		}
 	}
 
+	async getNonExistCategoryNames(categoryIds: string[]): Promise<string[]> {
+		const existingList = await CategoryModel.find({
+			_id: {
+				$in: categoryIds,
+			},
+		})
+			.select('_id')
+			.exec()
+		if (existingList.length !== categoryIds.length) {
+			return []
+		}
+		return categoryIds.filter((id) => {
+			return (
+				existingList.findIndex((category) =>
+					category._id.equals(id),
+				) === -1
+			)
+		})
+	}
+
 	async getById(id: string): Promise<Category> {
 		const result = await CategoryModel.findById(id)
 			.where({
@@ -66,21 +86,31 @@ export class CategoryRepository {
 		return result ? true : false
 	}
 
-	async find(options: { page: number; page_size: number }): Promise<{
+	async find(options: {
+		category_name: string
+		page: number
+		page_size: number
+	}): Promise<{
 		items: Category[]
 		page_size: number
 		page: number
 		total_page: number
 		total_count: number
 	}> {
-		const { page = 1, page_size = 10 } = options
+		const { page = 1, page_size = 10, category_name } = options
+		const filter = {
+			isMarkedDelete: false,
+			...(category_name && {
+				$text: { $search: category_name },
+			}),
+		}
 		const [categoryList, count] = await Promise.all([
-			CategoryModel.find({ isMarkedDelete: false })
-				.select('-__v -isMarkedDelete -category_products')
+			CategoryModel.find(filter)
+				.select('-__v -category_products -isMarkedDelete')
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),
-			CategoryModel.countDocuments({ isMarkedDelete: false }),
+			CategoryModel.countDocuments(filter),
 		])
 
 		return {

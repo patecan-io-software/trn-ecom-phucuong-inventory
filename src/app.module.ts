@@ -6,6 +6,7 @@ import { MongooseModule } from '@infras/mongoose'
 import { AppConfigModule, DATABASE_CONFIG } from './config'
 import { InventoryModule } from './modules/admin/inventory'
 import { ProductModule } from '@modules/client/product'
+import { ImageUploaderModule } from '@modules/admin/image-uploader'
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import { ProductModule } from '@modules/client/product'
 		}),
 
 		// application module
+		ImageUploaderModule,
 		InventoryModule,
 		ProductModule,
 	],
