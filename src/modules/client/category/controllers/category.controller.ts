@@ -23,12 +23,21 @@ import { InventoryService } from '@modules/admin/inventory/services'
 import { CategoryService } from '@modules/client/category/services'
 import { BrandDTO } from '@modules/client/brand/controllers/dtos/brand/brand.dtos'
 import { SearchBrandsResponseDTO } from '@modules/client/brand/controllers/dtos/brand/find-brands.dtos'
+import {
+	FindProductsQueryDTO,
+	FindProductsResponseDTO,
+} from '@modules/client/product/controllers/dtos/find-products-query.dtos'
+import { ProductRepository } from '@modules/client/product/database'
 
 @Controller('v1/categories')
 @ApiTags('Client - Category')
 @UseInterceptors(ClassSerializerInterceptor)
 export class CategoryController {
-	constructor(private readonly categoryService: CategoryService, private readonly categoryRepository: CategoryRepository) {}
+	constructor(
+		private readonly categoryService: CategoryService,
+		private readonly categoryRepository: CategoryRepository,
+		private readonly productRepository: ProductRepository) {
+	}
 
 	@Get('/search/:keyword')
 	@ApiResponse({
@@ -60,6 +69,19 @@ export class CategoryController {
 	async getById(@Param() { id }: ObjectIdParam): Promise<CategoryDTO> {
 		const category = await this.categoryService.getById(id)
 		return new CategoryDTO(category)
+	}
+
+	@Get('/:id/products')
+	@ApiResponse({
+		status: 201,
+		type: FindProductsResponseDTO,
+	})
+	async findProductsByCategoryId(
+		@Param('id') categoryId: string,
+		@Query() query: { page: number; page_size: number; filters: Record<string, any> },
+	): Promise<FindProductsResponseDTO> {
+		const result = await this.productRepository.findByCategoryId(categoryId, query)
+		return new FindProductsResponseDTO(result)
 	}
 
 

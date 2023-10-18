@@ -17,6 +17,12 @@ export class FindProductsQueryDTO {
 	})
 	@Type(() => Number)
 	page_size: number = 20
+
+	@ApiProperty({
+		required: false,
+	})
+	@Type(() => Object)
+	filters: Record<string, any> = {}
 }
 
 
