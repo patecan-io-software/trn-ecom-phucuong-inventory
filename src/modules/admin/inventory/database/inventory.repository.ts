@@ -12,6 +12,7 @@ import {
 } from '../errors/product.errors'
 import { InventoryModel } from './models/inventory.model'
 import { ProductVariant } from '../domain/product-variant'
+import { Utils } from '@libs'
 
 @Injectable()
 export class InventoryRepository {
@@ -117,5 +118,50 @@ export class InventoryRepository {
 				(variant) => new ProductVariant(variant as any),
 			),
 		} as any)
+	}
+
+	async deleteProductById(id: string) {
+
+		const product = await ProductModel.findById(id).exec()
+		if (!product) {
+			return null
+		}
+
+		product.isMarkedDelete = true;
+		product.product_categories = [];
+		product.product_brand = null;
+		const skuIds = product.product_variants.map((variant) => variant.sku);
+
+		for(const skuId of skuIds) {
+			const inventory = await InventoryModel.findOne({sku: skuId}).exec()
+			if(inventory) {
+				inventory.isMarkedDelete = true;
+				await inventory.save()
+			}
+		}
+
+		return await product.save();
+	}
+
+	async searchProductsByKeyword(keyword: string) {
+		const escapedKeyword = Utils.escapeRegExp(keyword)
+		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+
+		try {
+			const query: Record<string, any> = {
+				$text: { $search: regexSearch.source },
+			}
+
+			const results = await ProductModel
+				.find(query)
+				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
+				.lean()
+				.exec()
+
+			return results
+		} catch (error) {
+			console.error('Error while searching by keyword:', error)
+			throw error
+		}
 	}
 }
