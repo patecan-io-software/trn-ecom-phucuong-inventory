@@ -10,7 +10,6 @@ export class BrandRepository {
 	private logger: Logger = new Logger(BrandRepository.name)
 	constructor() {}
 
-
 	async getById(id: string): Promise<Brand> {
 		const brand = await BrandModel.findById(id)
 			.where({
@@ -24,7 +23,6 @@ export class BrandRepository {
 			flattenObjectIds: true,
 		})
 	}
-
 
 	async find(options: { page: number; page_size: number }): Promise<{
 		items: Brand[]
@@ -56,7 +54,6 @@ export class BrandRepository {
 		}
 	}
 
-
 	async searchBrandsByKeyword(keyword: string) {
 		const escapedKeyword = Utils.escapeRegExp(keyword)
 		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
@@ -66,8 +63,7 @@ export class BrandRepository {
 				$text: { $search: regexSearch.source },
 			}
 
-			const results = await BrandModel
-				.find(query)
+			const results = await BrandModel.find(query)
 				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
 				.lean()
 				.exec()

@@ -7,7 +7,6 @@ import { Utils } from '@libs'
 export class ProductRepository {
 	private readonly logger = new Logger(ProductRepository.name)
 
-
 	async searchProductsByKeyword(keyword: string) {
 		const escapedKeyword = Utils.escapeRegExp(keyword)
 		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
@@ -17,8 +16,7 @@ export class ProductRepository {
 				$text: { $search: regexSearch.source },
 			}
 
-			const results = await ProductModel
-				.find(query)
+			const results = await ProductModel.find(query)
 				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
 				.lean()
 				.exec()
@@ -30,8 +28,11 @@ export class ProductRepository {
 		}
 	}
 
-
-	async find(options: { page: number; page_size: number; filters: Record<string, any>; }): Promise<{
+	async find(options: {
+		page: number
+		page_size: number
+		filters: Record<string, any>
+	}): Promise<{
 		items: Product[]
 		page_size: number
 		page: number
@@ -45,8 +46,7 @@ export class ProductRepository {
 		}
 
 		const [productsList, count] = await Promise.all([
-			ProductModel
-				.find(query)
+			ProductModel.find(query)
 				.select('-__v -isMarkedDelete -category_products')
 				.skip((page - 1) * page_size)
 				.limit(page_size)
@@ -68,7 +68,14 @@ export class ProductRepository {
 		}
 	}
 
-	async findByCategoryId(categoryId: string, options: { page: number; page_size: number; filters: Record<string, any>; }): Promise<{
+	async findByCategoryId(
+		categoryId: string,
+		options: {
+			page: number
+			page_size: number
+			filters: Record<string, any>
+		},
+	): Promise<{
 		items: Product[]
 		page_size: number
 		page: number
@@ -77,14 +84,14 @@ export class ProductRepository {
 	}> {
 		const { page = 1, page_size = 10, filters } = options
 		const query = {
-			'product_categories._id': Utils.convertStringIdToObjectId(categoryId),
+			'product_categories._id':
+				Utils.convertStringIdToObjectId(categoryId),
 			isMarkedDelete: false, // Default filter
 			...filters, // Additional filter options
 		}
 
 		const [productsList, count] = await Promise.all([
-			ProductModel
-				.find(query)
+			ProductModel.find(query)
 				.select('-__v -isMarkedDelete')
 				.skip((page - 1) * page_size)
 				.limit(page_size)
@@ -106,8 +113,14 @@ export class ProductRepository {
 		}
 	}
 
-
-	async findByBrandId(brandId: string, options: { page: number; page_size: number; filters: Record<string, any>; }): Promise<{
+	async findByBrandId(
+		brandId: string,
+		options: {
+			page: number
+			page_size: number
+			filters: Record<string, any>
+		},
+	): Promise<{
 		items: Product[]
 		page_size: number
 		page: number
@@ -122,8 +135,7 @@ export class ProductRepository {
 		}
 
 		const [productsList, count] = await Promise.all([
-			ProductModel
-				.find(query)
+			ProductModel.find(query)
 				.select('-__v -isMarkedDelete')
 				.skip((page - 1) * page_size)
 				.limit(page_size)

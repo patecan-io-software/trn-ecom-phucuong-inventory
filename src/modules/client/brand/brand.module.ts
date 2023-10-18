@@ -8,17 +8,12 @@ import { ProductRepository } from '@modules/client/product/database'
 	imports: [
 		MongooseModule.forFeature([
 			{
-				name: "Brand",
+				name: 'Brand',
 				schema: brandSchema,
 			},
 		]),
 	],
-	providers: [
-		BrandRepository,
-		ProductRepository,
-	],
+	providers: [BrandRepository, ProductRepository],
 	controllers: [BrandController],
 })
 export class BrandModule {}
-
-

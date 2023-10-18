@@ -60,4 +60,3 @@ export class SearchBrandsResponseDTO extends PartialType(SuccessResponseDTO) {
 		Object.assign(this, props)
 	}
 }
-

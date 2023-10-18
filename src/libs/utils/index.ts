@@ -5,8 +5,7 @@ export class Utils {
 		return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escapes special characters
 	}
 
-	static convertStringIdToObjectId(id:string) {
+	static convertStringIdToObjectId(id: string) {
 		return new Types.ObjectId(id)
 	}
-
 }

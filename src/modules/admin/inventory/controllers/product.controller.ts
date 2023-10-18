@@ -1,7 +1,9 @@
 import {
 	Body,
 	ClassSerializerInterceptor,
-	Controller, Delete, Get,
+	Controller,
+	Delete,
+	Get,
 	Param,
 	Post,
 	Put,
@@ -22,7 +24,7 @@ import { ObjectIdParam } from './dtos/common.dto'
 import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
 import { SuccessResponseDTO } from '@libs'
 
-@Controller('v1/products')
+@Controller('v1/admin/products')
 @ApiTags('Admin - Product')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ProductController {
@@ -64,8 +66,8 @@ export class ProductController {
 		type: SuccessResponseDTO,
 	})
 	async deleteProductById(@Param() { id }: ObjectIdParam): Promise<void> {
-		const products = await this.inventoryService.deleteProduct(id);
-		return;
+		const products = await this.inventoryService.deleteProduct(id)
+		return
 	}
 
 	@Get('/search/:keyword')
@@ -73,8 +75,11 @@ export class ProductController {
 		status: 201,
 		type: ProductDTO,
 	})
-	async searchProductsByKeyword(@Param('keyword') keyword: string): Promise<SearchProductsResponseDTO> {
-		const products = await this.inventoryService.searchProductsByKeyword(keyword)
+	async searchProductsByKeyword(
+		@Param('keyword') keyword: string,
+	): Promise<SearchProductsResponseDTO> {
+		const products =
+			await this.inventoryService.searchProductsByKeyword(keyword)
 		return new SearchProductsResponseDTO(products)
 	}
 }

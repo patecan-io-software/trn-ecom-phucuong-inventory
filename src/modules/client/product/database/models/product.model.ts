@@ -114,6 +114,6 @@ export const productSchema = new Schema(
 productSchema.index({ product_name: 'text', product_description: 'text' })
 productSchema.index({ product_code: 1 }, { unique: true })
 productSchema.index({ status: 1 })
-productSchema.index({ category: 1 });
+productSchema.index({ category: 1 })
 
-export const ProductModel = mongoose.model("Product", productSchema)
+export const ProductModel = mongoose.model('Product', productSchema)

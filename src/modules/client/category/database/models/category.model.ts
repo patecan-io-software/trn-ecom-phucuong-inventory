@@ -36,4 +36,4 @@ export const categorySchema = new Schema(
 
 categorySchema.index({ category_name: 'text', category_description: 'text' })
 
-export const CategoryModel = mongoose.model("Category", categorySchema)
+export const CategoryModel = mongoose.model('Category', categorySchema)

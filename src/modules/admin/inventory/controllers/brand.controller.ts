@@ -29,7 +29,7 @@ import {
 	UpdateBrandResponseDTO,
 } from './dtos/brand/update-brand.dtos'
 
-@Controller('v1/brands')
+@Controller('v1/admin/brands')
 @ApiTags('Admin - Brand')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BrandController {

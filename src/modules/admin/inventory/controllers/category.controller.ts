@@ -28,7 +28,7 @@ import {
 } from './dtos/find-categories.dtos'
 import { CategoryRepository } from '../database'
 
-@Controller('v1/categories')
+@Controller('v1/admin/categories')
 @ApiTags('Admin - Category')
 @UseInterceptors(ClassSerializerInterceptor)
 export class CategoryController {

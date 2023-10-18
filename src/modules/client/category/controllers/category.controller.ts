@@ -36,16 +36,19 @@ export class CategoryController {
 	constructor(
 		private readonly categoryService: CategoryService,
 		private readonly categoryRepository: CategoryRepository,
-		private readonly productRepository: ProductRepository) {
-	}
+		private readonly productRepository: ProductRepository,
+	) {}
 
 	@Get('/search/:keyword')
 	@ApiResponse({
 		status: 201,
 		type: CategoryDTO,
 	})
-	async searchCategoriesByKeyword(@Param('keyword') keyword: string): Promise<FindCategoriesResponseDTO> {
-		const brands = await this.categoryRepository.searchCategoriesByKeyword(keyword)
+	async searchCategoriesByKeyword(
+		@Param('keyword') keyword: string,
+	): Promise<FindCategoriesResponseDTO> {
+		const brands =
+			await this.categoryRepository.searchCategoriesByKeyword(keyword)
 		return new FindCategoriesResponseDTO(brands)
 	}
 
@@ -78,11 +81,17 @@ export class CategoryController {
 	})
 	async findProductsByCategoryId(
 		@Param('id') categoryId: string,
-		@Query() query: { page: number; page_size: number; filters: Record<string, any> },
+		@Query()
+		query: {
+			page: number
+			page_size: number
+			filters: Record<string, any>
+		},
 	): Promise<FindProductsResponseDTO> {
-		const result = await this.productRepository.findByCategoryId(categoryId, query)
+		const result = await this.productRepository.findByCategoryId(
+			categoryId,
+			query,
+		)
 		return new FindProductsResponseDTO(result)
 	}
-
-
 }

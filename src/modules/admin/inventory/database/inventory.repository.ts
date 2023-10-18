@@ -13,6 +13,8 @@ import {
 import { InventoryModel } from './models/inventory.model'
 import { ProductVariant } from '../domain/product-variant'
 import { Utils } from '@libs'
+import { ProductMaterial, ProductMaterialModel } from './models/material.model'
+import mongoose from 'mongoose'
 
 @Injectable()
 export class InventoryRepository {
@@ -89,6 +91,10 @@ export class InventoryRepository {
 		})
 		try {
 			const result = await model.save()
+			const materialList = result.product_variants.map((variant) => ({
+				material_name: variant.material,
+			}))
+			await this.batchSaveMaterials(materialList)
 			return result.toObject({
 				versionKey: false,
 				flattenObjectIds: true,
@@ -121,26 +127,27 @@ export class InventoryRepository {
 	}
 
 	async deleteProductById(id: string) {
-
 		const product = await ProductModel.findById(id).exec()
 		if (!product) {
 			return null
 		}
 
-		product.isMarkedDelete = true;
-		product.product_categories = [];
-		product.product_brand = null;
-		const skuIds = product.product_variants.map((variant) => variant.sku);
+		product.isMarkedDelete = true
+		product.product_categories = []
+		product.product_brand = null
+		const skuIds = product.product_variants.map((variant) => variant.sku)
 
-		for(const skuId of skuIds) {
-			const inventory = await InventoryModel.findOne({sku: skuId}).exec()
-			if(inventory) {
-				inventory.isMarkedDelete = true;
+		for (const skuId of skuIds) {
+			const inventory = await InventoryModel.findOne({
+				sku: skuId,
+			}).exec()
+			if (inventory) {
+				inventory.isMarkedDelete = true
 				await inventory.save()
 			}
 		}
 
-		return await product.save();
+		return await product.save()
 	}
 
 	async searchProductsByKeyword(keyword: string) {
@@ -152,8 +159,7 @@ export class InventoryRepository {
 				$text: { $search: regexSearch.source },
 			}
 
-			const results = await ProductModel
-				.find(query)
+			const results = await ProductModel.find(query)
 				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
 				.lean()
 				.exec()
@@ -162,6 +168,65 @@ export class InventoryRepository {
 		} catch (error) {
 			console.error('Error while searching by keyword:', error)
 			throw error
+		}
+	}
+
+	async batchSaveMaterials(
+		materials: Omit<ProductMaterial, '_id'>[],
+	): Promise<void> {
+		const materialRawList = materials.map(
+			(material) =>
+				new ProductMaterialModel({
+					_id: new mongoose.Types.ObjectId(),
+					...material,
+				}),
+		)
+		try {
+			await Promise.all(
+				materialRawList.map((material) => material.save()),
+			)
+		} catch (error) {
+			this.logger.warn(error)
+		}
+	}
+
+	async findMaterials(options: {
+		material_name: string
+		page: number
+		page_size: number
+	}): Promise<{
+		items: ProductMaterial[]
+		page_size: number
+		page: number
+		total_page: number
+		total_count: number
+	}> {
+		const { page = 1, page_size = 10, material_name } = options
+		const filter = {
+			isMarkedDelete: false,
+			...(material_name && {
+				$text: { $search: material_name },
+			}),
+		}
+		const [categoryList, count] = await Promise.all([
+			ProductMaterialModel.find(filter)
+				.select('-__v -isMarkedDelete')
+				.skip((page - 1) * page_size)
+				.limit(page_size)
+				.exec(),
+			ProductMaterialModel.countDocuments(filter),
+		])
+
+		return {
+			items: categoryList.map((cat) =>
+				cat.toObject({
+					flattenObjectIds: true,
+				}),
+			),
+			page: page,
+			page_size: page_size,
+			total_page: Math.ceil(count / page_size),
+			total_count: count,
 		}
 	}
 }
