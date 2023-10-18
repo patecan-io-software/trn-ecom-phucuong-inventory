@@ -25,8 +25,6 @@ export class FindProductsQueryDTO {
 	filters: Record<string, any> = {}
 }
 
-
-
 export class FindProductsResponseDTO extends PartialType(SuccessResponseDTO) {
 	@ApiProperty()
 	page: number

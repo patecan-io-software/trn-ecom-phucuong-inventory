@@ -6,7 +6,7 @@ import { categorySchema } from './models/category.model'
 import { Utils } from '@libs'
 import { ProductModel } from '@modules/client/product/database'
 
-const CategoryModel = mongoose.model("Category", categorySchema)
+const CategoryModel = mongoose.model('Category', categorySchema)
 
 @Injectable()
 export class CategoryRepository {
@@ -22,8 +22,7 @@ export class CategoryRepository {
 				$text: { $search: regexSearch.source },
 			}
 
-			const results = await CategoryModel
-				.find(query)
+			const results = await CategoryModel.find(query)
 				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
 				.lean()
 				.exec()

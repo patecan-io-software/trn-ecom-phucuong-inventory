@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { ImageUploader } from './image-uploader.service'
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger'
 
-@Controller('/image')
+@Controller('/v1/admin/image')
 @ApiTags('Admin - Image Upload')
 export class ImageUploaderController {
 	constructor(private readonly imageUploader: ImageUploader) {}

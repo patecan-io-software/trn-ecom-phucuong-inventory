@@ -16,21 +16,24 @@ import {
 	FindProductsQueryDTO,
 	FindProductsResponseDTO,
 } from '@modules/client/product/controllers/dtos/find-products-query.dtos'
-import { CategoryDTO, ObjectIdParam } from '@modules/admin/inventory/controllers/dtos/common.dto'
+import {
+	CategoryDTO,
+	ObjectIdParam,
+} from '@modules/admin/inventory/controllers/dtos/common.dto'
 
 @Controller('v1/products')
 @ApiTags('Client - Product')
 export class ProductController {
-	constructor(private readonly productRepo: ProductRepository) {
-
-	}
+	constructor(private readonly productRepo: ProductRepository) {}
 
 	@Get('/search/:keyword')
 	@ApiResponse({
 		status: 201,
 		type: ProductDTO,
 	})
-	async searchProductsByKeyword(@Param('keyword') keyword: string): Promise<SearchProductsResponseDTO> {
+	async searchProductsByKeyword(
+		@Param('keyword') keyword: string,
+	): Promise<SearchProductsResponseDTO> {
 		const products = await this.productRepo.searchProductsByKeyword(keyword)
 		return new SearchProductsResponseDTO(products)
 	}
@@ -56,8 +59,6 @@ export class ProductController {
 		const product = await this.productRepo.getById(id)
 		return new ProductDTO(product)
 	}
-
-
 
 	@Get()
 	@ApiOkResponse({
@@ -257,4 +258,3 @@ export class ProductController {
 		}
 	}
 }
-

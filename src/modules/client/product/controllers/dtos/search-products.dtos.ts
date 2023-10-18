@@ -19,9 +19,7 @@ export class SearchProductsQueryDTO {
 	page_size: number = 20
 }
 
-
-
-export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO){
+export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO) {
 	@ApiProperty()
 	resultCode: string
 
@@ -48,4 +46,3 @@ export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO){
 		Object.assign(this, props)
 	}
 }
-

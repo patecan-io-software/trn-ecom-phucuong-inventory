@@ -48,6 +48,6 @@ export interface Brand {
 }
 
 // Create Index //
-brandSchema.index({ brand_name: 'text' ,brand_description: 'text'})
+brandSchema.index({ brand_name: 'text', brand_description: 'text' })
 
-export const BrandModel = mongoose.model("Brand", brandSchema)
+export const BrandModel = mongoose.model('Brand', brandSchema)
