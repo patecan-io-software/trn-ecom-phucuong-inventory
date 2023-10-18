@@ -44,6 +44,11 @@ export class InventoryService {
 		return result
 	}
 
+	async searchProductsByKeyword(keyword: string) {
+		const result = await this.inventoryRepo.searchProductsByKeyword(keyword)
+		return result
+	}
+
 	async createCategory(dto: CreateCategoryDTO) {
 		const category: Category = {
 			...dto,

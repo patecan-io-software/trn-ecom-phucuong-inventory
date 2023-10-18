@@ -67,4 +67,14 @@ export class ProductController {
 		const products = await this.inventoryService.deleteProduct(id);
 		return;
 	}
+
+	@Get('/search/:keyword')
+	@ApiResponse({
+		status: 201,
+		type: ProductDTO,
+	})
+	async searchProductsByKeyword(@Param('keyword') keyword: string): Promise<SearchProductsResponseDTO> {
+		const products = await this.inventoryService.searchProductsByKeyword(keyword)
+		return new SearchProductsResponseDTO(products)
+	}
 }
