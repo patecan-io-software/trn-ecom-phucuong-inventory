@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { MongooseModule } from '@infras/mongoose'
 import { BrandRepository, brandSchema } from '@modules/client/brand/database'
 import { BrandController } from '@modules/client/brand/controllers/brand.controller'
+import { ProductRepository } from '@modules/client/product/database'
 
 @Module({
 	imports: [
@@ -14,6 +15,7 @@ import { BrandController } from '@modules/client/brand/controllers/brand.control
 	],
 	providers: [
 		BrandRepository,
+		ProductRepository,
 	],
 	controllers: [BrandController],
 })

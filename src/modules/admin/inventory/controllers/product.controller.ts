@@ -1,7 +1,7 @@
 import {
 	Body,
 	ClassSerializerInterceptor,
-	Controller,
+	Controller, Delete, Get,
 	Param,
 	Post,
 	Put,
@@ -19,6 +19,8 @@ import {
 	UpdateProductResponseDTO,
 } from './dtos/product/update-product.dtos'
 import { ObjectIdParam } from './dtos/common.dto'
+import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
+import { SuccessResponseDTO } from '@libs'
 
 @Controller('v1/products')
 @ApiTags('Admin - Product')
@@ -54,5 +56,15 @@ export class ProductController {
 			dto,
 		)
 		return new UpdateProductResponseDTO({ data: new ProductDTO(product) })
+	}
+
+	@Delete('/:id')
+	@ApiResponse({
+		status: 201,
+		type: SuccessResponseDTO,
+	})
+	async deleteProductById(@Param() { id }: ObjectIdParam): Promise<void> {
+		const products = await this.inventoryService.deleteProduct(id);
+		return;
 	}
 }

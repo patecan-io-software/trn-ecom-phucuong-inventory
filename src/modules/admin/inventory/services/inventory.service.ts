@@ -39,6 +39,11 @@ export class InventoryService {
 		return updatedProduct
 	}
 
+	async deleteProduct(productId: string) {
+		const result = await this.inventoryRepo.deleteProductById(productId)
+		return result
+	}
+
 	async createCategory(dto: CreateCategoryDTO) {
 		const category: Category = {
 			...dto,

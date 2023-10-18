@@ -22,13 +22,18 @@ import { BrandDTO } from './dtos/brand/brand.dtos'
 import { BrandNotFoundException } from '../errors/brand.errors'
 import { ProductDTO } from '@modules/client/product/controllers/dtos/common.dtos'
 import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
+import { FindProductsResponseDTO } from '@modules/client/product/controllers/dtos/find-products-query.dtos'
+import { ProductRepository } from '@modules/client/product/database'
 
 
 @Controller('v1/brands')
 @ApiTags('Client - Brand')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BrandController {
-	constructor(private readonly brandRepo: BrandRepository) {}
+	constructor(
+		private readonly brandRepo: BrandRepository,
+		private readonly productRepository: ProductRepository
+				) {}
 
 	@Get('/search/:keyword')
 	@ApiResponse({
@@ -63,6 +68,19 @@ export class BrandController {
 			throw new BrandNotFoundException(id)
 		}
 		return new BrandDTO(brand)
+	}
+
+	@Get('/:id/products')
+	@ApiResponse({
+		status: 201,
+		type: FindProductsResponseDTO,
+	})
+	async findProductsByCategoryId(
+		@Param('id') brandId: string,
+		@Query() query: { page: number; page_size: number; filters: Record<string, any> },
+	): Promise<FindProductsResponseDTO> {
+		const result = await this.productRepository.findByBrandId(brandId, query)
+		return new FindProductsResponseDTO(result)
 	}
 
 }

@@ -106,6 +106,45 @@ export class ProductRepository {
 		}
 	}
 
+
+	async findByBrandId(brandId: string, options: { page: number; page_size: number; filters: Record<string, any>; }): Promise<{
+		items: Product[]
+		page_size: number
+		page: number
+		total_page: number
+		total_count: number
+	}> {
+		const { page = 1, page_size = 10, filters } = options
+		const query = {
+			'product_brand._id': Utils.convertStringIdToObjectId(brandId),
+			isMarkedDelete: false, // Default filter
+			...filters, // Additional filter options
+		}
+
+		const [productsList, count] = await Promise.all([
+			ProductModel
+				.find(query)
+				.select('-__v -isMarkedDelete')
+				.skip((page - 1) * page_size)
+				.limit(page_size)
+				.exec(),
+
+			ProductModel.countDocuments(query),
+		])
+
+		return {
+			items: productsList.map((product) =>
+				product.toObject({
+					flattenObjectIds: true,
+				}),
+			),
+			page: page,
+			page_size: page_size,
+			total_page: Math.ceil(count / page_size),
+			total_count: count,
+		}
+	}
+
 	async getById(id: string): Promise<Product> {
 		const result = await ProductModel.findById(id)
 			.where({
