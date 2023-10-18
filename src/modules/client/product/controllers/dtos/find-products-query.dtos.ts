@@ -5,7 +5,7 @@ import { BrandDTO } from '@modules/admin/inventory/controllers/dtos/brand/brand.
 import { Type } from 'class-transformer'
 import { CategoryDTO } from '@modules/admin/inventory/controllers/dtos/common.dto'
 
-export class SearchProductsQueryDTO {
+export class FindProductsQueryDTO {
 	@ApiProperty({
 		required: false,
 	})
@@ -17,16 +17,25 @@ export class SearchProductsQueryDTO {
 	})
 	@Type(() => Number)
 	page_size: number = 20
+
+	@ApiProperty({
+		required: false,
+	})
+	@Type(() => Object)
+	filters: Record<string, any> = {}
 }
 
 
 
-export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO){
+export class FindProductsResponseDTO extends PartialType(SuccessResponseDTO) {
 	@ApiProperty()
-	resultCode: string
+	page: number
 
 	@ApiProperty()
-	resultMessage: string
+	page_size: number
+
+	@ApiProperty()
+	total_count: number
 
 	@ApiProperty({
 		type: [ProductDTO],
@@ -34,18 +43,8 @@ export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO){
 	@Type(() => ProductDTO)
 	items: ProductDTO[]
 
-	@ApiProperty()
-	total_count: number
-
-	@ApiProperty()
-	page: number
-
-	@ApiProperty()
-	page_size: number
-
 	constructor(props: any) {
 		super(props)
 		Object.assign(this, props)
 	}
 }
-

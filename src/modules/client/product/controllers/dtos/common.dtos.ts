@@ -71,6 +71,10 @@ export class ProductVariant {
 }
 
 export class ProductDTO {
+	constructor(props: any) {
+		Object.assign(this, props)
+	}
+
 	@ApiProperty()
 	_id: string
 

@@ -5,11 +5,59 @@ import {
 	SearchProductsResponseDTO,
 } from './dtos/search-products.dtos'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ProductDTO } from '@modules/client/product/controllers/dtos/common.dtos'
+import { InventoryService } from '@modules/admin/inventory/services'
+import { ProductRepository } from '@modules/client/product/database'
+import {
+	FindCategoriesQueryDTO,
+	FindCategoriesResponseDTO,
+} from '@modules/admin/inventory/controllers/dtos/find-categories.dtos'
+import {
+	FindProductsQueryDTO,
+	FindProductsResponseDTO,
+} from '@modules/client/product/controllers/dtos/find-products-query.dtos'
+import { CategoryDTO, ObjectIdParam } from '@modules/admin/inventory/controllers/dtos/common.dto'
 
 @Controller('v1/products')
 @ApiTags('Client - Product')
 export class ProductController {
-	constructor() {}
+	constructor(private readonly productRepo: ProductRepository) {
+
+	}
+
+	@Get('/search/:keyword')
+	@ApiResponse({
+		status: 201,
+		type: ProductDTO,
+	})
+	async searchProductsByKeyword(@Param('keyword') keyword: string): Promise<SearchProductsResponseDTO> {
+		const products = await this.productRepo.searchProductsByKeyword(keyword)
+		return new SearchProductsResponseDTO(products)
+	}
+
+	@Get()
+	@ApiResponse({
+		status: 201,
+		type: FindProductsResponseDTO,
+	})
+	async findProducts(
+		@Query() query: FindProductsQueryDTO,
+	): Promise<FindProductsResponseDTO> {
+		const result = await this.productRepo.find(query)
+		return new FindProductsResponseDTO(result)
+	}
+
+	@Get('/:id')
+	@ApiResponse({
+		status: 201,
+		type: ProductDTO,
+	})
+	async getById(@Param() { id }: ObjectIdParam): Promise<ProductDTO> {
+		const product = await this.productRepo.getById(id)
+		return new ProductDTO(product)
+	}
+
+
 
 	@Get()
 	@ApiOkResponse({
@@ -209,3 +257,4 @@ export class ProductController {
 		}
 	}
 }
+
