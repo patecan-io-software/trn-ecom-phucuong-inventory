@@ -21,6 +21,31 @@ export class FindProductsQueryDTO {
 	@ApiProperty({
 		required: false,
 	})
+	@Type(() => String)
+	category: string
+
+	@ApiProperty({
+		required: false,
+	})
+	@Type(() => String)
+	brand: string
+
+	@ApiProperty({
+		required: false,
+	})
+	@Type(() => Number)
+	priceMin: number
+
+	@ApiProperty({
+		required: false,
+	})
+	@Type(() => Number)
+	priceMax: number
+
+
+	@ApiProperty({
+		required: false,
+	})
 	@Type(() => Object)
 	filters: Record<string, any> = {}
 }
