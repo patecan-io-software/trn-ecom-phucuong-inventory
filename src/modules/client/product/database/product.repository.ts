@@ -56,7 +56,9 @@ export class ProductRepository {
 		}
 
 		if (category) {
-			query['product_categories._id'] = category
+			if(category.toLowerCase().trim() !== 'all'){
+				query['product_categories._id'] = category
+			}
 		}
 		if (brand) {
 			query['product_brand._id'] = brand
