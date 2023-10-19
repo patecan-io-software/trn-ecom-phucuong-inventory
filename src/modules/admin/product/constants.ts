@@ -1,0 +1,9 @@
+export const INVENTORY_MODULE_CONFIG = 'ADMIN.INVENTORY.CONFIG'
+
+// model
+export const CATEGORY_MODEL = 'INVENTORY.CATEGORY_MODEL'
+export const PRODUCT_MODEL = 'INVENTORY.PRODUCT_MODEL'
+export const BRAND_MODEL = 'INVENTORY.BRAND_MODEL'
+export const MATERIAL_MODEL = 'INVENTORY.MATERIAL_MODEL'
+
+export const SIZE_UNIT = ['cm', 'm', 'mm', 'inch']

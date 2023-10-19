@@ -19,15 +19,13 @@ import {
 	FindCategoriesResponseDTO,
 } from './dtos/find-categories.dtos'
 import { CategoryRepository } from '../database'
-import { InventoryService } from '@modules/admin/inventory/services'
-import { CategoryService } from '@modules/client/category/services'
 import { BrandDTO } from '@modules/client/brand/controllers/dtos/brand/brand.dtos'
-import { SearchBrandsResponseDTO } from '@modules/client/brand/controllers/dtos/brand/find-brands.dtos'
 import {
 	FindProductsQueryDTO,
 	FindProductsResponseDTO,
-} from '@modules/client/product/controllers/dtos/find-products-query.dtos'
+} from '../../product/controllers/dtos/find-products-query.dtos'
 import { ProductRepository } from '@modules/client/product/database'
+import { CategoryService } from '../services'
 
 @Controller('v1/categories')
 @ApiTags('Client - Category')

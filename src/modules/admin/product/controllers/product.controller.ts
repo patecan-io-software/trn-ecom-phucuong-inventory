@@ -13,7 +13,6 @@ import {
 	CreateProductRequestDTO,
 	CreateProductResponseDTO,
 } from './dtos/product/create-product.dtos'
-import { InventoryService } from '../services'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ProductDTO } from './dtos/product/product.dtos'
 import {
@@ -23,12 +22,17 @@ import {
 import { ObjectIdParam } from './dtos/common.dto'
 import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
 import { SuccessResponseDTO } from '@libs'
+import { ProductService } from '../services'
+import { ProductRepository } from '../database'
 
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ProductController {
-	constructor(private readonly inventoryService: InventoryService) {}
+	constructor(
+		private readonly productService: ProductService,
+		private readonly productRepo: ProductRepository,
+	) {}
 
 	@Post()
 	@ApiResponse({
@@ -38,7 +42,7 @@ export class ProductController {
 	async create(
 		@Body() dto: CreateProductRequestDTO,
 	): Promise<CreateProductResponseDTO> {
-		const product = await this.inventoryService.createProduct(dto)
+		const product = await this.productService.createProduct(dto)
 		return new CreateProductResponseDTO({
 			data: new ProductDTO(product),
 		})
@@ -53,10 +57,7 @@ export class ProductController {
 		@Param() params: ObjectIdParam,
 		@Body() dto: UpdateProductRequestDTO,
 	): Promise<UpdateProductResponseDTO> {
-		const product = await this.inventoryService.updateProduct(
-			params.id,
-			dto,
-		)
+		const product = await this.productService.updateProduct(params.id, dto)
 		return new UpdateProductResponseDTO({ data: new ProductDTO(product) })
 	}
 
@@ -66,7 +67,7 @@ export class ProductController {
 		type: SuccessResponseDTO,
 	})
 	async deleteProductById(@Param() { id }: ObjectIdParam): Promise<void> {
-		const products = await this.inventoryService.deleteProduct(id)
+		const products = await this.productService.deleteProduct(id)
 		return
 	}
 
@@ -78,8 +79,7 @@ export class ProductController {
 	async searchProductsByKeyword(
 		@Param('keyword') keyword: string,
 	): Promise<SearchProductsResponseDTO> {
-		const products =
-			await this.inventoryService.searchProductsByKeyword(keyword)
+		const products = await this.productRepo.searchProductsByKeyword(keyword)
 		return new SearchProductsResponseDTO(products)
 	}
 }

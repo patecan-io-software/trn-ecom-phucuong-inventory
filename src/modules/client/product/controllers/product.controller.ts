@@ -6,20 +6,12 @@ import {
 } from './dtos/search-products.dtos'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ProductDTO } from '@modules/client/product/controllers/dtos/common.dtos'
-import { InventoryService } from '@modules/admin/inventory/services'
 import { ProductRepository } from '@modules/client/product/database'
-import {
-	FindCategoriesQueryDTO,
-	FindCategoriesResponseDTO,
-} from '@modules/admin/inventory/controllers/dtos/find-categories.dtos'
 import {
 	FindProductsQueryDTO,
 	FindProductsResponseDTO,
 } from '@modules/client/product/controllers/dtos/find-products-query.dtos'
-import {
-	CategoryDTO,
-	ObjectIdParam,
-} from '@modules/admin/inventory/controllers/dtos/common.dto'
+import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
 
 @Controller('v1/products')
 @ApiTags('Client - Product')

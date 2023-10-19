@@ -37,6 +37,7 @@ export interface UpdateProductDTO {
 }
 
 export interface ProductProps {
+	_id?: string
 	product_name: string
 	product_description: string
 	product_banner_image: ProductImage
