@@ -12,7 +12,7 @@ export class ImageUploader {
 		private readonly config: ImageUploaderConfig,
 	) {}
 
-	async upload(file: Express.Multer.File) {
+	async upload(image_type: string, file: Express.Multer.File) {
 		const { supabaseUrl, supabaseKey, uploadPath, bucketName } = this.config
 		const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -28,10 +28,13 @@ export class ImageUploader {
 				.concat(`_${Date.now()}`)
 				.concat(`.${ext}`)
 		}
-		const path = `${uploadPath}/${fileName}`
+		fileName = fileName.replace(' ', '_')
+		const path = `${image_type}/${fileName}`
 		const { data, error } = await supabase.storage
 			.from(bucketName)
-			.upload(path, file.buffer)
+			.upload(path, file.buffer, {
+				contentType: file.mimetype,
+			})
 
 		if (error) {
 			throw new UploadFileFailedException(error.message)
