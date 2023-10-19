@@ -1,7 +1,14 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Post,
+	UploadedFile,
+	UseInterceptors,
+} from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ImageUploader } from './image-uploader.service'
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger'
+import { UploadImageDTO } from './image-uploader.dtos'
 
 @Controller('/v1/admin/image')
 @ApiTags('Admin - Image Upload')
@@ -15,6 +22,7 @@ export class ImageUploaderController {
 		schema: {
 			type: 'object',
 			properties: {
+				image_type: { type: 'string' },
 				file: {
 					type: 'string',
 					format: 'binary',
@@ -22,8 +30,11 @@ export class ImageUploaderController {
 			},
 		},
 	})
-	async uploadFile(@UploadedFile() file: Express.Multer.File) {
-		const fileUrl = await this.imageUploader.upload(file)
+	async uploadFile(
+		@UploadedFile() file: Express.Multer.File,
+		@Body() dto: UploadImageDTO,
+	) {
+		const fileUrl = await this.imageUploader.upload(dto.image_type, file)
 		return {
 			fileUrl,
 		}
