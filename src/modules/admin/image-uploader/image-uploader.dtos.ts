@@ -5,6 +5,7 @@ export class UploadImageDTO {
 	file: Express.Multer.File
 
 	@ApiProperty({
+		type: 'string',
 		enum: ['brand', 'category', 'product'],
 	})
 	@IsNotEmpty()
