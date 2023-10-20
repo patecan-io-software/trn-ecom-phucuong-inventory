@@ -23,6 +23,7 @@ export class InventoryService {
 	) {}
 
 	async createProduct(dto: CreateProductDTO) {
+		console.log('#2');
 		const product = Product.createProduct(dto)
 
 		const newProduct = await this.inventoryRepo.save(product)

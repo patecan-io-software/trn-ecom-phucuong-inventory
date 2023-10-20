@@ -179,9 +179,6 @@ export class ProductRepository {
 			.where({
 				isMarkedDelete: false,
 			})
-			.where({
-				isDraft: false,
-			})
 			.select('-__v -isMarkedDelete')
 
 		if (!result) {

@@ -12,7 +12,7 @@ export const brandSchema = new Schema(
 		brand_description: {
 			type: String,
 			trim: true,
-			maxLength: 150,
+			maxLength: 500,
 		},
 		brand_logoUrl: {
 			type: String,

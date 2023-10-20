@@ -10,12 +10,12 @@ export class BrandRepository {
 	constructor() {}
 
 	async create(brand: Omit<Brand, '_id'>): Promise<Brand> {
-		const cat = new BrandModel({
+		const brandModel = new BrandModel({
 			_id: new mongoose.Types.ObjectId(),
 			...brand,
 		})
 		try {
-			const result = await cat.save()
+			const result = await brandModel.save()
 			return result.toObject({
 				versionKey: false,
 				flattenObjectIds: true,
@@ -25,9 +25,8 @@ export class BrandRepository {
 				},
 			})
 		} catch (error) {
-			// TODO: Handle brand name exists error
 			this.logger.error(error)
-			throw new BrandExistsException(brand.brand_name)
+			throw new BrandExistsException(brandModel.brand_name)
 		}
 	}
 

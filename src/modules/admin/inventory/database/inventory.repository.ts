@@ -30,6 +30,7 @@ export class InventoryRepository {
 	}
 
 	async save(product: Product): Promise<Product> {
+		console.log('#3');
 		const raw = product.serialize()
 		const [categoryList, brand, existingSkuList] = await Promise.all([
 			CategoryModel.find()
