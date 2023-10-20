@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import mongoose from 'mongoose'
 import { Brand, BrandModel } from './models/brand.model'
 import { BrandExistsException } from '../errors/brand.errors'
+import { Utils } from '@libs'
 
 @Injectable()
 export class BrandRepository {
@@ -119,6 +120,25 @@ export class BrandRepository {
 			page_size: page_size,
 			total_page: Math.ceil(count / page_size),
 			total_count: count,
+		}
+	}
+
+	async searchBrandsByKeyword(keyword: string) {
+		const escapedKeyword = Utils.escapeRegExp(keyword)
+		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+
+		try {
+			const query: Record<string, any> = {
+				$text: { $search: regexSearch.source },
+			}
+
+			const results = await BrandModel.find(query)
+				.exec()
+
+			return results
+		} catch (error) {
+			console.error('Error while searching by keyword:', error)
+			throw error
 		}
 	}
 }

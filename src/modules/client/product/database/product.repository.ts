@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ProductModel } from './models/product.model'
 import { Product } from '@modules/client/product/domain'
 import { Utils } from '@libs'
+import { GetProductDetailResponseDTO } from '@modules/client/product/controllers/dtos/get-product-detail.dtos'
+import { ProductNotFoundException } from '@modules/admin/inventory/errors/product.errors'
 
 @Injectable()
 export class ProductRepository {
@@ -19,8 +21,6 @@ export class ProductRepository {
 
 			const results = await ProductModel
 				.find(query)
-				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
-				.lean()
 				.exec()
 
 			return results
@@ -174,7 +174,7 @@ export class ProductRepository {
 		}
 	}
 
-	async getById(id: string): Promise<Product> {
+	async getById(id: string): Promise<GetProductDetailResponseDTO> {
 		const result = await ProductModel.findById(id)
 			.where({
 				isMarkedDelete: false,
@@ -183,6 +183,10 @@ export class ProductRepository {
 				isDraft: false,
 			})
 			.select('-__v -isMarkedDelete')
+
+		if (!result) {
+			throw new ProductNotFoundException(id)
+		}
 		return result.toObject({
 			flattenObjectIds: true,
 		})

@@ -160,8 +160,6 @@ export class InventoryRepository {
 			}
 
 			const results = await ProductModel.find(query)
-				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
-				.lean()
 				.exec()
 
 			return results

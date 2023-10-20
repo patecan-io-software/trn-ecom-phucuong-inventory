@@ -27,6 +27,8 @@ import {
 	FindCategoriesResponseDTO,
 } from './dtos/find-categories.dtos'
 import { CategoryRepository } from '../database'
+import { ProductDTO } from '@modules/admin/inventory/controllers/dtos/product/product.dtos'
+import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
 
 @Controller('v1/admin/categories')
 @ApiTags('Admin - Category')
@@ -91,5 +93,18 @@ export class CategoryController {
 	async deleteCategory(@Param() { id }: ObjectIdParam): Promise<void> {
 		await this.inventoryService.deleteCategory(id)
 		return
+	}
+
+	@Get('/search/:keyword')
+	@ApiResponse({
+		status: 201,
+		type: CategoryDTO,
+	})
+	async searchCategoriesByKeyword(
+		@Param('keyword') keyword: string,
+	): Promise<FindCategoriesResponseDTO> {
+		const brands =
+			await this.categoryRepo.searchCategoriesByKeyword(keyword)
+		return new FindCategoriesResponseDTO(brands)
 	}
 }

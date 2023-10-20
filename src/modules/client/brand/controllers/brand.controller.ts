@@ -66,9 +66,6 @@ export class BrandController {
 	})
 	async getById(@Param() { id }: ObjectIdParam): Promise<BrandDTO> {
 		const brand = await this.brandRepo.getById(id)
-		if (!brand) {
-			throw new BrandNotFoundException(id)
-		}
 		return new BrandDTO(brand)
 	}
 

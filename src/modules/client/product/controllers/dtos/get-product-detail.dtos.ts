@@ -9,6 +9,10 @@ import {
 import { Type } from 'class-transformer'
 
 export class GetProductDetailResponseDTO {
+	constructor(props: any) {
+		Object.assign(this, props)
+	}
+
 	@ApiProperty()
 	resultCode: string
 

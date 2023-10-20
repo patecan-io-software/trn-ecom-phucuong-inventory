@@ -1,10 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import mongoose, { Model, Document } from 'mongoose'
 import { Category } from '@modules/client/category/domain'
-import { CategoryExistsException } from '../errors/category.errors'
+import { CategoryExistsException, CategoryNotFoundException } from '../errors/category.errors'
 import { categorySchema } from './models/category.model'
 import { Utils } from '@libs'
 import { ProductModel } from '@modules/client/product/database'
+import { ProductNotFoundException } from '@modules/admin/inventory/errors/product.errors'
 
 const CategoryModel = mongoose.model('Category', categorySchema)
 
@@ -40,6 +41,9 @@ export class CategoryRepository {
 				isMarkedDelete: false,
 			})
 			.select('-__v -isMarkedDelete -category_products')
+		if (!result) {
+			throw new CategoryNotFoundException(id)
+		}
 		return result.toObject({
 			flattenObjectIds: true,
 		})

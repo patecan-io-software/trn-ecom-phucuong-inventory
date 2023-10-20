@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import mongoose from 'mongoose'
 import { Brand, BrandModel } from './models/brand.model'
-import { BrandExistsException } from '../errors/brand.errors'
+import { BrandExistsException, BrandNotFoundException } from '../errors/brand.errors'
 import { Utils } from '@libs'
 import { ProductModel } from '@modules/client/product/database'
 
@@ -17,7 +17,7 @@ export class BrandRepository {
 			})
 			.select('-__v -isMarkedDelete -brand_products')
 		if (!brand) {
-			return null
+			throw new BrandNotFoundException(id)
 		}
 		return brand.toObject({
 			flattenObjectIds: true,
