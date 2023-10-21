@@ -1,62 +1,77 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ProductModel } from './models/product.model'
-import { Product } from '@modules/client/product/domain'
-import { Utils } from '@libs'
-import { GetProductDetailResponseDTO } from '@modules/client/product/controllers/dtos/get-product-detail.dtos'
-import { ProductNotFoundException } from '@modules/admin/inventory/errors/product.errors'
+import { IPaginationResult, Utils } from '@libs'
+import { ProductStatus } from '../constants'
 
 @Injectable()
 export class ProductRepository {
-	private readonly logger = new Logger(ProductRepository.name)
+	async searchProductsByKeyword(options: {
+		keyword: string
+		page: number
+		page_size: number
+	}): Promise<IPaginationResult> {
+		const { keyword, page, page_size } = options
+		const query: Record<string, any> = {
+			isMarkedDelete: false,
+			product_status: ProductStatus.Published,
+		}
+		if (keyword) {
+			const escapedKeyword = Utils.escapeRegExp(keyword)
+			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+			query.$text = { $search: regexSearch.source }
+		}
 
+		const findProductsQuery = ProductModel.find(query)
+			.select(this.getSelectFields())
+			.skip((page - 1) * page_size)
+			.limit(page_size)
 
-	async searchProductsByKeyword(keyword: string) {
-		const escapedKeyword = Utils.escapeRegExp(keyword)
-		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+		keyword && findProductsQuery.where({ $text: { $search: keyword } })
 
-		try {
-			const query: Record<string, any> = {
-				$text: { $search: regexSearch.source },
-			}
+		const [results, totalCount] = await Promise.all([
+			findProductsQuery.exec(),
+			ProductModel.countDocuments(query),
+		])
 
-			const results = await ProductModel
-				.find(query)
-				.exec()
-
-			return results
-		} catch (error) {
-			console.error('Error while searching by keyword:', error)
-			throw error
+		return {
+			items: results.map((product) =>
+				product.toObject({
+					flattenObjectIds: true,
+				}),
+			),
+			page: page,
+			page_size: page_size,
+			total_page: Math.ceil(totalCount / page_size),
+			total_count: totalCount,
 		}
 	}
 
-
-	async find(
-		options: {
-			page: number;
-			page_size: number;
-			category: string;
-			brand: string;
-			priceMin: number;
-			priceMax: number;
-			filters: Record<string, any>;
-		}): Promise<{
-		items: Product[]
-		page_size: number
+	async find(options: {
 		page: number
-		total_page: number
-		total_count: number
-	}> {
+		page_size: number
+		category: string
+		brand: string
+		priceMin: number
+		priceMax: number
+		filters: Record<string, any>
+	}): Promise<IPaginationResult> {
 		const {
-			page = 1, page_size = 10, category, brand, priceMin, priceMax, filters,
+			page = 1,
+			page_size = 10,
+			category,
+			brand,
+			priceMin,
+			priceMax,
+			filters,
 		} = options
 		const query = {
 			isMarkedDelete: false, // Default filter
+			product_status: ProductStatus.Published,
 			...filters, // Additional filter options
 		}
 
 		if (category) {
-			if(category.toLowerCase().trim() !== 'all'){
+			if (category.toLowerCase().trim() !== 'all') {
 				query['product_categories._id'] = category
 			}
 		}
@@ -64,11 +79,9 @@ export class ProductRepository {
 			query['product_brand._id'] = brand
 		}
 
-
 		const [productsList, count] = await Promise.all([
-			ProductModel
-				.find(query)
-				.select('-__v -isMarkedDelete -category_products')
+			ProductModel.find(query)
+				.select(this.getSelectFields())
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),
@@ -89,27 +102,24 @@ export class ProductRepository {
 		}
 	}
 
-	async findByCategoryId(categoryId: string, options: {
-		page: number;
-		page_size: number;
-		filters: Record<string, any>;
-	}): Promise<{
-		items: Product[]
-		page_size: number
-		page: number
-		total_page: number
-		total_count: number
-	}> {
+	async findByCategoryId(
+		categoryId: string,
+		options: {
+			page: number
+			page_size: number
+			filters: Record<string, any>
+		},
+	): Promise<IPaginationResult> {
 		const { page = 1, page_size = 10, filters } = options
 		const query = {
-			'product_categories._id': Utils.convertStringIdToObjectId(categoryId),
+			'product_categories._id':
+				Utils.convertStringIdToObjectId(categoryId),
 			isMarkedDelete: false, // Default filter
 			...filters, // Additional filter options
 		}
 
 		const [productsList, count] = await Promise.all([
-			ProductModel
-				.find(query)
+			ProductModel.find(query)
 				.select('-__v -isMarkedDelete')
 				.skip((page - 1) * page_size)
 				.limit(page_size)
@@ -131,61 +141,42 @@ export class ProductRepository {
 		}
 	}
 
-
-	async findByBrandId(brandId: string, options: {
-		page: number;
-		page_size: number;
-		filters: Record<string, any>;
-	}): Promise<{
-		items: Product[]
-		page_size: number
-		page: number
-		total_page: number
-		total_count: number
-	}> {
-		const { page = 1, page_size = 10, filters } = options
-		const query = {
-			'product_brand._id': Utils.convertStringIdToObjectId(brandId),
-			isMarkedDelete: false, // Default filter
-			...filters, // Additional filter options
-		}
-
-		const [productsList, count] = await Promise.all([
-			ProductModel
-				.find(query)
-				.select('-__v -isMarkedDelete')
-				.skip((page - 1) * page_size)
-				.limit(page_size)
-				.exec(),
-
-			ProductModel.countDocuments(query),
-		])
-
-		return {
-			items: productsList.map((product) =>
-				product.toObject({
-					flattenObjectIds: true,
-				}),
-			),
-			page: page,
-			page_size: page_size,
-			total_page: Math.ceil(count / page_size),
-			total_count: count,
-		}
-	}
-
-	async getById(id: string): Promise<GetProductDetailResponseDTO> {
+	async getById(id: string) {
 		const result = await ProductModel.findById(id)
 			.where({
 				isMarkedDelete: false,
+				product_status: ProductStatus.Published,
 			})
 			.select('-__v -isMarkedDelete')
 
 		if (!result) {
-			throw new ProductNotFoundException(id)
+			return null
 		}
+
 		return result.toObject({
 			flattenObjectIds: true,
 		})
+	}
+
+	async getBySlug(slug: string) {
+		const result = await ProductModel.findOne()
+			.where({
+				product_slug: slug,
+				isMarkedDelete: false,
+				product_status: ProductStatus.Published,
+			})
+			.select('-__v -isMarkedDelete')
+
+		if (!result) {
+			return null
+		}
+
+		return result.toObject({
+			flattenObjectIds: true,
+		})
+	}
+
+	private getSelectFields() {
+		return '-__v -isMarkedDelete -category_products -createdAt -updatedAt -product_isActive -product_status'
 	}
 }

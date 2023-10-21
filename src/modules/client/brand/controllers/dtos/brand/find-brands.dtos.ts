@@ -1,9 +1,15 @@
-import { SuccessResponseDTO } from '@libs'
+import { SuccessResponseDTO, TransformQueryString } from '@libs'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { BrandDTO } from './brand.dtos'
 
 export class FindBrandsQueryDTO {
+	@ApiProperty({
+		required: false,
+	})
+	@Transform(TransformQueryString)
+	q: string
+
 	@ApiProperty({
 		required: false,
 	})

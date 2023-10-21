@@ -27,8 +27,6 @@ import {
 	FindCategoriesResponseDTO,
 } from './dtos/find-categories.dtos'
 import { CategoryRepository } from '../database'
-import { ProductDTO } from '@modules/admin/inventory/controllers/dtos/product/product.dtos'
-import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
 
 @Controller('v1/admin/categories')
 @ApiTags('Admin - Category')

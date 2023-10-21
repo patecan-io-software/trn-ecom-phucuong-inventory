@@ -1,13 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common'
-import mongoose from 'mongoose'
+import { Injectable } from '@nestjs/common'
 import { Brand, BrandModel } from './models/brand.model'
-import { BrandExistsException, BrandNotFoundException } from '../errors/brand.errors'
-import { Utils } from '@libs'
-import { ProductModel } from '@modules/client/product/database'
+import { IPaginationResult, Utils } from '@libs'
 
 @Injectable()
 export class BrandRepository {
-	private logger: Logger = new Logger(BrandRepository.name)
 	constructor() {}
 
 	async getById(id: string): Promise<Brand> {
@@ -15,34 +11,45 @@ export class BrandRepository {
 			.where({
 				isMarkedDelete: false,
 			})
-			.select('-__v -isMarkedDelete -brand_products')
+			.select(this.getSelectFields())
 		if (!brand) {
-			throw new BrandNotFoundException(id)
+			return null
 		}
 		return brand.toObject({
 			flattenObjectIds: true,
 		})
 	}
 
-	async find(options: { page: number; page_size: number }): Promise<{
-		items: Brand[]
-		page_size: number
+	async find(options: {
 		page: number
-		total_page: number
-		total_count: number
-	}> {
-		const { page = 1, page_size = 10 } = options
-		const [categoryList, count] = await Promise.all([
-			BrandModel.find({ isMarkedDelete: false })
-				.select('-__v -isMarkedDelete -brand_products')
-				.skip((page - 1) * page_size)
-				.limit(page_size)
-				.exec(),
-			BrandModel.countDocuments({ isMarkedDelete: false }),
+		page_size: number
+		q: string
+	}): Promise<IPaginationResult> {
+		const { page = 1, page_size = 10, q } = options
+
+		const query: Record<string, any> = {
+			isMarkedDelete: false,
+		}
+		if (q) {
+			const escapedKeyword = Utils.escapeRegExp(q)
+			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+			query.$text = { $search: regexSearch.source }
+		}
+
+		const findBrandQuery = BrandModel.find(query)
+			.select(this.getSelectFields())
+			.skip((page - 1) * page_size)
+			.limit(page_size)
+
+		q && findBrandQuery.where({ $text: { $search: q } })
+
+		const [results, count] = await Promise.all([
+			findBrandQuery.exec(),
+			BrandModel.countDocuments(query),
 		])
 
 		return {
-			items: categoryList.map((cat) =>
+			items: results.map((cat) =>
 				cat.toObject({
 					flattenObjectIds: true,
 				}),
@@ -54,24 +61,7 @@ export class BrandRepository {
 		}
 	}
 
-	async searchBrandsByKeyword(keyword: string) {
-		const escapedKeyword = Utils.escapeRegExp(keyword)
-		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
-
-		try {
-			const query: Record<string, any> = {
-				$text: { $search: regexSearch.source },
-			}
-
-			const results = await BrandModel.find(query)
-				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
-				.lean()
-				.exec()
-
-			return results
-		} catch (error) {
-			console.error('Error while searching by keyword:', error)
-			throw error
-		}
+	private getSelectFields() {
+		return '-__v -isMarkedDelete -brand_products -createdAt -updatedAt -brand_isActive'
 	}
 }

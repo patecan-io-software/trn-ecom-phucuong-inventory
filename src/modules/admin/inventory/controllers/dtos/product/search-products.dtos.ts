@@ -1,9 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { ProductDTO } from './common.dtos'
+import { ProductDTO } from './product.dtos'
 import { SuccessResponseDTO } from '@libs'
-import { BrandDTO } from '@modules/admin/inventory/controllers/dtos/brand/brand.dtos'
 import { Type } from 'class-transformer'
-import { CategoryDTO } from '@modules/admin/inventory/controllers/dtos/common.dto'
 
 export class SearchProductsQueryDTO {
 	@ApiProperty({
