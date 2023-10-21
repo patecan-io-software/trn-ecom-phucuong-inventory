@@ -12,19 +12,22 @@ export interface ProductVariantProps {
 	image_list: ProductImage[]
 }
 
+
 export type CreateProductVariantProps = Omit<
 	ProductVariantProps,
 	'discount_percentage'
 >
+
+export type UpdateVariantProps = Omit<ProductVariantProps, 'discount_percentage'>
 
 export type SerializedProductVariant = ProductVariantProps
 
 export class ProductVariant {
 	protected props: ProductVariantProps
 
-	get id() {
+	get sku() {
 		const { sku, color, material } = this.props
-		return `${sku}-${color}-${material}`
+		return `${sku}-${color.value}-${material}`
 	}
 
 	serialize(): SerializedProductVariant {
@@ -34,6 +37,19 @@ export class ProductVariant {
 	constructor(props: ProductVariantProps) {
 		this.props = props
 		this.validate()
+	}
+
+	update(props: UpdateVariantProps) {
+		const { color, discount_price, image_list, material, price, quantity } = props
+		this.props.color = color
+		this.props.discount_price = discount_price
+		this.props.image_list = image_list
+		this.props.material = material
+		this.props.price = price
+		this.props.quantity = quantity
+		this.props.discount_percentage = Math.round(
+			(price - discount_price) / price * 100
+		)
 	}
 
 	protected validate() {
@@ -48,11 +64,16 @@ export class ProductVariant {
 
 	static create(props: CreateProductVariantProps) {
 		// round to 1 decimal
-		const discount_percentage =
-			Math.round(props.price - props.discount_price) / props.price
+		const discount_percentage = Math.round(
+			(props.price - props.discount_price) / props.price * 100
+		)
 		return new ProductVariant({
 			...props,
 			discount_percentage,
 		})
+	}
+
+	static generateSKU(sku: string, color: ProductColor, material: string) {
+		return `${sku}-${color.value}-${material}`
 	}
 }

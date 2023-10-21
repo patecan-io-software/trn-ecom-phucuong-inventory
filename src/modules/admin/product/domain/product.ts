@@ -1,8 +1,9 @@
-import { DuplicateProductVariantException } from '../errors/product.errors'
+import { DuplicateProductVariantException, InvalidProductVariantException } from '../errors/product.errors'
 import {
 	CreateProductVariantProps,
 	ProductVariant,
 	SerializedProductVariant,
+	UpdateVariantProps,
 } from './product-variant'
 import { ProductImage, ProductStatus, ProductWeight } from './types'
 
@@ -32,7 +33,7 @@ export interface UpdateProductDTO {
 	product_length: number
 	product_size_unit: string
 	product_weight: ProductWeight
-	product_variants: CreateProductVariantProps[]
+	product_variants: UpdateVariantProps[]
 	isPublished?: boolean
 }
 
@@ -75,6 +76,18 @@ export class Product {
 				? ProductStatus.Published
 				: ProductStatus.Draft
 		}
+		dto.product_variants.forEach(updated => {
+			const sku = ProductVariant.generateSKU(updated.sku, updated.color, updated.material)
+			const variant = this.props.product_variants.find(
+				(variant) => variant.sku === sku
+			)
+			if (!variant) {
+				throw new InvalidProductVariantException(sku)
+			}
+
+			variant.update(updated)
+		})
+
 		this.props.product_name = dto.product_name
 		this.props.product_description = dto.product_description
 		this.props.product_banner_image = dto.product_banner_image
@@ -85,10 +98,6 @@ export class Product {
 		this.props.product_length = dto.product_length
 		this.props.product_size_unit = dto.product_size_unit
 		this.props.product_weight = dto.product_weight
-		this.props.product_variants.length = 0
-		this.props.product_variants = dto.product_variants.map((variant) =>
-			ProductVariant.create(variant),
-		)
 
 		this.validate()
 	}
@@ -111,10 +120,10 @@ export class Product {
 	private validateVariantUnique() {
 		const variantSet = new Set()
 		for (const variant of this.props.product_variants) {
-			if (variantSet.has(variant.id)) {
-				throw new DuplicateProductVariantException(variant.id)
+			if (variantSet.has(variant.sku)) {
+				throw new DuplicateProductVariantException(variant.sku)
 			}
-			variantSet.add(variant.id)
+			variantSet.add(variant.sku)
 		}
 	}
 

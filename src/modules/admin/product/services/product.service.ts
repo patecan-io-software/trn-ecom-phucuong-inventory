@@ -53,7 +53,7 @@ export class ProductService {
 			product.update(dto)
 			const updatedProduct = await productRepo.save(product)
 	
-			await this.inventoryService.createInventories(product, productRepo.sessionId)
+			await this.inventoryService.updateInventoriesOfProduct(product, productRepo.sessionId)
 
 			await productRepo.commitTransaction()
 

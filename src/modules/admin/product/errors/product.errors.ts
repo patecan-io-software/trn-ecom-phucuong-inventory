@@ -14,6 +14,13 @@ export class DuplicateProductVariantException extends BaseException {
 	}
 }
 
+export class InvalidProductVariantException extends BaseException {
+	public code = 'INVAID_PRODUCT_VARIANT'
+	constructor(product_variant: string) {
+		super(`Invalid product variant: ${product_variant}`)
+	}
+}
+
 export class CreateProductFailedException extends BaseException {
 	public code = 'CREATE_PRODUCT_FAILED'
 	constructor() {
