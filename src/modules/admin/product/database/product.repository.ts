@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common'
 import { ProductModel } from './models/product.model'
 import { CategoryModel } from './models/category.model'
 import { Product } from '../domain'
@@ -7,17 +7,27 @@ import { BrandModel } from './models/brand.model'
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { BrandNotFoundException } from '../errors/brand.errors'
 import {
-	CreateProductFailedException,
-	SkuAlreadyExistsException,
+	DuplicateProductNameException,
 } from '../errors/product.errors'
 import { ProductVariant } from '../domain/product-variant'
-import { Utils } from '@libs'
+import { IPaginationResult, Utils } from '@libs'
 import { ProductMaterial, ProductMaterialModel } from './models/material.model'
-import mongoose from 'mongoose'
+import mongoose, { ClientSession, Connection } from 'mongoose'
+import { BaseRepository, DATABASE_CONNECTION, MongoDBErrorHandler } from '@infras/mongoose'
+
 
 @Injectable()
-export class ProductRepository {
+export class ProductRepository extends BaseRepository {
 	private readonly logger = new Logger(ProductRepository.name)
+
+	constructor(
+		@Inject(DATABASE_CONNECTION)
+		connection: Connection,
+		@Optional()
+		sessionId?: string
+		) {
+		super(connection, sessionId)
+	}
 
 	async save(product: Product): Promise<Product> {
 		const raw = product.serialize()
@@ -68,22 +78,23 @@ export class ProductRepository {
 			isMarkedDelete: false,
 		})
 		try {
-			const result = await model.save()
+			const result = await model.save({
+				session: this.session,
+			})
 			const materialList = result.product_variants.map((variant) => ({
 				material_name: variant.material,
 			}))
 			await this.batchSaveMaterials(materialList)
-			return result.toObject({
-				versionKey: false,
-				flattenObjectIds: true,
-				transform: (doc, ret) => {
-					delete ret.__v
-					delete ret.isMarkedDelete
-				},
-			})
+
+			product.setId(result._id.toString())
+
+			return product
 		} catch (error) {
 			this.logger.error(error)
-			throw new CreateProductFailedException()
+			if (MongoDBErrorHandler.isDuplicatedKeyError(error, 'product_name')) {
+				throw new DuplicateProductNameException(raw.product_name)
+			}
+			throw error
 		}
 	}
 
@@ -117,24 +128,38 @@ export class ProductRepository {
 		return await product.save()
 	}
 
-	async searchProductsByKeyword(keyword: string) {
-		const escapedKeyword = Utils.escapeRegExp(keyword)
-		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+	async searchProductsByKeyword(options: { keyword: string, page: number; page_size: number }): Promise<IPaginationResult> {
+		const { keyword, page, page_size } = options
 
-		try {
-			const query: Record<string, any> = {
-				$text: { $search: regexSearch.source },
-			}
+		let query: any = {}
+		if (keyword) {
+			const escapedKeyword = Utils.escapeRegExp(keyword)
+			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+			query.$text = { $search: regexSearch.source }
+		}
 
-			const results = await ProductModel.find(query)
-				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
-				.lean()
-				.exec()
+		const findProductsQuery = ProductModel.find(query)
+			.select('-__v')
+			.skip((page - 1) * page_size)
+			.limit(page_size)
 
-			return results
-		} catch (error) {
-			console.error('Error while searching by keyword:', error)
-			throw error
+		keyword && findProductsQuery.where({ $text: { $search: keyword } })
+
+		const [results, totalCount] = await Promise.all([
+			findProductsQuery.exec(),
+			ProductModel.countDocuments(query),
+		])
+
+		return {
+			items: results.map((product) =>
+				product.toObject({
+					flattenObjectIds: true,
+				}),
+			),
+			page: page,
+			page_size: page_size,
+			total_page: Math.ceil(totalCount / page_size),
+			total_count: totalCount,
 		}
 	}
 
@@ -149,9 +174,12 @@ export class ProductRepository {
 				}),
 		)
 		try {
-			await Promise.all(
-				materialRawList.map((material) => material.save()),
-			)
+			// Notes: We're ok with material save action being failed due to duplicate key. So we don't use session here
+			// in order to not trigger aborting the whole session.
+			await Promise.all(materialRawList.map(
+				(material) =>
+					material.save(),
+			))
 		} catch (error) {
 			this.logger.warn(error)
 		}
@@ -195,5 +223,9 @@ export class ProductRepository {
 			total_page: Math.ceil(count / page_size),
 			total_count: count,
 		}
+	}
+
+	protected clone(sessionId: string) {
+		return new ProductRepository(this.connection, sessionId)
 	}
 }

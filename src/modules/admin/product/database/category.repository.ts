@@ -5,7 +5,6 @@ import { Category } from '../domain'
 import { CategoryExistsException } from '../errors/category.errors'
 import { categorySchema } from './models/category.model'
 import { Utils } from '@libs'
-import { ProductModel } from '@modules/admin/inventory/database/models/product.model'
 
 const CategoryModel = mongoose.model(CATEGORY_MODEL, categorySchema)
 

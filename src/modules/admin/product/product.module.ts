@@ -45,4 +45,4 @@ import { ProductMaterialController } from './controllers/material.controller'
 		ProductMaterialController,
 	],
 })
-export class InventoryModule {}
+export class AdminProductModule {}

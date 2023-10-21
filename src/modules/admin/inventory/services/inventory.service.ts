@@ -11,7 +11,7 @@ export class InventoryService {
 		private readonly inventoryFactory: InventoryFactory,
 	) {}
 
-	async createInventories(product: Product): Promise<Inventory[]> {
+	async createInventories(product: Product, sessionId?: string): Promise<Inventory[]> {
 		const { product_variants } = product.serialize()
 		const skuList = product_variants.map((variant) => variant.sku)
 		const existingInventoryList =
@@ -27,10 +27,14 @@ export class InventoryService {
 		const inventoryList =
 			this.inventoryFactory.createInventoriesForProduct(product)
 
-		return inventoryList
-	}
+		let inventoryRepo: InventoryRepository
+		if (sessionId) {
+			inventoryRepo = this.inventoryRepo.getRepositoryTransaction<InventoryRepository>(sessionId)
+		} else {
+			inventoryRepo = this.inventoryRepo
+		}
 
-	async save(inventoryList: Inventory[]) {
-		await this.inventoryRepo.saveBatch(inventoryList)
+		await inventoryRepo.saveBatch(inventoryList)
+		return inventoryList
 	}
 }

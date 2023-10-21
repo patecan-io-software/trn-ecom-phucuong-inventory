@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common'
+import { v4 as uuidv4 } from 'uuid'
+import { Injectable, Logger } from '@nestjs/common'
 import { CategoryRepository, ProductRepository } from '../database'
 import {
 	Category,
@@ -14,6 +15,7 @@ import { InventoryService } from '@modules/admin/inventory'
 
 @Injectable()
 export class ProductService {
+	private readonly logger = new Logger(ProductService.name)
 	constructor(
 		private readonly productRepo: ProductRepository,
 		private readonly categoryRepo: CategoryRepository,
@@ -22,16 +24,21 @@ export class ProductService {
 
 	async createProduct(dto: CreateProductDTO) {
 		const product = Product.createProduct(dto)
+		const productRepo = await this.productRepo.startTransaction<ProductRepository>()
 
-		const inventoryList =
-			await this.inventoryService.createInventories(product)
-
-		const [newProduct] = await Promise.all([
-			this.productRepo.save(product),
-			this.inventoryService.save(inventoryList),
-		])
-
-		return newProduct
+		try {
+			const newProduct = await productRepo.save(product)
+	
+			await this.inventoryService.createInventories(product, productRepo.sessionId)
+	
+			await productRepo.commitTransaction()
+			
+			return newProduct
+		} catch (error) {
+			this.logger.error(error)
+			await productRepo.abortTransaction()
+			throw error
+		}
 	}
 
 	async updateProduct(productId: string, dto: UpdateProductDTO) {
@@ -39,18 +46,27 @@ export class ProductService {
 		if (!product) {
 			throw new ProductNotFoundException(productId)
 		}
-		product.update(dto)
-		const updatedProduct = await this.productRepo.save(product)
-		return updatedProduct
+
+		const productRepo = await this.productRepo.startTransaction<ProductRepository>()
+
+		try {
+			product.update(dto)
+			const updatedProduct = await productRepo.save(product)
+	
+			await this.inventoryService.createInventories(product, productRepo.sessionId)
+
+			await productRepo.commitTransaction()
+
+			return updatedProduct
+		} catch (error) {
+			this.logger.error(error)
+			await productRepo.abortTransaction()
+			throw error
+		}
 	}
 
 	async deleteProduct(productId: string) {
 		const result = await this.productRepo.deleteProductById(productId)
-		return result
-	}
-
-	async searchProductsByKeyword(keyword: string) {
-		const result = await this.productRepo.searchProductsByKeyword(keyword)
 		return result
 	}
 

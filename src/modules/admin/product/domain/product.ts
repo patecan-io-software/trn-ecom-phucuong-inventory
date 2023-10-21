@@ -62,6 +62,13 @@ export class Product {
 		this.validate()
 	}
 
+	setId(id: string) {
+		if (this.props._id) {
+			return
+		}
+		this.props._id = id
+	}
+
 	update(dto: UpdateProductDTO) {
 		if (dto.isPublished !== undefined) {
 			this.props.product_status = dto.isPublished

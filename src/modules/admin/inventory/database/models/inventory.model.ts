@@ -23,4 +23,6 @@ export const inventorySchema = new Schema(
 	},
 )
 
+inventorySchema.index({ inventory_sku: 1 }, { unique: true })
+
 export const InventoryModel = model(INVENTORY_MODEL, inventorySchema)

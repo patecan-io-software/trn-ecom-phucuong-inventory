@@ -7,6 +7,7 @@ import {
 	Param,
 	Post,
 	Put,
+	Query,
 	UseInterceptors,
 } from '@nestjs/common'
 import {
@@ -23,6 +24,7 @@ import { ObjectIdParam } from './dtos/common.dto'
 import { SuccessResponseDTO } from '@libs'
 import { ProductService } from '../services'
 import { ProductRepository } from '../database'
+import { SearchProductsQueryDTO, SearchProductsResponseDTO } from './dtos/product/search-products.dtos'
 
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
@@ -47,6 +49,23 @@ export class ProductController {
 		})
 	}
 
+	@Get()
+	@ApiResponse({
+		status: 200,
+		type: ProductDTO,
+	})
+	async searchProducts(
+		@Query() query: SearchProductsQueryDTO,
+	): Promise<SearchProductsResponseDTO> {
+		const { q, page, page_size  } = query
+		const results = await this.productRepo.searchProductsByKeyword({
+			keyword: q,
+			page,
+			page_size,
+		})
+		return new SearchProductsResponseDTO(results)
+	}
+
 	@Put('/:id')
 	@ApiOkResponse({
 		status: 200,
@@ -68,17 +87,5 @@ export class ProductController {
 	async deleteProductById(@Param() { id }: ObjectIdParam): Promise<void> {
 		const products = await this.productService.deleteProduct(id)
 		return
-	}
-
-	@Get('/search/:keyword')
-	@ApiResponse({
-		status: 201,
-		type: ProductDTO,
-	})
-	async searchProductsByKeyword(
-		@Param('keyword') keyword: string,
-	): Promise<SearchProductsResponseDTO> {
-		const products = await this.productRepo.searchProductsByKeyword(keyword)
-		return new SearchProductsResponseDTO(products)
 	}
 }

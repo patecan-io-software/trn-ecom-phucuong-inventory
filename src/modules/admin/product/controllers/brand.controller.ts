@@ -28,7 +28,6 @@ import {
 	UpdateBrandRequestDTO,
 	UpdateBrandResponseDTO,
 } from './dtos/brand/update-brand.dtos'
-import { FindCategoriesResponseDTO } from '@modules/admin/inventory/controllers/dtos/find-categories.dtos'
 
 @Controller('v1/admin/brands')
 @ApiTags('Admin - Brand')

@@ -1,9 +1,17 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { ProductDTO } from './product.dtos'
-import { SuccessResponseDTO } from '@libs'
-import { Type } from 'class-transformer'
+import { SuccessResponseDTO, TransformQueryString } from '@libs'
+import { Transform, Type } from 'class-transformer'
+import { IsOptional } from 'class-validator'
 
 export class SearchProductsQueryDTO {
+	@ApiProperty({
+		required: false,
+	})
+	@IsOptional()
+	@Transform(TransformQueryString)
+	q: string
+
 	@ApiProperty({
 		required: false,
 	})
