@@ -5,6 +5,7 @@ export class InventoryFactory {
 	createInventoriesForProduct(product: Product): Inventory[] {
 		const { product_variants, _id: productId } = product.serialize()
 		const inventoryList: Inventory[] = product_variants.map((variant) => ({
+			_id: undefined,
 			inventory_location: '',
 			inventory_parents: null,
 			inventory_productId: productId,

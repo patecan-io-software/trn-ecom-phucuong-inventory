@@ -1,4 +1,5 @@
 export interface Inventory {
+	_id: string
 	inventory_sku: string
 	inventory_productId: string
 	inventory_location: string

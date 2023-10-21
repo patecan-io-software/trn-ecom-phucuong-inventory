@@ -86,6 +86,6 @@ export const productSchema = new Schema(
 )
 
 productSchema.index({ product_name: 'text', product_description: 'text' })
-productSchema.index({ status: 1 })
+productSchema.index({ product_status: 1 })
 
 export const ProductModel = mongoose.model(PRODUCT_MODEL, productSchema)

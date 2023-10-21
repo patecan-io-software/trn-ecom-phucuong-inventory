@@ -77,6 +77,8 @@ export class ProductRepository extends BaseRepository {
 			product_isActive: true,
 			isMarkedDelete: false,
 		})
+		model.id = raw._id || new mongoose.Types.ObjectId()
+		model.isNew = raw._id ? false : true
 		try {
 			const result = await model.save({
 				session: this.session,

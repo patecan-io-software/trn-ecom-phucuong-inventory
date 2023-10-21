@@ -29,9 +29,17 @@ export class InventoryRepository extends BaseRepository {
 
 	async saveBatch(inventoryList: Inventory[]) {
 		const rawList = inventoryList.map(
-			(inventory) => new InventoryModel(inventory),
+			(inventory) => {
+				const raw = new InventoryModel(inventory)
+				if (inventory._id) {
+					raw.isNew = false	
+				} else {
+					raw.isNew = true
+				}
+				return raw
+			},
 		)
-		await InventoryModel.insertMany(rawList, {
+		await InventoryModel.bulkSave(rawList, {
 			session: this.session,
 		})
 	}
