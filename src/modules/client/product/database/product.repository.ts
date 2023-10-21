@@ -165,7 +165,8 @@ export class ProductRepository {
 				isMarkedDelete: false,
 				product_status: ProductStatus.Published,
 			})
-			.select('-__v -isMarkedDelete')
+			.select(this.getSelectFields())
+			.exec()
 
 		if (!result) {
 			return null

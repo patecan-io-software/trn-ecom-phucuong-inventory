@@ -31,18 +31,6 @@ export class BrandDTO {
 	@IsArray()
 	@Type(() => BrandImage)
 	brand_images: BrandImage[] = []
-
-	@ApiProperty()
-	brand_isActive: boolean
-
-	@ApiProperty()
-	@Transform(({ value }) => value?.getTime?.() || null)
-	createdAt?: Date
-
-	@ApiProperty()
-	@Transform(({ value }) => value?.getTime?.() || null)
-	updatedAt?: Date
-
 	constructor(props: any) {
 		Object.assign(this, props)
 	}
