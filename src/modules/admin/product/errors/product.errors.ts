@@ -1,5 +1,12 @@
 import { BaseException } from '@libs'
 
+export class DuplicateProductNameException extends BaseException {
+	public code = 'DUPLICATE_PRODUCT_NAME'
+	constructor(product_name: string) {
+		super(`Product name is duplicated: ${product_name}`)
+	}
+}
+
 export class DuplicateProductVariantException extends BaseException {
 	public code = 'DUPLICATE_PRODUCT_VARIANT'
 	constructor(product_variant: string) {
@@ -21,12 +28,6 @@ export class DuplicateImageNameException extends BaseException {
 	}
 }
 
-export class SkuAlreadyExistsException extends BaseException {
-	public code = 'SKU_ALREADY_EXISTS'
-	constructor(skuList: string[]) {
-		super(`Following SKUs already exists: ${skuList.join(', ')}`)
-	}
-}
 
 export class ProductNotFoundException extends BaseException {
 	public code = 'PRODUCT_NOT_FOUND'

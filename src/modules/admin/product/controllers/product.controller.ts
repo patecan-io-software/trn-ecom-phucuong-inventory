@@ -7,13 +7,13 @@ import {
 	Param,
 	Post,
 	Put,
+	Query,
 	UseInterceptors,
 } from '@nestjs/common'
 import {
 	CreateProductRequestDTO,
 	CreateProductResponseDTO,
 } from './dtos/product/create-product.dtos'
-import { InventoryService } from '../services'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ProductDTO } from './dtos/product/product.dtos'
 import {
@@ -22,13 +22,18 @@ import {
 } from './dtos/product/update-product.dtos'
 import { ObjectIdParam } from './dtos/common.dto'
 import { SuccessResponseDTO } from '@libs'
-import { SearchProductsResponseDTO } from './dtos/product/search-products.dtos'
+import { ProductService } from '../services'
+import { ProductRepository } from '../database'
+import { SearchProductsQueryDTO, SearchProductsResponseDTO } from './dtos/product/search-products.dtos'
 
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ProductController {
-	constructor(private readonly inventoryService: InventoryService) {}
+	constructor(
+		private readonly productService: ProductService,
+		private readonly productRepo: ProductRepository,
+	) {}
 
 	@Post()
 	@ApiResponse({
@@ -38,10 +43,27 @@ export class ProductController {
 	async create(
 		@Body() dto: CreateProductRequestDTO,
 	): Promise<CreateProductResponseDTO> {
-		const product = await this.inventoryService.createProduct(dto)
+		const product = await this.productService.createProduct(dto)
 		return new CreateProductResponseDTO({
 			data: new ProductDTO(product),
 		})
+	}
+
+	@Get()
+	@ApiResponse({
+		status: 200,
+		type: ProductDTO,
+	})
+	async searchProducts(
+		@Query() query: SearchProductsQueryDTO,
+	): Promise<SearchProductsResponseDTO> {
+		const { q, page, page_size  } = query
+		const results = await this.productRepo.searchProductsByKeyword({
+			keyword: q,
+			page,
+			page_size,
+		})
+		return new SearchProductsResponseDTO(results)
 	}
 
 	@Put('/:id')
@@ -53,10 +75,7 @@ export class ProductController {
 		@Param() params: ObjectIdParam,
 		@Body() dto: UpdateProductRequestDTO,
 	): Promise<UpdateProductResponseDTO> {
-		const product = await this.inventoryService.updateProduct(
-			params.id,
-			dto,
-		)
+		const product = await this.productService.updateProduct(params.id, dto)
 		return new UpdateProductResponseDTO({ data: new ProductDTO(product) })
 	}
 
@@ -66,20 +85,7 @@ export class ProductController {
 		type: SuccessResponseDTO,
 	})
 	async deleteProductById(@Param() { id }: ObjectIdParam): Promise<void> {
-		const products = await this.inventoryService.deleteProduct(id)
+		const products = await this.productService.deleteProduct(id)
 		return
-	}
-
-	@Get('/search/:keyword')
-	@ApiResponse({
-		status: 201,
-		type: ProductDTO,
-	})
-	async searchProductsByKeyword(
-		@Param('keyword') keyword: string,
-	): Promise<SearchProductsResponseDTO> {
-		const products =
-			await this.inventoryService.searchProductsByKeyword(keyword)
-		return new SearchProductsResponseDTO(products)
 	}
 }

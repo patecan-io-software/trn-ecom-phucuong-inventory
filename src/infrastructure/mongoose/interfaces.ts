@@ -17,3 +17,11 @@ export interface MongoDBModelOptions {
 	collection?: string
 	options?: any
 }
+
+export interface MongoServerError {
+	code: number
+	keyPattern: string
+	keyValue: Record<string, any>
+	errorLabels: string[]
+	message: string
+}

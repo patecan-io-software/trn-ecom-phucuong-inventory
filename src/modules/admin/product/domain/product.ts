@@ -37,6 +37,7 @@ export interface UpdateProductDTO {
 }
 
 export interface ProductProps {
+	_id?: string
 	product_name: string
 	product_description: string
 	product_banner_image: ProductImage
@@ -59,6 +60,13 @@ export class Product {
 	constructor(props: ProductProps) {
 		this.props = props
 		this.validate()
+	}
+
+	setId(id: string) {
+		if (this.props._id) {
+			return
+		}
+		this.props._id = id
 	}
 
 	update(dto: UpdateProductDTO) {

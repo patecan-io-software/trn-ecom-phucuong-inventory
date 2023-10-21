@@ -10,7 +10,7 @@ import {
 	Query,
 	UseInterceptors,
 } from '@nestjs/common'
-import { InventoryService } from '../services/inventory.service'
+import { ProductService } from '../services/product.service'
 import { CategoryDTO, ObjectIdParam } from './dtos/common.dto'
 import {
 	CreateCategoryRequestDTO,
@@ -33,7 +33,7 @@ import { CategoryRepository } from '../database'
 @UseInterceptors(ClassSerializerInterceptor)
 export class CategoryController {
 	constructor(
-		private readonly inventoryService: InventoryService,
+		private readonly inventoryService: ProductService,
 		private readonly categoryRepo: CategoryRepository,
 	) {}
 
