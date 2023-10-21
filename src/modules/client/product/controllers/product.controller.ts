@@ -19,7 +19,7 @@ export class ProductController {
 	@Get()
 	@ApiResponse({
 		status: 200,
-		type: FindProductsQueryDTO,
+		type: FindProductsResponseDTO,
 	})
 	async findProducts(
 		@Query() query: FindProductsQueryDTO,
@@ -54,6 +54,6 @@ export class ProductController {
 		if (!product) {
 			throw new ProductNotFoundException(id, queryById)
 		}
-		return new GetProductDetailResponseDTO(product)
+		return new GetProductDetailResponseDTO({ data: product })
 	}
 }
