@@ -5,7 +5,7 @@ import {
 	TransformQueryString,
 } from '@libs'
 import { Transform, Type } from 'class-transformer'
-import { ProductDTO } from './product.dtos'
+import { ClientProductDTO } from './product.dtos'
 import { IsMongoId, IsOptional } from 'class-validator'
 
 export class FindProductsQueryDTO {
@@ -64,10 +64,10 @@ export class FindProductsQueryDTO {
 
 export class FindProductsResponseDTO extends PartialType(SuccessResponseDTO) {
 	@ApiProperty({
-		type: [ProductDTO],
+		type: [ClientProductDTO],
 	})
-	@Type(() => ProductDTO)
-	items: ProductDTO[]
+	@Type(() => ClientProductDTO)
+	items: ClientProductDTO[]
 
 	@ApiProperty()
 	total_count: number

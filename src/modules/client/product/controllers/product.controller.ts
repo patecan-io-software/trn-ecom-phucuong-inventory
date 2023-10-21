@@ -10,6 +10,7 @@ import { IPaginationResult } from '@libs'
 import { ProductNotFoundException } from '../errors/product.errors'
 import { isMongoId } from 'class-validator'
 import { ObjectIdParam } from './dtos/common.dtos'
+import { ClientProductDTO } from './dtos/product/product.dtos'
 
 @Controller('v1/products')
 @ApiTags('Client - Product')
@@ -33,7 +34,10 @@ export class ProductController {
 		} else {
 			result = await this.productRepo.find(query)
 		}
-		return new FindProductsResponseDTO(result)
+		return new FindProductsResponseDTO({
+			...result,
+			items: result.items.map((item) => new ClientProductDTO(item)),
+		})
 	}
 
 	@Get('/:id')

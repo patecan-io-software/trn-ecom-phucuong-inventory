@@ -70,7 +70,7 @@ export class ProductVariant {
 	image_list: ProductImage[]
 }
 
-export class ProductDTO {
+export class ClientProductDTO {
 	@ApiProperty()
 	_id: string
 
