@@ -21,8 +21,8 @@ import {
 	UpdateProductResponseDTO,
 } from './dtos/product/update-product.dtos'
 import { ObjectIdParam } from './dtos/common.dto'
-import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
 import { SuccessResponseDTO } from '@libs'
+import { SearchProductsResponseDTO } from './dtos/product/search-products.dtos'
 
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
