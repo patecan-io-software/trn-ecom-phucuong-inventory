@@ -6,3 +6,5 @@ export * from './interceptors/success-response.interceptor'
 export * from './utils'
 
 export * from './validators/is-object-id.validator'
+
+export * from './pagination/interfaces'

@@ -20,7 +20,6 @@ import {
 	UpdateProductResponseDTO,
 } from './dtos/product/update-product.dtos'
 import { ObjectIdParam } from './dtos/common.dto'
-import { SearchProductsResponseDTO } from '@modules/client/product/controllers/dtos/search-products.dtos'
 import { SuccessResponseDTO } from '@libs'
 import { ProductService } from '../services'
 import { ProductRepository } from '../database'

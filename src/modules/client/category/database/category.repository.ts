@@ -1,65 +1,53 @@
-import { Inject, Injectable, Logger } from '@nestjs/common'
-import mongoose, { Model, Document } from 'mongoose'
-import { Category } from '@modules/client/category/domain'
-import { CategoryExistsException } from '../errors/category.errors'
-import { categorySchema } from './models/category.model'
-import { Utils } from '@libs'
-import { ProductModel } from '@modules/client/product/database'
+import { Injectable } from '@nestjs/common'
+import mongoose from 'mongoose'
+import { Category, categorySchema } from './models/category.model'
+import { IPaginationResult, Utils } from '@libs'
 
 const CategoryModel = mongoose.model('Category', categorySchema)
 
 @Injectable()
 export class CategoryRepository {
-	private logger: Logger = new Logger(CategoryRepository.name)
 	constructor() {}
-
-	async searchCategoriesByKeyword(keyword: string) {
-		const escapedKeyword = Utils.escapeRegExp(keyword)
-		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
-
-		try {
-			const query: Record<string, any> = {
-				$text: { $search: regexSearch.source },
-			}
-
-			const results = await CategoryModel.find(query)
-				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
-				.lean()
-				.exec()
-
-			return results
-		} catch (error) {
-			console.error('Error while searching by keyword:', error)
-			throw error
-		}
-	}
 
 	async getById(id: string): Promise<Category> {
 		const result = await CategoryModel.findById(id)
 			.where({
 				isMarkedDelete: false,
 			})
-			.select('-__v -isMarkedDelete -category_products')
+			.select(this.getSelectFields())
+		if (!result) {
+			return null
+		}
 		return result.toObject({
 			flattenObjectIds: true,
 		})
 	}
 
-	async find(options: { page: number; page_size: number }): Promise<{
-		items: Category[]
-		page_size: number
+	async find(options: {
 		page: number
-		total_page: number
-		total_count: number
-	}> {
-		const { page = 1, page_size = 10 } = options
+		page_size: number
+		q: string
+	}): Promise<IPaginationResult> {
+		const { page = 1, page_size = 10, q } = options
+		const query: Record<string, any> = {
+			isMarkedDelete: false,
+		}
+		if (q) {
+			const escapedKeyword = Utils.escapeRegExp(q)
+			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+			query.$text = { $search: regexSearch.source }
+		}
+
+		const findCatetoriesQuery = CategoryModel.find(query)
+			.select(this.getSelectFields())
+			.skip((page - 1) * page_size)
+			.limit(page_size)
+
+		q && findCatetoriesQuery.where({ $text: { $search: q } })
+
 		const [categoryList, count] = await Promise.all([
-			CategoryModel.find({ isMarkedDelete: false })
-				.select('-__v -isMarkedDelete -category_products')
-				.skip((page - 1) * page_size)
-				.limit(page_size)
-				.exec(),
-			CategoryModel.countDocuments({ isMarkedDelete: false }),
+			findCatetoriesQuery.exec(),
+			CategoryModel.countDocuments(query),
 		])
 
 		return {
@@ -73,5 +61,9 @@ export class CategoryRepository {
 			total_page: Math.ceil(count / page_size),
 			total_count: count,
 		}
+	}
+
+	private getSelectFields() {
+		return '-__v -isMarkedDelete -category_products -createdAt -updatedAt -category_isActive'
 	}
 }

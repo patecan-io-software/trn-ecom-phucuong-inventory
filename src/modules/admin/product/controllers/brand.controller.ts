@@ -10,7 +10,7 @@ import {
 	Query,
 	UseInterceptors,
 } from '@nestjs/common'
-import { ObjectIdParam } from './dtos/common.dto'
+import { CategoryDTO, ObjectIdParam } from './dtos/common.dto'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { SuccessResponseDTO } from '@libs'
 import { BrandRepository } from '../database'
@@ -28,6 +28,7 @@ import {
 	UpdateBrandRequestDTO,
 	UpdateBrandResponseDTO,
 } from './dtos/brand/update-brand.dtos'
+import { FindCategoriesResponseDTO } from '@modules/admin/inventory/controllers/dtos/find-categories.dtos'
 
 @Controller('v1/admin/brands')
 @ApiTags('Admin - Brand')
@@ -100,5 +101,18 @@ export class BrandController {
 			throw new BrandNotFoundException(id)
 		}
 		return
+	}
+
+	@Get('/search/:keyword')
+	@ApiResponse({
+		status: 201,
+		type: BrandDTO,
+	})
+	async searchCategoriesByKeyword(
+		@Param('keyword') keyword: string,
+	): Promise<FindBrandsResponseDTO> {
+		const brands =
+			await this.brandRepo.searchBrandsByKeyword(keyword)
+		return new FindBrandsResponseDTO(brands)
 	}
 }

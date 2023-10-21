@@ -34,6 +34,16 @@ export const categorySchema = new Schema(
 	},
 )
 
+export interface Category {
+	category_name: string
+	category_description: string
+	category_logoUrl: string
+	category_images: {
+		imageName: string
+		imageUrl: string
+	}[]
+}
+
 categorySchema.index({ category_name: 'text', category_description: 'text' })
 
 export const CategoryModel = mongoose.model('Category', categorySchema)

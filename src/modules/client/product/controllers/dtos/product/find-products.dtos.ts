@@ -1,9 +1,12 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { ProductDTO } from './common.dtos'
-import { SuccessResponseDTO } from '@libs'
-import { BrandDTO } from '@modules/admin/product/controllers/dtos/brand/brand.dtos'
-import { Type } from 'class-transformer'
-import { CategoryDTO } from '@modules/admin/product/controllers/dtos/common.dto'
+import {
+	IPaginationResult,
+	SuccessResponseDTO,
+	TransformQueryString,
+} from '@libs'
+import { Transform, Type } from 'class-transformer'
+import { ProductDTO } from './product.dtos'
+import { IsMongoId, IsOptional } from 'class-validator'
 
 export class FindProductsQueryDTO {
 	@ApiProperty({
@@ -21,13 +24,23 @@ export class FindProductsQueryDTO {
 	@ApiProperty({
 		required: false,
 	})
-	@Type(() => String)
+	@Transform(TransformQueryString)
+	q: string
+
+	@ApiProperty({
+		required: false,
+	})
+	@IsOptional()
+	@IsMongoId()
+	@Transform(TransformQueryString)
 	category: string
 
 	@ApiProperty({
 		required: false,
 	})
-	@Type(() => String)
+	@IsOptional()
+	@IsMongoId()
+	@Transform(TransformQueryString)
 	brand: string
 
 	@ApiProperty({
@@ -42,7 +55,6 @@ export class FindProductsQueryDTO {
 	@Type(() => Number)
 	priceMax: number
 
-
 	@ApiProperty({
 		required: false,
 	})
@@ -51,20 +63,20 @@ export class FindProductsQueryDTO {
 }
 
 export class FindProductsResponseDTO extends PartialType(SuccessResponseDTO) {
-	@ApiProperty()
-	page: number
-
-	@ApiProperty()
-	page_size: number
-
-	@ApiProperty()
-	total_count: number
-
 	@ApiProperty({
 		type: [ProductDTO],
 	})
 	@Type(() => ProductDTO)
 	items: ProductDTO[]
+
+	@ApiProperty()
+	total_count: number
+
+	@ApiProperty()
+	page: number
+
+	@ApiProperty()
+	page_size: number
 
 	constructor(props: any) {
 		super(props)

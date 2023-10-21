@@ -92,4 +92,17 @@ export class CategoryController {
 		await this.inventoryService.deleteCategory(id)
 		return
 	}
+
+	@Get('/search/:keyword')
+	@ApiResponse({
+		status: 201,
+		type: CategoryDTO,
+	})
+	async searchCategoriesByKeyword(
+		@Param('keyword') keyword: string,
+	): Promise<FindCategoriesResponseDTO> {
+		const brands =
+			await this.categoryRepo.searchCategoriesByKeyword(keyword)
+		return new FindCategoriesResponseDTO(brands)
+	}
 }

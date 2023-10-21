@@ -12,7 +12,7 @@ export const categorySchema = new Schema(
 		category_description: {
 			type: String,
 			trim: true,
-			maxLength: 150,
+			maxLength: 500,
 		},
 		category_logoUrl: {
 			type: String,

@@ -4,6 +4,8 @@ import { CATEGORY_MODEL } from '../constants'
 import { Category } from '../domain'
 import { CategoryExistsException } from '../errors/category.errors'
 import { categorySchema } from './models/category.model'
+import { Utils } from '@libs'
+import { ProductModel } from '@modules/admin/inventory/database/models/product.model'
 
 const CategoryModel = mongoose.model(CATEGORY_MODEL, categorySchema)
 
@@ -123,6 +125,27 @@ export class CategoryRepository {
 			page_size: page_size,
 			total_page: Math.ceil(count / page_size),
 			total_count: count,
+		}
+	}
+
+	async searchCategoriesByKeyword(keyword: string) {
+		const escapedKeyword = Utils.escapeRegExp(keyword)
+		const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
+
+		try {
+			const query: Record<string, any> = {
+				$text: { $search: regexSearch.source },
+			}
+
+			const results = await CategoryModel.find(query)
+				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
+				.lean()
+				.exec()
+
+			return results
+		} catch (error) {
+			console.error('Error while searching by keyword:', error)
+			throw error
 		}
 	}
 }
