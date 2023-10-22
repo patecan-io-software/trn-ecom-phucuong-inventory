@@ -110,8 +110,7 @@ export class BrandController {
 	async searchCategoriesByKeyword(
 		@Param('keyword') keyword: string,
 	): Promise<FindBrandsResponseDTO> {
-		const brands =
-			await this.brandRepo.searchBrandsByKeyword(keyword)
+		const brands = await this.brandRepo.searchBrandsByKeyword(keyword)
 		return new FindBrandsResponseDTO(brands)
 	}
 }

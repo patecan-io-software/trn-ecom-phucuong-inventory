@@ -131,8 +131,7 @@ export class BrandRepository {
 				$text: { $search: regexSearch.source },
 			}
 
-			const results = await BrandModel.find(query)
-				.exec()
+			const results = await BrandModel.find(query).exec()
 
 			return results
 		} catch (error) {

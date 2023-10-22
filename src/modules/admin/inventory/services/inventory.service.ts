@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InventoryRepository } from '../database/inventory.repository'
-import { Product, ProductVariant, SerializedProductVariant } from '@modules/admin/product'
+import {
+	Product,
+	ProductVariant,
+	SerializedProductVariant,
+} from '@modules/admin/product'
 import { SkuAlreadyExistsException } from '../errors/inventory.errors'
 import { Inventory, InventoryFactory } from '../domain'
 
@@ -12,7 +16,10 @@ export class InventoryService {
 		private readonly inventoryFactory: InventoryFactory,
 	) {}
 
-	async createInventories(product: Product, sessionId?: string): Promise<Inventory[]> {
+	async createInventories(
+		product: Product,
+		sessionId?: string,
+	): Promise<Inventory[]> {
 		const { product_variants } = product.serialize()
 		const skuList = product_variants.map((variant) => variant.sku)
 		const existingInventoryList =
@@ -30,7 +37,10 @@ export class InventoryService {
 
 		let inventoryRepo: InventoryRepository
 		if (sessionId) {
-			inventoryRepo = this.inventoryRepo.getRepositoryTransaction<InventoryRepository>(sessionId)
+			inventoryRepo =
+				this.inventoryRepo.getRepositoryTransaction<InventoryRepository>(
+					sessionId,
+				)
 		} else {
 			inventoryRepo = this.inventoryRepo
 		}
@@ -41,14 +51,17 @@ export class InventoryService {
 
 	async updateInventoriesOfProduct(product: Product, sessionId?: string) {
 		const { product_variants } = product.serialize()
-		const variantObj: { [key: string]: SerializedProductVariant } = product_variants.reduce((pre, cur) => {
-			pre[cur.sku] = cur
-			return pre
-		}, {})
-		const inventoryList = await this.inventoryRepo.getBatchInventories(Object.keys(variantObj))
+		const variantObj: { [key: string]: SerializedProductVariant } =
+			product_variants.reduce((pre, cur) => {
+				pre[cur.sku] = cur
+				return pre
+			}, {})
+		const inventoryList = await this.inventoryRepo.getBatchInventories(
+			Object.keys(variantObj),
+		)
 
 		const updatedInventoryList = []
-		
+
 		inventoryList.forEach((inventory) => {
 			const variant = variantObj[inventory.inventory_sku]
 			let updated = false
@@ -75,7 +88,10 @@ export class InventoryService {
 
 		let inventoryRepo: InventoryRepository
 		if (sessionId) {
-			inventoryRepo = this.inventoryRepo.getRepositoryTransaction<InventoryRepository>(sessionId)
+			inventoryRepo =
+				this.inventoryRepo.getRepositoryTransaction<InventoryRepository>(
+					sessionId,
+				)
 		} else {
 			inventoryRepo = this.inventoryRepo
 		}
