@@ -86,7 +86,7 @@ export class ProductRepository {
 				.limit(page_size)
 				.exec(),
 
-			ProductModel.countDocuments({ isMarkedDelete: false }),
+			ProductModel.countDocuments(query),
 		])
 
 		return {
