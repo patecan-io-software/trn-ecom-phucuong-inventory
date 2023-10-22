@@ -1,4 +1,5 @@
 import { BaseException } from '@libs'
+import { ProductVariantType } from '../domain'
 
 export class DuplicateProductNameException extends BaseException {
 	public code = 'DUPLICATE_PRODUCT_NAME'
@@ -21,6 +22,13 @@ export class InvalidProductVariantException extends BaseException {
 	}
 }
 
+export class InvalidProductVariantTypeException extends BaseException {
+	public code = 'INVALID_PRODUCT_VARIANT_TYPE'
+	constructor(valid: ProductVariantType, invalid: ProductVariantType) {
+		super(`Invalid product variant type: ${valid} -> ${invalid}`)
+	}
+}
+
 export class CreateProductFailedException extends BaseException {
 	public code = 'CREATE_PRODUCT_FAILED'
 	constructor() {
@@ -34,7 +42,6 @@ export class DuplicateImageNameException extends BaseException {
 		super(`Image name is duplicated: ${image_name}`)
 	}
 }
-
 
 export class ProductNotFoundException extends BaseException {
 	public code = 'PRODUCT_NOT_FOUND'

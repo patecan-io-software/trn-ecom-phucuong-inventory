@@ -1,6 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import {
+	ArrayMinSize,
 	IsArray,
 	IsIn,
 	IsNotEmpty,
@@ -8,6 +9,7 @@ import {
 	IsOptional,
 	IsPositive,
 	MinLength,
+	ValidateIf,
 	ValidateNested,
 } from 'class-validator'
 import { SIZE_UNIT } from '../../../constants'
@@ -106,6 +108,8 @@ export class CreateProductRequestDTO {
 		type: [CreateProductVariantDTO],
 	})
 	@Type(() => CreateProductVariantDTO)
+	@ArrayMinSize(1)
+	@ValidateIf((o) => o.product_variants.length > 1)
 	product_variants: CreateProductVariantDTO[]
 
 	@ApiProperty({

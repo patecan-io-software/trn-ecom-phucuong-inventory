@@ -24,15 +24,19 @@ export class ProductService {
 
 	async createProduct(dto: CreateProductDTO) {
 		const product = Product.createProduct(dto)
-		const productRepo = await this.productRepo.startTransaction<ProductRepository>()
+		const productRepo =
+			await this.productRepo.startTransaction<ProductRepository>()
 
 		try {
 			const newProduct = await productRepo.save(product)
-	
-			await this.inventoryService.createInventories(product, productRepo.sessionId)
-	
+
+			await this.inventoryService.createInventories(
+				product,
+				productRepo.sessionId,
+			)
+
 			await productRepo.commitTransaction()
-			
+
 			return newProduct
 		} catch (error) {
 			this.logger.error(error)
@@ -47,13 +51,17 @@ export class ProductService {
 			throw new ProductNotFoundException(productId)
 		}
 
-		const productRepo = await this.productRepo.startTransaction<ProductRepository>()
+		const productRepo =
+			await this.productRepo.startTransaction<ProductRepository>()
 
 		try {
 			product.update(dto)
 			const updatedProduct = await productRepo.save(product)
-	
-			await this.inventoryService.updateInventoriesOfProduct(product, productRepo.sessionId)
+
+			await this.inventoryService.updateInventoriesOfProduct(
+				product,
+				productRepo.sessionId,
+			)
 
 			await productRepo.commitTransaction()
 

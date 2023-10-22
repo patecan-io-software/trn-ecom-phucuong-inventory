@@ -1,11 +1,20 @@
-import { DuplicateProductVariantException, InvalidProductVariantException } from '../errors/product.errors'
+import {
+	DuplicateProductVariantException,
+	InvalidProductVariantException,
+	InvalidProductVariantTypeException,
+} from '../errors/product.errors'
 import {
 	CreateProductVariantProps,
 	ProductVariant,
 	SerializedProductVariant,
 	UpdateVariantProps,
 } from './product-variant'
-import { ProductImage, ProductStatus, ProductWeight } from './types'
+import {
+	ProductImage,
+	ProductStatus,
+	ProductVariantType,
+	ProductWeight,
+} from './types'
 
 export interface CreateProductDTO {
 	product_name: string
@@ -63,6 +72,10 @@ export class Product {
 		this.validate()
 	}
 
+	get variantType() {
+		return this.props.product_variants[0].variantType
+	}
+
 	setId(id: string) {
 		if (this.props._id) {
 			return
@@ -76,10 +89,14 @@ export class Product {
 				? ProductStatus.Published
 				: ProductStatus.Draft
 		}
-		dto.product_variants.forEach(updated => {
-			const sku = ProductVariant.generateSKU(updated.sku, updated.color, updated.material)
+		dto.product_variants.forEach((updated) => {
+			const sku = ProductVariant.generateSKU(
+				updated.sku,
+				updated.color,
+				updated.material,
+			)
 			const variant = this.props.product_variants.find(
-				(variant) => variant.sku === sku
+				(variant) => variant.skuCode === sku,
 			)
 			if (!variant) {
 				throw new InvalidProductVariantException(sku)
@@ -114,16 +131,44 @@ export class Product {
 	private props: ProductProps
 
 	protected validate() {
-		this.validateVariantUnique()
+		this.validateVariant()
 	}
 
-	private validateVariantUnique() {
-		const variantSet = new Set()
-		for (const variant of this.props.product_variants) {
-			if (variantSet.has(variant.sku)) {
-				throw new DuplicateProductVariantException(variant.sku)
+	private validateVariant() {
+		const productVariants = this.props.product_variants
+		if (productVariants.length === 1) {
+			if (productVariants[0].variantType !== ProductVariantType.None) {
+				throw new InvalidProductVariantTypeException(
+					ProductVariantType.None,
+					productVariants[0].variantType,
+				)
 			}
-			variantSet.add(variant.sku)
+			return
+		}
+		// if there are multiple variants, SKU must be unique and variant type of all variants must be the same
+		const validVariantType = productVariants[0].variantType
+		const variantSet = new Set()
+		const skuCodeSet = new Set()
+		for (const variant of this.props.product_variants) {
+			if (
+				variant.variantType !== validVariantType ||
+				variant.variantType === ProductVariantType.None
+			) {
+				throw new InvalidProductVariantTypeException(
+					validVariantType,
+					variant.variantType,
+				)
+			}
+			if (
+				variantSet.has(variant.variantValue) ||
+				skuCodeSet.has(variant.skuCode)
+			) {
+				throw new DuplicateProductVariantException(
+					`${variant.skuCode}: ${variant.variantValue}`,
+				)
+			}
+			skuCodeSet.add(variant.skuCode)
+			variantSet.add(variant.variantValue)
 		}
 	}
 
@@ -134,9 +179,22 @@ export class Product {
 			? ProductStatus.Published
 			: ProductStatus.Draft
 
-		const variants = dto.product_variants.map((variant) =>
-			ProductVariant.create(variant),
-		)
+		let variants: any[]
+		if (dto.product_variants.length === 1) {
+			const variant = dto.product_variants[0]
+			const defaultVariant = ProductVariant.createDefault({
+				discount_price: variant.discount_price,
+				price: variant.price,
+				quantity: variant.quantity,
+				sku: variant.sku,
+				image_list: variant.image_list,
+			})
+			variants = [defaultVariant]
+		} else {
+			variants = dto.product_variants.map((variant) =>
+				ProductVariant.create(variant),
+			)
+		}
 
 		return new Product({
 			...props,
