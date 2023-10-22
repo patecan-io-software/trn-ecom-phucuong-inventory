@@ -10,6 +10,7 @@ import { ImageUploaderModule } from '@modules/admin/image-uploader'
 import { CategoryModule } from '@modules/client/category/category.module'
 import { BrandModule } from '@modules/client/brand/brand.module'
 import { InventoryModule } from '@modules/admin/inventory'
+import { UtilityModule } from '@infras/utility'
 
 @Module({
 	imports: [
@@ -19,6 +20,8 @@ import { InventoryModule } from '@modules/admin/inventory'
 				configSevice.get(DATABASE_CONFIG),
 			inject: [ConfigService],
 		}),
+
+		UtilityModule,
 
 		// application module
 		ImageUploaderModule,
