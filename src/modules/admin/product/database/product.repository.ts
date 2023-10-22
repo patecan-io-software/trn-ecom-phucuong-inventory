@@ -6,15 +6,16 @@ import slugify from 'slugify'
 import { BrandModel } from './models/brand.model'
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { BrandNotFoundException } from '../errors/brand.errors'
-import {
-	DuplicateProductNameException,
-} from '../errors/product.errors'
+import { DuplicateProductNameException } from '../errors/product.errors'
 import { ProductVariant } from '../domain/product-variant'
 import { IPaginationResult, Utils } from '@libs'
 import { ProductMaterial, ProductMaterialModel } from './models/material.model'
 import mongoose, { ClientSession, Connection } from 'mongoose'
-import { BaseRepository, DATABASE_CONNECTION, MongoDBErrorHandler } from '@infras/mongoose'
-
+import {
+	BaseRepository,
+	DATABASE_CONNECTION,
+	MongoDBErrorHandler,
+} from '@infras/mongoose'
 
 @Injectable()
 export class ProductRepository extends BaseRepository {
@@ -24,8 +25,8 @@ export class ProductRepository extends BaseRepository {
 		@Inject(DATABASE_CONNECTION)
 		connection: Connection,
 		@Optional()
-		sessionId?: string
-		) {
+		sessionId?: string,
+	) {
 		super(connection, sessionId)
 	}
 
@@ -93,7 +94,9 @@ export class ProductRepository extends BaseRepository {
 			return product
 		} catch (error) {
 			this.logger.error(error)
-			if (MongoDBErrorHandler.isDuplicatedKeyError(error, 'product_name')) {
+			if (
+				MongoDBErrorHandler.isDuplicatedKeyError(error, 'product_name')
+			) {
 				throw new DuplicateProductNameException(raw.product_name)
 			}
 			throw error
@@ -130,10 +133,14 @@ export class ProductRepository extends BaseRepository {
 		return await product.save()
 	}
 
-	async searchProductsByKeyword(options: { keyword: string, page: number; page_size: number }): Promise<IPaginationResult> {
+	async searchProductsByKeyword(options: {
+		keyword: string
+		page: number
+		page_size: number
+	}): Promise<IPaginationResult> {
 		const { keyword, page, page_size } = options
 
-		let query: any = {}
+		const query: any = {}
 		if (keyword) {
 			const escapedKeyword = Utils.escapeRegExp(keyword)
 			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
@@ -178,10 +185,9 @@ export class ProductRepository extends BaseRepository {
 		try {
 			// Notes: We're ok with material save action being failed due to duplicate key. So we don't use session here
 			// in order to not trigger aborting the whole session.
-			await Promise.all(materialRawList.map(
-				(material) =>
-					material.save(),
-			))
+			await Promise.all(
+				materialRawList.map((material) => material.save()),
+			)
 		} catch (error) {
 			this.logger.warn(error)
 		}

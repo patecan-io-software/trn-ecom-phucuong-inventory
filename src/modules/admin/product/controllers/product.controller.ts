@@ -24,7 +24,10 @@ import { ObjectIdParam } from './dtos/common.dto'
 import { SuccessResponseDTO } from '@libs'
 import { ProductService } from '../services'
 import { ProductRepository } from '../database'
-import { SearchProductsQueryDTO, SearchProductsResponseDTO } from './dtos/product/search-products.dtos'
+import {
+	SearchProductsQueryDTO,
+	SearchProductsResponseDTO,
+} from './dtos/product/search-products.dtos'
 
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
@@ -45,7 +48,7 @@ export class ProductController {
 	): Promise<CreateProductResponseDTO> {
 		const product = await this.productService.createProduct(dto)
 		return new CreateProductResponseDTO({
-			data: new ProductDTO(product),
+			data: new ProductDTO(product.serialize()),
 		})
 	}
 
@@ -57,7 +60,7 @@ export class ProductController {
 	async searchProducts(
 		@Query() query: SearchProductsQueryDTO,
 	): Promise<SearchProductsResponseDTO> {
-		const { q, page, page_size  } = query
+		const { q, page, page_size } = query
 		const results = await this.productRepo.searchProductsByKeyword({
 			keyword: q,
 			page,

@@ -17,3 +17,10 @@ export interface ProductWeight {
 	value: number
 	unit: string
 }
+
+export enum ProductVariantType {
+	None = 'None',
+	ColorOnly = 'ColorOnly',
+	MaterialOnly = 'MaterialOnly',
+	ColorAndMaterial = 'ColorAndMaterial',
+}
