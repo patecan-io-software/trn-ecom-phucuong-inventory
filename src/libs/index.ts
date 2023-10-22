@@ -8,3 +8,4 @@ export * from './utils'
 export * from './validators/is-object-id.validator'
 
 export * from './pagination/interfaces'
+export * from './decorators'
