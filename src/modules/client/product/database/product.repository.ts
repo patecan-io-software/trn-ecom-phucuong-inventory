@@ -70,14 +70,15 @@ export class ProductRepository {
 			...filters, // Additional filter options
 		}
 
-		if (category) {
-			if (category.toLowerCase().trim() !== 'all') {
-				query['product_categories._id'] = category
-			}
+		if(Boolean(category) && category !== 'all' && category !== 'undefined' && category !== 'null'){
+			query['product_categories._id'] = category
 		}
+
+
 		if (brand) {
 			query['product_brand._id'] = brand
 		}
+
 
 		const [productsList, count] = await Promise.all([
 			ProductModel.find(query)

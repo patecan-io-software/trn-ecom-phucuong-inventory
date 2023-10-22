@@ -31,7 +31,6 @@ export class FindProductsQueryDTO {
 		required: false,
 	})
 	@IsOptional()
-	@IsMongoId()
 	@Transform(TransformQueryString)
 	category: string
 
