@@ -11,10 +11,12 @@ import {
 	SearchMaterialsResponseDTO,
 } from './dtos/material/search-materials.dtos'
 import { ProductRepository } from '../database'
+import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('v1/admin/materials')
 @ApiTags('Admin - Material')
 @UseInterceptors(ClassSerializerInterceptor)
+@AdminAuth('apiKey')
 export class ProductMaterialController {
 	constructor(private readonly productRepo: ProductRepository) {}
 

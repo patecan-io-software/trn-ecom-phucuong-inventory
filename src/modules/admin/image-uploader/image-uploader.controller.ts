@@ -9,9 +9,11 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { ImageUploader } from './image-uploader.service'
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger'
 import { UploadImageDTO } from './image-uploader.dtos'
+import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('/v1/admin/image')
 @ApiTags('Admin - Image Upload')
+@AdminAuth('apiKey')
 export class ImageUploaderController {
 	constructor(private readonly imageUploader: ImageUploader) {}
 

@@ -27,10 +27,12 @@ import {
 	FindCategoriesResponseDTO,
 } from './dtos/find-categories.dtos'
 import { CategoryRepository } from '../database'
+import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('v1/admin/categories')
 @ApiTags('Admin - Category')
 @UseInterceptors(ClassSerializerInterceptor)
+@AdminAuth('apiKey')
 export class CategoryController {
 	constructor(
 		private readonly inventoryService: ProductService,
