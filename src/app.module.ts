@@ -11,6 +11,7 @@ import { CategoryModule } from '@modules/client/category/category.module'
 import { BrandModule } from '@modules/client/brand/brand.module'
 import { InventoryModule } from '@modules/admin/inventory'
 import { UtilityModule } from '@infras/utility'
+import { AdminAuthModule } from '@modules/admin/auth'
 
 @Module({
 	imports: [
@@ -29,6 +30,7 @@ import { UtilityModule } from '@infras/utility'
 		BrandModule,
 		ProductModule,
 
+		AdminAuthModule,
 		AdminProductModule,
 		InventoryModule,
 	],

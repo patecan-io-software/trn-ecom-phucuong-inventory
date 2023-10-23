@@ -28,10 +28,12 @@ import {
 	SearchProductsQueryDTO,
 	SearchProductsResponseDTO,
 } from './dtos/product/search-products.dtos'
+import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
 @UseInterceptors(ClassSerializerInterceptor)
+@AdminAuth('apiKey')
 export class ProductController {
 	constructor(
 		private readonly productService: ProductService,

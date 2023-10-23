@@ -28,10 +28,12 @@ import {
 	UpdateBrandRequestDTO,
 	UpdateBrandResponseDTO,
 } from './dtos/brand/update-brand.dtos'
+import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('v1/admin/brands')
 @ApiTags('Admin - Brand')
 @UseInterceptors(ClassSerializerInterceptor)
+@AdminAuth('apiKey')
 export class BrandController {
 	constructor(private readonly brandRepo: BrandRepository) {}
 

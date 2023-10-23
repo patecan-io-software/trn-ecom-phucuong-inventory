@@ -3,6 +3,7 @@ import {
 	Controller,
 	Get,
 	Query,
+	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common'
 import {
@@ -11,10 +12,12 @@ import {
 } from './dtos/search-inventories.dtos'
 import { InventoryRepository } from '../database'
 import { ApiTags } from '@nestjs/swagger'
+import { AdminAuth, AuthGuard } from '@modules/admin/auth'
 
 @Controller('/v1/admin/inventories')
 @ApiTags('Admin - Inventory')
 @UseInterceptors(ClassSerializerInterceptor)
+@AdminAuth('apiKey')
 export class InventoryController {
 	constructor(private readonly inventoryRepo: InventoryRepository) {}
 
