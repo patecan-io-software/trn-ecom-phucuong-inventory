@@ -24,17 +24,19 @@ class AuthGuardClass implements CanActivate {
 		}
 		const req = context.switchToHttp().getRequest() as Request
 
-		const apiKey = req.headers[API_KEY_HEADER]
+		const token = this.extractTokenFromHeader(req)
 
-		if (!apiKey) {
-			throw new UserUnauthorizedException('Missing api key')
-		}
-
-		if (apiKey !== this.authGuardConfig.apiKey) {
-			throw new UserUnauthorizedException('API key is invalid')
+		if (!token || (token && token !== this.authGuardConfig.apiKey)) {
+			throw new UserUnauthorizedException('Invalid token')
 		}
 
 		return true
+	}
+
+	private extractTokenFromHeader(req: Request) {
+		const [type, token] =
+			(req.headers[API_KEY_HEADER] as string)?.split(' ') ?? []
+		return type === 'Bearer' ? token : undefined
 	}
 }
 
