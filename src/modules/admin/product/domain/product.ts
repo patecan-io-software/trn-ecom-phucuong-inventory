@@ -90,16 +90,11 @@ export class Product {
 				: ProductStatus.Draft
 		}
 		dto.product_variants.forEach((updated) => {
-			const sku = ProductVariant.generateSKU(
-				updated.sku,
-				updated.color,
-				updated.material,
-			)
 			const variant = this.props.product_variants.find(
-				(variant) => variant.skuCode === sku,
+				(variant) => variant.sku === updated.sku,
 			)
 			if (!variant) {
-				throw new InvalidProductVariantException(sku)
+				throw new InvalidProductVariantException(updated.sku)
 			}
 
 			variant.update(updated)
@@ -161,13 +156,13 @@ export class Product {
 			}
 			if (
 				variantSet.has(variant.variantValue) ||
-				skuCodeSet.has(variant.skuCode)
+				skuCodeSet.has(variant.sku)
 			) {
 				throw new DuplicateProductVariantException(
-					`${variant.skuCode}: ${variant.variantValue}`,
+					`${variant.sku}: ${variant.variantValue}`,
 				)
 			}
-			skuCodeSet.add(variant.skuCode)
+			skuCodeSet.add(variant.sku)
 			variantSet.add(variant.variantValue)
 		}
 	}
@@ -182,7 +177,7 @@ export class Product {
 		let variants: any[]
 		if (dto.product_variants.length === 1) {
 			const variant = dto.product_variants[0]
-			const defaultVariant = ProductVariant.createDefault({
+			const defaultVariant = ProductVariant.createVariantNone({
 				discount_price: variant.discount_price,
 				price: variant.price,
 				quantity: variant.quantity,

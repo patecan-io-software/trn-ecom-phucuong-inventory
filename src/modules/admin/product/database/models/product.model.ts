@@ -55,8 +55,10 @@ export const productSchema = new Schema(
 			{
 				sku: String,
 				color: {
-					label: String,
-					value: String,
+					type: Schema.Types.Mixed,
+					default: null,
+					label: { type: String },
+					value: { type: String },
 				},
 				material: String,
 				price: Number,
