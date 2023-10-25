@@ -10,9 +10,11 @@ export class BrandRepository {
 	private logger: Logger = new Logger(BrandRepository.name)
 	constructor() {}
 
-	async create(brand: Omit<Brand, '_id'>): Promise<Brand> {
+	async create(brand: Partial<Brand>): Promise<Brand> {
 		const brandModel = new BrandModel({
-			_id: new mongoose.Types.ObjectId(),
+			_id: brand._id
+				? new mongoose.Types.ObjectId(brand._id)
+				: new mongoose.Types.ObjectId(),
 			...brand,
 		})
 		try {
@@ -49,27 +51,16 @@ export class BrandRepository {
 	}
 
 	async update(updatedBrand: Brand): Promise<Brand> {
-		const brand = await BrandModel.findById(updatedBrand._id)
-			.where({
-				isMarkedDelete: false,
-			})
-			.exec()
-		if (!brand) {
-			return null
-		}
-		brand.brand_name = updatedBrand.brand_name
-		brand.brand_description = updatedBrand.brand_description
-		brand.brand_logoUrl = updatedBrand.brand_logoUrl
-		brand.brand_images = updatedBrand.brand_images
-
-		const result = await brand.save()
-		return result.toObject({
-			versionKey: false,
-			flattenObjectIds: true,
-			transform: (doc, ret) => {
-				delete ret.__v
-				delete ret.isMarkedDelete
+		const brand = new BrandModel(updatedBrand)
+		const result = await BrandModel.findOneAndUpdate(
+			{ _id: brand._id },
+			brand,
+			{
+				new: true,
 			},
+		)
+		return result.toObject({
+			flattenObjectIds: true,
 		})
 	}
 

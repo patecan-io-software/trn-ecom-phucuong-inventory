@@ -4,12 +4,18 @@ import databaseConfig from './database.config'
 import { validateConfig } from './config-validator'
 import imageUploaderConfig from './image-uploader.config'
 import authConfig from './auth.config'
+import adminProductConfig from './admin-product.config'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
-			load: [databaseConfig, imageUploaderConfig, authConfig],
+			load: [
+				databaseConfig,
+				imageUploaderConfig,
+				authConfig,
+				adminProductConfig,
+			],
 			validate: validateConfig,
 			envFilePath: '.env',
 		}),

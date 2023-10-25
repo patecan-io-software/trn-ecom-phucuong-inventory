@@ -35,13 +35,14 @@ export const categorySchema = new Schema(
 	},
 )
 const textIndexOptions = {
-	default_language: "none",
-	wildcard: "text",
-	textSearchDefaultOperator: "or",
-	minWordLength: 1
-};
-categorySchema.index({ category_name: 'text', category_description: 'text' },
-	textIndexOptions
+	default_language: 'none',
+	wildcard: 'text',
+	textSearchDefaultOperator: 'or',
+	minWordLength: 1,
+}
+categorySchema.index(
+	{ category_name: 'text', category_description: 'text' },
+	textIndexOptions,
 )
 
 export const CategoryModel = mongoose.model(CATEGORY_MODEL, categorySchema)

@@ -4,6 +4,8 @@ import {
 	Controller,
 	Delete,
 	Get,
+	Inject,
+	Logger,
 	Param,
 	Post,
 	Put,
@@ -13,7 +15,7 @@ import {
 import { CategoryDTO, ObjectIdParam } from './dtos/common.dto'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { SuccessResponseDTO } from '@libs'
-import { BrandRepository } from '../database'
+import { Brand, BrandRepository } from '../database'
 import {
 	CreateBrandRequestDTO,
 	CreateBrandResponseDTO,
@@ -22,20 +24,33 @@ import {
 	FindBrandsQueryDTO,
 	FindBrandsResponseDTO,
 } from './dtos/brand/find-brands.dtos'
-import { BrandDTO } from './dtos/brand/brand.dtos'
+import { BrandDTO, BrandImage } from './dtos/brand/brand.dtos'
 import { BrandNotFoundException } from '../errors/brand.errors'
 import {
 	UpdateBrandRequestDTO,
 	UpdateBrandResponseDTO,
 } from './dtos/brand/update-brand.dtos'
 import { AdminAuth } from '@modules/admin/auth'
+import { ImageUploader } from '@modules/admin/image-uploader'
+import mongoose from 'mongoose'
+import { PRODUCT_MODULE_CONFIG } from '../constants'
+import { ProductModuleConfig } from '../interfaces'
 
 @Controller('v1/admin/brands')
 @ApiTags('Admin - Brand')
 @UseInterceptors(ClassSerializerInterceptor)
 @AdminAuth('apiKey')
 export class BrandController {
-	constructor(private readonly brandRepo: BrandRepository) {}
+	private readonly logger: Logger = new Logger(BrandController.name)
+	private readonly brandImageBasePath
+	constructor(
+		@Inject(PRODUCT_MODULE_CONFIG)
+		config: ProductModuleConfig,
+		private readonly brandRepo: BrandRepository,
+		private readonly imageUploader: ImageUploader,
+	) {
+		this.brandImageBasePath = config.basePaths.brand
+	}
 
 	@Post()
 	@ApiResponse({
@@ -45,10 +60,19 @@ export class BrandController {
 	async create(
 		@Body() dto: CreateBrandRequestDTO,
 	): Promise<CreateBrandResponseDTO> {
-		const brand = await this.brandRepo.create({
+		let brand: Brand = {
+			_id: new mongoose.Types.ObjectId().toHexString(),
 			...dto,
-		})
-		return new CreateBrandResponseDTO({ data: brand })
+		}
+		await this.uploadBrandImage(brand, false)
+		try {
+			brand = await this.brandRepo.create(brand)
+			return new CreateBrandResponseDTO({ data: brand })
+		} catch (error) {
+			this.logger.error(error)
+			await this.removeBrandImage(brand._id)
+			throw error
+		}
 	}
 
 	@Get()
@@ -81,13 +105,14 @@ export class BrandController {
 		@Param() { id }: ObjectIdParam,
 		@Body() body: UpdateBrandRequestDTO,
 	): Promise<UpdateBrandResponseDTO> {
-		const brand = await this.brandRepo.update({
+		const brand: Brand = {
 			_id: id,
 			...body,
-		})
-		if (!brand) {
-			throw new BrandNotFoundException(id)
 		}
+
+		await this.uploadBrandImage(brand, true)
+		await this.brandRepo.update(brand)
+
 		return new UpdateBrandResponseDTO({ data: brand })
 	}
 
@@ -114,5 +139,37 @@ export class BrandController {
 	): Promise<FindBrandsResponseDTO> {
 		const brands = await this.brandRepo.searchBrandsByKeyword(keyword)
 		return new FindBrandsResponseDTO(brands)
+	}
+
+	private async uploadBrandImage(brand: Brand, remove = false) {
+		if (remove) {
+			await this.removeBrandImage(brand._id)
+		}
+		const brandImageList: BrandImage[] = [
+			{
+				imageName: brand.brand_logoUrl.split('/').pop(), // brand/1/image_01.png -> image_01.png
+				imageUrl: brand.brand_logoUrl,
+			},
+			...brand.brand_images,
+		]
+		const brandId = brand._id
+		const [logo, ...imageList] = await Promise.all(
+			brandImageList.map(async (image) => {
+				const newImageUrl = await this.imageUploader.copyFromTempTo(
+					image.imageUrl,
+					`${this.brandImageBasePath}/${brandId}/${image.imageName}`,
+				)
+				image.imageUrl = newImageUrl
+				return image
+			}),
+		)
+		brand.brand_logoUrl = logo.imageUrl
+		brand.brand_images = imageList
+	}
+
+	private async removeBrandImage(brandId: string) {
+		await this.imageUploader.removeImagesByFolder(
+			`${this.brandImageBasePath}/${brandId}`,
+		)
 	}
 }

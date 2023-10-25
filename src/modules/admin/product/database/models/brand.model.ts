@@ -50,13 +50,16 @@ export interface Brand {
 }
 
 const textIndexOptions = {
-	default_language: "none",
-	wildcard: "text",
-	textSearchDefaultOperator: "or",
-	minWordLength: 1
-};
+	default_language: 'none',
+	wildcard: 'text',
+	textSearchDefaultOperator: 'or',
+	minWordLength: 1,
+}
 
 // Create Index //
-brandSchema.index({ brand_name: 'text', brand_description: 'text' }, textIndexOptions)
+brandSchema.index(
+	{ brand_name: 'text', brand_description: 'text' },
+	textIndexOptions,
+)
 
 export const BrandModel = mongoose.model(BRAND_MODEL, brandSchema)

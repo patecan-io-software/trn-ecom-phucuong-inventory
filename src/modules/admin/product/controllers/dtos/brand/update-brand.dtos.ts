@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsOptional, IsArray } from 'class-validator'
+import { IsOptional, IsArray, ValidateNested } from 'class-validator'
 import { BrandDTO, BrandImage } from './brand.dtos'
 import { SuccessResponseDTO } from '@libs'
 

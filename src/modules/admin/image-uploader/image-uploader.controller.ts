@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Param,
 	Post,
 	UploadedFile,
 	UseInterceptors,
@@ -8,7 +9,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ImageUploader } from './image-uploader.service'
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger'
-import { UploadImageDTO } from './image-uploader.dtos'
+import { MoveImageDTO, UploadImageDTO } from './image-uploader.dtos'
 import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('/v1/admin/image')
@@ -40,5 +41,10 @@ export class ImageUploaderController {
 		return {
 			fileUrl,
 		}
+	}
+
+	@Post('/move')
+	async moveImage(@Body() dto: MoveImageDTO) {
+		await this.imageUploader.copyFromTempTo(dto.fileName, dto.destination)
 	}
 }

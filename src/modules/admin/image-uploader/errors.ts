@@ -7,3 +7,11 @@ export class UploadFileFailedException extends BaseException {
 		super(message)
 	}
 }
+
+export class RemoveFileFailedException extends BaseException {
+	public code = 'REMOVE_FILE_FAILED'
+
+	constructor(message: string) {
+		super(message)
+	}
+}

@@ -12,3 +12,13 @@ export class UploadImageDTO {
 	@IsIn(['brand', 'category', 'product'])
 	image_type: string
 }
+
+export class MoveImageDTO {
+	@ApiProperty()
+	@IsNotEmpty()
+	fileName: string
+
+	@ApiProperty()
+	@IsNotEmpty()
+	destination: string
+}

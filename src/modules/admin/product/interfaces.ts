@@ -1,13 +1,7 @@
-export interface PaymentServiceConfig {
-	apiUrl: string
-	paymentReturnUrl: string
-	merchantCode: string
-	apiVersion: string
-	durationInSecond: number
-	hashSecret: string
-	paymentResultRedirectUrl: string
-}
-
-export interface PaymentModuleConfig {
-	serviceConfig: PaymentServiceConfig
+export interface ProductModuleConfig {
+	basePaths: {
+		product: string
+		brand: string
+		category: string
+	}
 }
