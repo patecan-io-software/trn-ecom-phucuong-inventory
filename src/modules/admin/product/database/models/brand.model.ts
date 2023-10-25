@@ -52,7 +52,8 @@ export interface Brand {
 const textIndexOptions = {
 	default_language: "none",
 	textSearchDefaultOperator: "or",
-	stopWords: ["and", "the", "in"]
+	stopWords: ["and", "the", "in"],
+	minWordLength: 1
 };
 
 // Create Index //

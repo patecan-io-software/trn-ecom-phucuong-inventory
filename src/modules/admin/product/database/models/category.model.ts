@@ -37,7 +37,8 @@ export const categorySchema = new Schema(
 const textIndexOptions = {
 	default_language: "none",
 	textSearchDefaultOperator: "or",
-	stopWords: ["and", "the", "in"]
+	stopWords: ["and", "the", "in"],
+	minWordLength: 1
 };
 categorySchema.index({ category_name: 'text', category_description: 'text' },
 	textIndexOptions
