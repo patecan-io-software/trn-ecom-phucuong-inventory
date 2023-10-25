@@ -51,8 +51,8 @@ export interface Brand {
 
 const textIndexOptions = {
 	default_language: "none",
+	wildcard: "text",
 	textSearchDefaultOperator: "or",
-	stopWords: ["and", "the", "in"],
 	minWordLength: 1
 };
 
