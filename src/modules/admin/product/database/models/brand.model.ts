@@ -49,7 +49,13 @@ export interface Brand {
 	updatedAt?: Date
 }
 
+const textIndexOptions = {
+	default_language: "none",
+	textSearchDefaultOperator: "or",
+	stopWords: ["and", "the", "in"]
+};
+
 // Create Index //
-brandSchema.index({ brand_name: 'text' })
+brandSchema.index({ brand_name: 'text', brand_description: 'text' }, textIndexOptions)
 
 export const BrandModel = mongoose.model(BRAND_MODEL, brandSchema)
