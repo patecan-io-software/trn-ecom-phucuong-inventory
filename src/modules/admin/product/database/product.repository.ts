@@ -30,7 +30,11 @@ export class ProductRepository extends BaseRepository {
 		super(connection, sessionId)
 	}
 
-	async save(product: Product): Promise<Product> {
+	genId() {
+		return new mongoose.Types.ObjectId().toHexString()
+	}
+
+	async save(product: Product, isNew = true): Promise<Product> {
 		const raw = product.serialize()
 		const [categoryList, brand] = await Promise.all([
 			CategoryModel.find()
@@ -78,8 +82,8 @@ export class ProductRepository extends BaseRepository {
 			product_isActive: true,
 			isMarkedDelete: false,
 		})
-		model.id = raw._id || new mongoose.Types.ObjectId()
-		model.isNew = raw._id ? false : true
+		model.id = raw._id ?? new mongoose.Types.ObjectId()
+		model.isNew = isNew
 		try {
 			const result = await model.save({
 				session: this.session,
@@ -103,7 +107,7 @@ export class ProductRepository extends BaseRepository {
 		}
 	}
 
-	async getProductById(id: string) {
+	async getProductById(id: string): Promise<Product> {
 		const product = await ProductModel.findById(id).exec()
 		if (!product) {
 			return null

@@ -29,10 +29,13 @@ export class ProductService {
 	) {}
 
 	async createProduct(dto: CreateProductDTO) {
+		dto._id = this.productRepo.genId()
 		const product = Product.createProduct(dto)
+
+		await this.updateProductImage(dto._id, dto)
+
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()
-
 		try {
 			const newProduct = await productRepo.save(product)
 
@@ -47,6 +50,7 @@ export class ProductService {
 		} catch (error) {
 			this.logger.error(error)
 			await productRepo.abortTransaction()
+			this.removeProductImage(dto._id)
 			throw error
 		}
 	}
@@ -57,12 +61,16 @@ export class ProductService {
 			throw new ProductNotFoundException(productId)
 		}
 
+		await this.removeProductImage(productId)
+		await this.updateProductImage(productId, dto)
+
+		product.update(dto)
+
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()
 
 		try {
-			product.update(dto)
-			const updatedProduct = await productRepo.save(product)
+			const updatedProduct = await productRepo.save(product, false)
 
 			await this.inventoryService.updateInventoriesOfProduct(
 				product,
@@ -159,9 +167,50 @@ export class ProductService {
 		category.category_images = imageList
 	}
 
+	private async updateProductImage(
+		productId: string,
+		product: CreateProductDTO | UpdateProductDTO,
+	) {
+		const productImages = product.product_variants
+			.flatMap((variant) => variant.image_list)
+			.concat(product.product_banner_image)
+			.reduce((pre, cur) => {
+				return {
+					...pre,
+					[cur.imageName]: {
+						imageName: cur.imageName,
+						imageUrl: cur.imageUrl,
+					},
+				}
+			}, {})
+
+		await Promise.all(
+			Object.keys(productImages).map(async (imageName) => {
+				const newImageUrl = await this.imageUploader.copyFromTempTo(
+					productImages[imageName].imageUrl,
+					`${this.config.basePaths.product}/${productId}/${imageName}`,
+				)
+				productImages[imageName].imageUrl = newImageUrl
+			}),
+		)
+		product.product_banner_image =
+			productImages[product.product_banner_image.imageName]
+		product.product_variants.forEach((variant) => {
+			variant.image_list.forEach((image) => {
+				image.imageUrl = productImages[image.imageName].imageUrl
+			})
+		})
+	}
+
 	private async removeCategoryImage(categoryId: string) {
 		await this.imageUploader.removeImagesByFolder(
 			`${this.config.basePaths.category}/${categoryId}`,
+		)
+	}
+
+	private async removeProductImage(productId: string) {
+		await this.imageUploader.removeImagesByFolder(
+			`${this.config.basePaths.product}/${productId}`,
 		)
 	}
 }

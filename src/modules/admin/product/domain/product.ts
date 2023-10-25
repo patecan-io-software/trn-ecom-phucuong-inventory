@@ -29,6 +29,7 @@ export interface CreateProductDTO {
 	product_weight: ProductWeight
 	product_variants: CreateProductVariantProps[]
 	isPublished?: boolean
+	_id?: string
 }
 
 export interface UpdateProductDTO {

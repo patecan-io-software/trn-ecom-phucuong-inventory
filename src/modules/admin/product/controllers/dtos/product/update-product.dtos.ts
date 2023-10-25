@@ -50,8 +50,11 @@ export class UpdateProductRequestDTO {
 	@Type(() => ProductVariantDTO)
 	product_variants: ProductVariantDTO[]
 
-	@ApiProperty()
-	status: string
+	@ApiProperty({
+		required: false,
+		default: false,
+	})
+	isPublished: boolean = false
 }
 
 export class UpdateProductResponseDTO extends PartialType(SuccessResponseDTO) {
