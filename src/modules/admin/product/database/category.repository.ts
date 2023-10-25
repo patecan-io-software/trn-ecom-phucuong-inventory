@@ -1,10 +1,11 @@
-import { Inject, Injectable, Logger } from '@nestjs/common'
-import mongoose, { Model, Document } from 'mongoose'
+import { Injectable, Logger } from '@nestjs/common'
+import mongoose from 'mongoose'
 import { CATEGORY_MODEL } from '../constants'
 import { Category } from '../domain'
 import { CategoryExistsException } from '../errors/category.errors'
 import { categorySchema } from './models/category.model'
 import { Utils } from '@libs'
+import { MongoDBErrorHandler } from '@infras/mongoose'
 
 const CategoryModel = mongoose.model(CATEGORY_MODEL, categorySchema)
 
@@ -13,9 +14,15 @@ export class CategoryRepository {
 	private logger: Logger = new Logger(CategoryRepository.name)
 	constructor() {}
 
+	genId() {
+		return new mongoose.Types.ObjectId().toHexString()
+	}
+
 	async create(category: Category): Promise<Category> {
 		const cat = new CategoryModel({
-			_id: new mongoose.Types.ObjectId(),
+			_id: category._id
+				? new mongoose.Types.ObjectId(category._id)
+				: new mongoose.Types.ObjectId(),
 			...category,
 		})
 		try {
@@ -66,18 +73,27 @@ export class CategoryRepository {
 	}
 
 	async update(category: Category): Promise<Category> {
-		const result = await CategoryModel.findByIdAndUpdate(
-			category._id,
-			category,
-			{
-				new: true,
-			},
-		)
-			.select('-__v -isMarkedDelete -category_products')
-			.exec()
-		return result.toObject({
-			flattenObjectIds: true,
-		})
+		try {
+			const result = await CategoryModel.findByIdAndUpdate(
+				category._id,
+				category,
+				{
+					new: true,
+				},
+			)
+				.select('-__v -isMarkedDelete -category_products')
+				.exec()
+			return result.toObject({
+				flattenObjectIds: true,
+			})
+		} catch (error) {
+			if (
+				MongoDBErrorHandler.isDuplicatedKeyError(error, 'category_name')
+			) {
+				throw new CategoryExistsException(category.category_name)
+			}
+			throw error
+		}
 	}
 
 	async deleteById(id: string): Promise<boolean> {

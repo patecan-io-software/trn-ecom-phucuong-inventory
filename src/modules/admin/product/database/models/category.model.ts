@@ -8,6 +8,7 @@ export const categorySchema = new Schema(
 			trim: true,
 			maxLength: 150,
 			required: true,
+			unique: true,
 		},
 		category_description: {
 			type: String,

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { CategoryRepository, ProductRepository } from '../database'
 import {
 	Category,
@@ -12,11 +12,17 @@ import { UpdateCategoryDTO } from './dtos/update-category.dto'
 import { CreateCategoryDTO } from './dtos/create-category.dto'
 import { ProductNotFoundException } from '../errors/product.errors'
 import { InventoryService } from '@modules/admin/inventory'
+import { PRODUCT_MODULE_CONFIG } from '../constants'
+import { ProductModuleConfig } from '../interfaces'
+import { ImageUploader } from '@modules/admin/image-uploader'
 
 @Injectable()
 export class ProductService {
 	private readonly logger = new Logger(ProductService.name)
 	constructor(
+		@Inject(PRODUCT_MODULE_CONFIG)
+		private readonly config: ProductModuleConfig,
+		private readonly imageUploader: ImageUploader,
 		private readonly productRepo: ProductRepository,
 		private readonly categoryRepo: CategoryRepository,
 		private readonly inventoryService: InventoryService,
@@ -81,11 +87,18 @@ export class ProductService {
 	async createCategory(dto: CreateCategoryDTO) {
 		const category: Category = {
 			...dto,
-			_id: undefined,
+			_id: this.categoryRepo.genId(),
 			category_isActive: true,
 		}
-		const result = await this.categoryRepo.create(category)
-		return result
+		await this.updateCategoryImage(category, false)
+		try {
+			const result = await this.categoryRepo.create(category)
+			return result
+		} catch (error) {
+			this.logger.error(error)
+			await this.removeCategoryImage(category._id)
+			throw error
+		}
 	}
 
 	async getCategoryById(categoryId: string): Promise<Category> {
@@ -106,6 +119,8 @@ export class ProductService {
 		category.category_logoUrl = dto.category_logoUrl
 		category.category_images = dto.category_images
 
+		await this.updateCategoryImage(category, true)
+
 		const result = await this.categoryRepo.update(category)
 
 		return result
@@ -116,5 +131,37 @@ export class ProductService {
 		if (!success) {
 			throw new CategoryNotFoundException(categoryId)
 		}
+	}
+
+	private async updateCategoryImage(category: Category, remove = false) {
+		if (remove) {
+			await this.removeCategoryImage(category._id)
+		}
+		const categoryImageList: { imageName: string; imageUrl: string }[] = [
+			{
+				imageName: category.category_logoUrl.split('/').pop(), // brand/1/image_01.png -> image_01.png
+				imageUrl: category.category_logoUrl,
+			},
+			...category.category_images,
+		]
+		const categoryId = category._id
+		const [logo, ...imageList] = await Promise.all(
+			categoryImageList.map(async (image) => {
+				const newImageUrl = await this.imageUploader.copyFromTempTo(
+					image.imageUrl,
+					`${this.config.basePaths.category}/${categoryId}/${image.imageName}`,
+				)
+				image.imageUrl = newImageUrl
+				return image
+			}),
+		)
+		category.category_logoUrl = logo.imageUrl
+		category.category_images = imageList
+	}
+
+	private async removeCategoryImage(categoryId: string) {
+		await this.imageUploader.removeImagesByFolder(
+			`${this.config.basePaths.category}/${categoryId}`,
+		)
 	}
 }
