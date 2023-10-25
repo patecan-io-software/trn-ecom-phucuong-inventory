@@ -54,7 +54,7 @@ export class CartRepository extends BaseRepository {
 			versionKey: false,
 			depopulate: true,
 		})
-		return cart
+		return cart;
 	}
 
 
