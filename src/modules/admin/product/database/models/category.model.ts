@@ -18,7 +18,6 @@ export const categorySchema = new Schema(
 		category_logoUrl: {
 			type: String,
 			trim: true,
-			maxLength: 150,
 			default: 'https://via.placeholder.com/150',
 		},
 		category_images: [

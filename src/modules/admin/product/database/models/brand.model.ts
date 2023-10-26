@@ -6,7 +6,7 @@ export const brandSchema = new Schema(
 		brand_name: {
 			type: String,
 			trim: true,
-			maxLength: 150,
+			maxLength: 350,
 			required: true,
 			unique: true,
 		},
@@ -18,7 +18,6 @@ export const brandSchema = new Schema(
 		brand_logoUrl: {
 			type: String,
 			trim: true,
-			maxLength: 150,
 			default: 'https://via.placeholder.com/150',
 		},
 		brand_images: [
