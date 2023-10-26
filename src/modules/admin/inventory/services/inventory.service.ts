@@ -5,8 +5,14 @@ import {
 	ProductVariant,
 	SerializedProductVariant,
 } from '@modules/admin/product'
-import { SkuAlreadyExistsException } from '../errors/inventory.errors'
+import {
+	InventoryNotFoundException,
+	SkuAlreadyExistsException,
+} from '../errors/inventory.errors'
 import { Inventory, InventoryFactory } from '../domain'
+import { UpdateInventoryRequestDTO } from '../controllers/dtos/update-inventory.dtos'
+import { UpdateInventoryDTO } from './dtos/update-inventory.dtos'
+import { ProductRepository } from '@modules/admin/product/database'
 
 @Injectable()
 export class InventoryService {
@@ -96,5 +102,21 @@ export class InventoryService {
 			inventoryRepo = this.inventoryRepo
 		}
 		await inventoryRepo.saveBatch(updatedInventoryList)
+	}
+
+	async updateInventory(
+		sku: string,
+		dto: UpdateInventoryDTO,
+	): Promise<Inventory> {
+		const inventory = await this.inventoryRepo.getBySku(sku)
+		if (!inventory) {
+			throw new InventoryNotFoundException(sku)
+		}
+
+		inventory.inventory_stock = dto.inventory_stock
+
+		const result = await this.inventoryRepo.save(inventory)
+
+		return result
 	}
 }

@@ -12,6 +12,9 @@ export class InventoryDTO {
 	inventory_productId: string
 
 	@ApiProperty()
+	product_name: string
+
+	@ApiProperty()
 	inventory_stock: number
 
 	@ApiProperty()

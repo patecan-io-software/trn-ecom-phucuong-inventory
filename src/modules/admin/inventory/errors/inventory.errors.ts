@@ -7,3 +7,11 @@ export class SkuAlreadyExistsException extends BaseException {
 		super('Following SKUs already exist: ' + skuList.join(','))
 	}
 }
+
+export class InventoryNotFoundException extends BaseException {
+	public code = 'INVENTORY_NOT_FOUND'
+
+	constructor(sku: string) {
+		super(`Inventory with SKU '${sku}' not found`)
+	}
+}
