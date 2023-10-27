@@ -30,9 +30,9 @@ export class ProductService {
 
 	async createProduct(dto: CreateProductDTO) {
 		dto._id = this.productRepo.genId()
+		await this.updateProductImage(dto._id, dto)
 		const product = Product.createProduct(dto)
 
-		await this.updateProductImage(dto._id, dto)
 
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()
@@ -193,8 +193,7 @@ export class ProductService {
 				productImages[imageName].imageUrl = newImageUrl
 			}),
 		)
-		product.product_banner_image =
-			productImages[product.product_banner_image.imageName]
+		product.product_banner_image = productImages[product.product_banner_image.imageName]
 		product.product_variants.forEach((variant) => {
 			variant.image_list.forEach((image) => {
 				image.imageUrl = productImages[image.imageName].imageUrl
