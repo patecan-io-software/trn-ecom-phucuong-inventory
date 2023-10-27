@@ -9,3 +9,8 @@ export enum ProductStatus {
 	Draft = 'Draft',
 	Published = 'Published',
 }
+
+export enum ProductVariantStatus {
+	Active = 'Active',
+	Inactive = 'Inactive',
+}

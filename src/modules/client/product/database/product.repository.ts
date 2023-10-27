@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ProductModel } from './models/product.model'
 import { IPaginationResult, Utils } from '@libs'
-import { ProductStatus } from '../constants'
+import { ProductStatus, ProductVariantStatus } from '../constants'
 import { CategoryModel } from '@modules/client/category/database'
 
 @Injectable()
@@ -36,9 +36,11 @@ export class ProductRepository {
 
 		return {
 			items: results.map((product) =>
-				product.toObject({
-					flattenObjectIds: true,
-				}),
+				this.filterActiveVariants(
+					product.toObject({
+						flattenObjectIds: true,
+					}),
+				),
 			),
 			page: page,
 			page_size: page_size,
@@ -71,15 +73,24 @@ export class ProductRepository {
 			...filters, // Additional filter options
 		}
 
-		if (Boolean(category) && category !== 'all' && category !== 'undefined' && category !== 'null') {
-			const foundCategory: any = await CategoryModel.findById(category).lean().exec()
+		if (
+			Boolean(category) &&
+			category !== 'all' &&
+			category !== 'undefined' &&
+			category !== 'null'
+		) {
+			const foundCategory: any = await CategoryModel.findById(category)
+				.lean()
+				.exec()
 			if (!foundCategory.parent_id) {
 				console.log('Parent Category' + foundCategory._id)
 				const childCategories = await CategoryModel.find({
 					parent_id: foundCategory._id,
 					isMarkedDelete: false,
 				})
-				const childCategoriesIds = childCategories.map((childCategory) => childCategory._id)
+				const childCategoriesIds = childCategories.map(
+					(childCategory) => childCategory._id,
+				)
 				query['product_categories._id'] = { $in: childCategoriesIds }
 			} else {
 				console.log('Child Category' + foundCategory._id)
@@ -87,11 +98,9 @@ export class ProductRepository {
 			}
 		}
 
-
 		if (brand) {
 			query['product_brand._id'] = brand
 		}
-
 
 		const [productsList, count] = await Promise.all([
 			ProductModel.find(query)
@@ -105,9 +114,11 @@ export class ProductRepository {
 
 		return {
 			items: productsList.map((product) =>
-				product.toObject({
-					flattenObjectIds: true,
-				}),
+				this.filterActiveVariants(
+					product.toObject({
+						flattenObjectIds: true,
+					}),
+				),
 			),
 			page: page,
 			page_size: page_size,
@@ -144,9 +155,11 @@ export class ProductRepository {
 
 		return {
 			items: productsList.map((product) =>
-				product.toObject({
-					flattenObjectIds: true,
-				}),
+				this.filterActiveVariants(
+					product.toObject({
+						flattenObjectIds: true,
+					}),
+				),
 			),
 			page: page,
 			page_size: page_size,
@@ -167,9 +180,11 @@ export class ProductRepository {
 			return null
 		}
 
-		return result.toObject({
-			flattenObjectIds: true,
-		})
+		return this.filterActiveVariants(
+			result.toObject({
+				flattenObjectIds: true,
+			}),
+		)
 	}
 
 	async getBySlug(slug: string) {
@@ -186,12 +201,23 @@ export class ProductRepository {
 			return null
 		}
 
-		return result.toObject({
-			flattenObjectIds: true,
-		})
+		return this.filterActiveVariants(
+			result.toObject({
+				flattenObjectIds: true,
+			}),
+		)
 	}
 
 	private getSelectFields() {
 		return '-__v -isMarkedDelete -category_products -createdAt -updatedAt -product_isActive -product_status'
+	}
+
+	private filterActiveVariants(product: any) {
+		product.product_variants = product.product_variants.filter(
+			(variant) =>
+				!variant.status ||
+				variant.status === ProductVariantStatus.Active,
+		)
+		return product
 	}
 }
