@@ -72,7 +72,7 @@ export class ProductRepository {
 		}
 
 		if(Boolean(category) && category !== 'all' && category !== 'undefined' && category !== 'null'){
-			const foundCategory = await CategoryModel.find({ _id: category });
+			const foundCategory: any = await CategoryModel.find({ _id: category });
 
 			if(!foundCategory.parent_id){
 				const childCategories = await CategoryModel.find({ parent_id: foundCategory._id, isMarkedDelete: false });
