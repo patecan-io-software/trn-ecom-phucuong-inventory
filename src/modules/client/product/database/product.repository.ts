@@ -71,18 +71,20 @@ export class ProductRepository {
 			...filters, // Additional filter options
 		}
 
-		if(Boolean(category) && category !== 'all' && category !== 'undefined' && category !== 'null'){
-
-			const foundCategory: any = await CategoryModel.findById(category).lean().exec();
-			if(!foundCategory.parent_id){
-				const childCategories = await CategoryModel.find({ parent_id: foundCategory._id, isMarkedDelete: false });
-				const childCategoriesIds = childCategories.map((childCategory) => childCategory._id);
+		if (Boolean(category) && category !== 'all' && category !== 'undefined' && category !== 'null') {
+			const foundCategory: any = await CategoryModel.findById(category).lean().exec()
+			if (!foundCategory.parent_id) {
+				console.log('Parent Category' + foundCategory._id)
+				const childCategories = await CategoryModel.find({
+					parent_id: foundCategory._id,
+					isMarkedDelete: false,
+				})
+				const childCategoriesIds = childCategories.map((childCategory) => childCategory._id)
 				query['product_categories._id'] = { $in: childCategoriesIds }
 			} else {
-				query['product_categories._id'] = category
+				console.log('Child Category' + foundCategory._id)
+				query['product_categories._id'] = foundCategory._id
 			}
-
-
 		}
 
 
