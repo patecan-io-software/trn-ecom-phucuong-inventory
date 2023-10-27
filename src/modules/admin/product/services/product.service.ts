@@ -98,13 +98,13 @@ export class ProductService {
 			_id: this.categoryRepo.genId(),
 			category_isActive: true,
 		}
-		await this.updateCategoryImage(category, false)
+		//await this.updateCategoryImage(category, false)
 		try {
 			const result = await this.categoryRepo.create(category)
 			return result
 		} catch (error) {
 			this.logger.error(error)
-			await this.removeCategoryImage(category._id)
+			//await this.removeCategoryImage(category._id)
 			throw error
 		}
 	}
