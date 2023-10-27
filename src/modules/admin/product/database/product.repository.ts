@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common'
 import { ProductModel } from './models/product.model'
 import { CategoryModel } from './models/category.model'
-import { Product } from '../domain'
+import { Product, ProductVariantStatus } from '../domain'
 import slugify from 'slugify'
 import { BrandModel } from './models/brand.model'
 import { CategoryNotFoundException } from '../errors/category.errors'
@@ -165,9 +165,11 @@ export class ProductRepository extends BaseRepository {
 
 		return {
 			items: results.map((product) =>
-				product.toObject({
-					flattenObjectIds: true,
-				}),
+				this.mapProduct(
+					product.toObject({
+						flattenObjectIds: true,
+					}),
+				),
 			),
 			page: page,
 			page_size: page_size,
@@ -239,5 +241,12 @@ export class ProductRepository extends BaseRepository {
 
 	protected clone(sessionId: string) {
 		return new ProductRepository(this.connection, sessionId)
+	}
+
+	private mapProduct(product: any): any {
+		product.product_variants.forEach((variant) => {
+			variant.status ||= ProductVariantStatus.Active
+		})
+		return product
 	}
 }

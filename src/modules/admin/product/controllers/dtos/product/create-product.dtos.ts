@@ -20,6 +20,7 @@ import {
 	ProductImage,
 	ProductWeight,
 } from './product.dtos'
+import { ProductVariantStatus } from '../../../domain'
 
 export class CreateProductVariantDTO {
 	@ApiProperty()
@@ -61,6 +62,14 @@ export class CreateProductVariantDTO {
 	@IsOptional()
 	@MinLength(0)
 	image_list: ProductImage[] = []
+
+	@ApiProperty({
+		type: ProductVariantStatus,
+		required: false,
+		enum: [ProductVariantStatus.Active, ProductVariantStatus.Inactive],
+	})
+	@IsOptional()
+	status: ProductVariantStatus = ProductVariantStatus.Active
 }
 
 export class CreateProductRequestDTO {

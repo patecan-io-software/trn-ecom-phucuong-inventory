@@ -29,6 +29,13 @@ export class InvalidProductVariantTypeException extends BaseException {
 	}
 }
 
+export class InsufficientProductVariantException extends BaseException {
+	public code = 'INSUFFICIENT_PRODUCT_VARIANT'
+	constructor() {
+		super(`Insufficient product variant`)
+	}
+}
+
 export class CreateProductFailedException extends BaseException {
 	public code = 'CREATE_PRODUCT_FAILED'
 	constructor() {

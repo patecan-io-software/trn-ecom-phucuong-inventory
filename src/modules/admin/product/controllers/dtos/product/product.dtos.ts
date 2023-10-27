@@ -4,6 +4,7 @@ import { IsNotEmpty } from 'class-validator'
 import { BrandDTO } from '../brand/brand.dtos'
 import { CategoryDTO } from '../common.dto'
 import { DateStringToTimestamp } from 'src/libs/decorators'
+import { ProductVariantStatus } from '@modules/admin/product/domain'
 
 export class ProductColor {
 	@ApiProperty()
@@ -59,6 +60,12 @@ export class ProductVariantDTO {
 	})
 	@Type(() => ProductImage)
 	image_list: ProductImage[]
+
+	@ApiProperty({
+		type: ProductVariantStatus,
+		enum: [ProductVariantStatus.Active, ProductVariantStatus.Inactive],
+	})
+	status: ProductVariantStatus
 }
 
 export class ProductDTO {

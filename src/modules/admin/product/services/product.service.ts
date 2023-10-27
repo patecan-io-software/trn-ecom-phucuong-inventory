@@ -30,8 +30,9 @@ export class ProductService {
 
 	async createProduct(dto: CreateProductDTO) {
 		dto._id = this.productRepo.genId()
-		await this.updateProductImage(dto._id, dto)
+
 		const product = Product.createProduct(dto)
+		await this.updateProductImage(dto._id, dto)
 
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()

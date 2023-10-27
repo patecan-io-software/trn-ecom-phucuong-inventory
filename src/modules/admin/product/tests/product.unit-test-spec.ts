@@ -1,12 +1,57 @@
-import { Product, ProductVariantType } from '../domain'
+import { Product, ProductVariantStatus, ProductVariantType } from '../domain'
 import {
 	DuplicateProductVariantException,
+	InsufficientProductVariantException,
 	InvalidProductVariantTypeException,
 } from '../errors/product.errors'
 import { ProductDTOBuilder } from './utils/product.factory'
 
 describe('Product', () => {
 	describe('When a product is created', () => {
+		describe('If product has no active variant', () => {
+			it('Throw error if product status is Published', () => {
+				const productDTOBuilder = new ProductDTOBuilder()
+
+				const productDTO = productDTOBuilder
+					.createProduct(true)
+					.withMultipleVariantsOfTheSameType(
+						ProductVariantType.ColorAndMaterial,
+					)
+					.withVariantStatus(ProductVariantStatus.Inactive).result
+
+				let error
+				try {
+					Product.createProduct(productDTO)
+				} catch (e) {
+					error = e
+				} finally {
+					expect(error).toBeInstanceOf(
+						InsufficientProductVariantException,
+					)
+				}
+			})
+
+			it('Success if product status is Draft', () => {
+				const productDTOBuilder = new ProductDTOBuilder()
+
+				const productDTO = productDTOBuilder
+					.createProduct(false)
+					.withMultipleVariantsOfTheSameType(
+						ProductVariantType.ColorAndMaterial,
+					)
+					.withVariantStatus(ProductVariantStatus.Inactive).result
+
+				let error
+				try {
+					Product.createProduct(productDTO)
+				} catch (e) {
+					error = e
+				} finally {
+					expect(error).toBeUndefined()
+				}
+			})
+		})
+
 		describe('If product has only one variant', () => {
 			it('Success if variant value exists', () => {
 				const productDTOBuilder = new ProductDTOBuilder()
@@ -16,43 +61,13 @@ describe('Product', () => {
 					.withOneVariant(ProductVariantType.ColorAndMaterial).result
 
 				const product = Product.createProduct(productDTO)
-				expect(product.variantType).toEqual(ProductVariantType.None)
-			})
-
-			it('Success if variant type is None', () => {
-				const productDTOBuilder = new ProductDTOBuilder()
-
-				const productDTO = productDTOBuilder
-					.createProduct()
-					.withOneVariant(ProductVariantType.None).result
-
-				const product = Product.createProduct(productDTO)
-
-				expect(product.variantType).toEqual(ProductVariantType.None)
+				expect(product.variantType).toEqual(
+					ProductVariantType.ColorAndMaterial,
+				)
 			})
 		})
 
 		describe('If product has multiple variants', () => {
-			it('Throw error if product has variant type of None', () => {
-				const productDTOBuilder = new ProductDTOBuilder()
-				const productDTO = productDTOBuilder
-					.createProduct()
-					.withMultipleVariantsOfTheSameType(
-						ProductVariantType.None,
-					).result
-
-				let error
-				try {
-					Product.createProduct(productDTO)
-				} catch (e) {
-					error = e
-				} finally {
-					expect(error).toBeInstanceOf(
-						InvalidProductVariantTypeException,
-					)
-				}
-			})
-
 			it('Throw error if product has different variant types', () => {
 				const productDTOBuilder = new ProductDTOBuilder()
 

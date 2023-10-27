@@ -1,5 +1,10 @@
 import { DuplicateImageNameException } from '../errors/product.errors'
-import { ProductColor, ProductImage, ProductVariantType } from './types'
+import {
+	ProductColor,
+	ProductImage,
+	ProductVariantStatus,
+	ProductVariantType,
+} from './types'
 
 export interface ProductVariantProps {
 	sku: string
@@ -10,6 +15,7 @@ export interface ProductVariantProps {
 	discount_percentage: number
 	quantity: number
 	image_list: ProductImage[]
+	status?: ProductVariantStatus
 }
 
 export type CreateProductVariantProps = Omit<
@@ -39,6 +45,10 @@ export class ProductVariant {
 
 	get variantType() {
 		return this._variantType
+	}
+
+	get status() {
+		return this.props.status
 	}
 
 	serialize(): SerializedProductVariant {
@@ -106,6 +116,8 @@ export class ProductVariant {
 		)
 		props.color ||= null
 		props.material ||= null
+		props.status ||= ProductVariantStatus.Active
+
 		return new ProductVariant({
 			...props,
 			discount_percentage,

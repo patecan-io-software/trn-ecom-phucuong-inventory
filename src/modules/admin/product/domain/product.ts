@@ -1,5 +1,6 @@
 import {
 	DuplicateProductVariantException,
+	InsufficientProductVariantException,
 	InvalidProductVariantException,
 	InvalidProductVariantTypeException,
 } from '../errors/product.errors'
@@ -12,6 +13,7 @@ import {
 import {
 	ProductImage,
 	ProductStatus,
+	ProductVariantStatus,
 	ProductVariantType,
 	ProductWeight,
 } from './types'
@@ -131,18 +133,30 @@ export class Product {
 	}
 
 	private validateVariant() {
-		const productVariants = this.props.product_variants
-		if (productVariants.length === 1) {
-			if (productVariants[0].variantType !== ProductVariantType.None) {
-				throw new InvalidProductVariantTypeException(
-					ProductVariantType.None,
-					productVariants[0].variantType,
-				)
-			}
-			return
+		const activeProductVariants = this.props.product_variants.filter(
+			(variant) => variant.status === ProductVariantStatus.Active,
+		)
+		if (
+			this.props.product_status === ProductStatus.Published &&
+			activeProductVariants.length === 0
+		) {
+			throw new InsufficientProductVariantException()
 		}
-		// if there are multiple variants, SKU must be unique and variant type of all variants must be the same
-		const validVariantType = productVariants[0].variantType
+
+		// Remove check for VariantType of None since it is deprecated
+		// if (activeProductVariants.length === 1) {
+		// 	const variant = this.props.product_variants[0]
+		// 	if (variant.variantType !== ProductVariantType.None) {
+		// 		throw new InvalidProductVariantTypeException(
+		// 			ProductVariantType.None,
+		// 			variant.variantType,
+		// 		)
+		// 	}
+		// 	return
+		// }
+
+		// if there are multiple variants, SKU must be unique and variant type of all variants must be the same regardless of their status
+		const validVariantType = this.props.product_variants[0].variantType
 		const variantSet = new Set()
 		const skuCodeSet = new Set()
 		for (const variant of this.props.product_variants) {
@@ -171,24 +185,13 @@ export class Product {
 	static createProduct(dto: CreateProductDTO) {
 		const { isPublished, product_variants, ...props } = dto
 
-		const status = ProductStatus.Published
+		const status = isPublished
+			? ProductStatus.Published
+			: ProductStatus.Draft
 
-		let variants: any[]
-		if (dto.product_variants.length === 1) {
-			const variant = dto.product_variants[0]
-			const defaultVariant = ProductVariant.createVariantNone({
-				discount_price: variant.discount_price,
-				price: variant.price,
-				quantity: variant.quantity,
-				sku: variant.sku,
-				image_list: variant.image_list,
-			})
-			variants = [defaultVariant]
-		} else {
-			variants = dto.product_variants.map((variant) =>
-				ProductVariant.create(variant),
-			)
-		}
+		const variants = dto.product_variants.map((variant) =>
+			ProductVariant.create(variant),
+		)
 
 		return new Product({
 			...props,

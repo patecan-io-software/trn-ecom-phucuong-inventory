@@ -18,6 +18,11 @@ export interface ProductWeight {
 	unit: string
 }
 
+export enum ProductVariantStatus {
+	Active = 'Active',
+	Inactive = 'Inactive',
+}
+
 export enum ProductVariantType {
 	None = 'None',
 	ColorOnly = 'ColorOnly',

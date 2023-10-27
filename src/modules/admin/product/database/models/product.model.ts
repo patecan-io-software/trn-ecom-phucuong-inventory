@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import { PRODUCT_MODEL } from '../../constants'
+import { ProductVariantStatus } from '../../domain'
 
 export const productSchema = new Schema(
 	{
@@ -71,6 +72,11 @@ export const productSchema = new Schema(
 						imageUrl: String,
 					},
 				],
+				status: {
+					type: String,
+					default: ProductVariantStatus.Active,
+					required: false,
+				},
 			},
 		],
 		product_isActive: { type: Boolean, default: true },

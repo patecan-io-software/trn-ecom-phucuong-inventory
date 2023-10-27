@@ -1,4 +1,8 @@
-import { CreateProductDTO, ProductVariantType } from '../../domain'
+import {
+	CreateProductDTO,
+	ProductVariantStatus,
+	ProductVariantType,
+} from '../../domain'
 import { ProductVariantFactory } from './product-variant.factory'
 
 export class ProductDTOBuilder {
@@ -8,7 +12,7 @@ export class ProductDTOBuilder {
 		return this._result
 	}
 
-	createProduct() {
+	createProduct(isPublished = true) {
 		this._result = {
 			product_name: '',
 			product_description: '',
@@ -26,16 +30,23 @@ export class ProductDTOBuilder {
 				value: 0,
 				unit: '',
 			},
-			isPublished: false,
+			isPublished,
 			product_variants: [],
 		}
 		return this
 	}
 
 	withOneVariant(variantType: ProductVariantType) {
-		this._result.product_variants = [
+		this._result.product_variants.push(
 			ProductVariantFactory.createVariantWithType('SKU01', variantType),
-		]
+		)
+		return this
+	}
+
+	withVariantStatus(status: ProductVariantStatus) {
+		this._result.product_variants.forEach((variant) => {
+			variant.status = status
+		})
 		return this
 	}
 

@@ -1,6 +1,7 @@
 import {
 	CreateProductDTO,
 	CreateProductVariantProps,
+	ProductVariantStatus,
 	ProductVariantType,
 } from '../../domain'
 import {
@@ -13,6 +14,7 @@ export class ProductVariantFactory {
 	static createVariantWithType(
 		sku: string,
 		variantType: ProductVariantType,
+		status: ProductVariantStatus = ProductVariantStatus.Active,
 	): CreateProductVariantProps {
 		const props: CreateProductVariantProps = {
 			sku,
@@ -22,6 +24,7 @@ export class ProductVariantFactory {
 			image_list: [],
 			color: null,
 			material: null,
+			status,
 		}
 		switch (variantType) {
 			case ProductVariantType.None:
