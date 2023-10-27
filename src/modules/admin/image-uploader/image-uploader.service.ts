@@ -56,8 +56,7 @@ export class ImageUploader {
 	async copyFromTempTo(fromPath: string, destinationPath: string) {
 		const { bucketName, tempPath, supabaseUrl } = this.config
 		const [parentFolder] = fromPath.split('/').filter((folder) => !!folder)
-		if (parentFolder.toString().trim() !== tempPath.toString().trim()) {
-			console.log(parentFolder, tempPath)
+		if (!parentFolder.toString().trim().includes("temp")) {
 			throw new UploadFileFailedException(
 				`Parent folder must be ${tempPath}`,
 			)
