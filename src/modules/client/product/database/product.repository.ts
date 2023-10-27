@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ProductModel } from './models/product.model'
 import { IPaginationResult, Utils } from '@libs'
 import { ProductStatus } from '../constants'
+import { CategoryModel } from '@modules/client/category/database'
 
 @Injectable()
 export class ProductRepository {
@@ -71,7 +72,17 @@ export class ProductRepository {
 		}
 
 		if(Boolean(category) && category !== 'all' && category !== 'undefined' && category !== 'null'){
-			query['product_categories._id'] = category
+			const foundCategory = await CategoryModel.find({ _id: category });
+
+			if(!foundCategory.parent_id){
+				const childCategories = await CategoryModel.find({ parent_id: foundCategory._id, isMarkedDelete: false });
+				const childCategoriesIds = childCategories.map((childCategory) => childCategory._id);
+				query['product_categories._id'] = { $in: childCategoriesIds }
+			} else {
+				query['product_categories._id'] = category
+			}
+
+
 		}
 
 

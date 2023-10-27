@@ -2,6 +2,10 @@ import mongoose, { Schema, mongo } from 'mongoose'
 
 export const categorySchema = new Schema(
 	{
+		parent_id: {
+			type: Schema.Types.ObjectId,
+			required: false,
+		},
 		category_name: {
 			type: String,
 			trim: true,
