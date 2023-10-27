@@ -25,7 +25,10 @@ import {
 	FindBrandsResponseDTO,
 } from './dtos/brand/find-brands.dtos'
 import { BrandDTO, BrandImage } from './dtos/brand/brand.dtos'
-import { BrandNotFoundException } from '../errors/brand.errors'
+import {
+	BrandNotFoundException,
+	InvalidBrandLogoException,
+} from '../errors/brand.errors'
 import {
 	UpdateBrandRequestDTO,
 	UpdateBrandResponseDTO,
@@ -145,16 +148,18 @@ export class BrandController {
 		if (remove) {
 			await this.removeBrandImage(brand._id)
 		}
-		const brandImageList: BrandImage[] = [
-			{
-				imageName: brand.brand_logoUrl.split('/').pop(), // brand/1/image_01.png -> image_01.png
-				imageUrl: brand.brand_logoUrl,
-			},
-			...brand.brand_images,
-		]
+
+		// TODO: Temporarily use `imageUrl` to identify brand logo. Should use `imageName` in the future instead
+		const brandImageName = brand.brand_images.find(
+			(image) => image.imageUrl === brand.brand_logoUrl,
+		).imageName
+
+		if (!brandImageName) {
+			throw new InvalidBrandLogoException(brand.brand_logoUrl)
+		}
 		const brandId = brand._id
-		const [logo, ...imageList] = await Promise.all(
-			brandImageList.map(async (image) => {
+		const imageList = await Promise.all(
+			brand.brand_images.map(async (image) => {
 				const newImageUrl = await this.imageUploader.copyFromTempTo(
 					image.imageUrl,
 					`${this.brandImageBasePath}/${brandId}/${image.imageName}`,
@@ -163,8 +168,9 @@ export class BrandController {
 				return image
 			}),
 		)
-		brand.brand_logoUrl = logo.imageUrl
-		brand.brand_images = imageList
+		brand.brand_logoUrl = imageList.find(
+			(image) => image.imageName === brandImageName,
+		).imageUrl
 	}
 
 	private async removeBrandImage(brandId: string) {

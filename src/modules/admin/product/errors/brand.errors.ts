@@ -8,6 +8,14 @@ export class BrandExistsException extends BaseException {
 	}
 }
 
+export class InvalidBrandLogoException extends BaseException {
+	public code = 'INVALID_BRAND_LOGO'
+
+	constructor(logoUrl: string) {
+		super(`Invalid brand logo: ${logoUrl}`)
+	}
+}
+
 export class BrandNotFoundException extends BaseException {
 	public code = 'BRAND_NOT_FOUND'
 

@@ -33,7 +33,6 @@ export class ProductService {
 		await this.updateProductImage(dto._id, dto)
 		const product = Product.createProduct(dto)
 
-
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()
 		try {
@@ -98,13 +97,13 @@ export class ProductService {
 			_id: this.categoryRepo.genId(),
 			category_isActive: true,
 		}
-		//await this.updateCategoryImage(category, false)
+		await this.updateCategoryImage(category, false)
 		try {
 			const result = await this.categoryRepo.create(category)
 			return result
 		} catch (error) {
 			this.logger.error(error)
-			//await this.removeCategoryImage(category._id)
+			await this.removeCategoryImage(category._id)
 			throw error
 		}
 	}
@@ -145,16 +144,9 @@ export class ProductService {
 		if (remove) {
 			await this.removeCategoryImage(category._id)
 		}
-		const categoryImageList: { imageName: string; imageUrl: string }[] = [
-			{
-				imageName: category.category_logoUrl.split('/').pop(), // brand/1/image_01.png -> image_01.png
-				imageUrl: category.category_logoUrl,
-			},
-			...category.category_images,
-		]
 		const categoryId = category._id
 		const [logo, ...imageList] = await Promise.all(
-			categoryImageList.map(async (image) => {
+			category.category_images.map(async (image) => {
 				const newImageUrl = await this.imageUploader.copyFromTempTo(
 					image.imageUrl,
 					`${this.config.basePaths.category}/${categoryId}/${image.imageName}`,
@@ -193,7 +185,8 @@ export class ProductService {
 				productImages[imageName].imageUrl = newImageUrl
 			}),
 		)
-		product.product_banner_image = productImages[product.product_banner_image.imageName]
+		product.product_banner_image =
+			productImages[product.product_banner_image.imageName]
 		product.product_variants.forEach((variant) => {
 			variant.image_list.forEach((image) => {
 				image.imageUrl = productImages[image.imageName].imageUrl

@@ -171,8 +171,7 @@ export class Product {
 	static createProduct(dto: CreateProductDTO) {
 		const { isPublished, product_variants, ...props } = dto
 
-		const status =  ProductStatus.Published
-
+		const status = ProductStatus.Published
 
 		let variants: any[]
 		if (dto.product_variants.length === 1) {
