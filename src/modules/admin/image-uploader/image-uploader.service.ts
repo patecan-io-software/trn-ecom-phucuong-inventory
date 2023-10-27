@@ -57,9 +57,10 @@ export class ImageUploader {
 		const { bucketName, tempPath, supabaseUrl } = this.config
 		const [parentFolder] = fromPath.split('/').filter((folder) => !!folder)
 		if (parentFolder !== tempPath) {
-			// throw new UploadFileFailedException(
-			// 	`Parent folder must be ${tempPath}`,
-			// )
+			console.log(parentFolder, tempPath)
+			throw new UploadFileFailedException(
+				`Parent folder must be ${tempPath}`,
+			)
 		}
 		const { data, error } = await this.supabaseClient.storage
 			.from(bucketName)
