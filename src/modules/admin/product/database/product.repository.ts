@@ -124,6 +124,24 @@ export class ProductRepository extends BaseRepository {
 		} as any)
 	}
 
+	async queryById(id: string) {
+		const product = await ProductModel.findById(id).where({
+			isMarkedDelete: false,
+		})
+
+		if (!product) {
+			return null
+		}
+
+		return this.mapProduct(
+			product.toObject({
+				versionKey: false,
+				depopulate: true,
+				flattenObjectIds: true,
+			}),
+		)
+	}
+
 	async deleteProductById(id: string) {
 		const product = await ProductModel.findById(id).exec()
 		if (!product) {

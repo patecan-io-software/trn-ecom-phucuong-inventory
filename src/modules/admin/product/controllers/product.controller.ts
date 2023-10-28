@@ -29,6 +29,8 @@ import {
 	SearchProductsResponseDTO,
 } from './dtos/product/search-products.dtos'
 import { AdminAuth } from '@modules/admin/auth'
+import { ProductNotFoundException } from '../errors/product.errors'
+import { GetProductByIdResponseDTO } from './dtos/product/get-by-id.dtos'
 
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
@@ -69,6 +71,22 @@ export class ProductController {
 			page_size,
 		})
 		return new SearchProductsResponseDTO(results)
+	}
+
+	@Get(':id')
+	@ApiResponse({
+		status: 200,
+		type: GetProductByIdResponseDTO,
+	})
+	async getProductById(
+		@Param() param: ObjectIdParam,
+	): Promise<GetProductByIdResponseDTO> {
+		const productId = param.id
+		const product = await this.productRepo.queryById(productId)
+		if (!product) {
+			throw new ProductNotFoundException(productId)
+		}
+		return new GetProductByIdResponseDTO({ data: product })
 	}
 
 	@Put('/:id')
