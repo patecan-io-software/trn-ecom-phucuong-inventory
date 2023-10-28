@@ -65,15 +65,22 @@ export class BrandRepository {
 	}
 
 	async deleteById(id: string): Promise<string> {
-		const result = await BrandModel.findByIdAndUpdate(id, {
-			isMarkedDelete: true,
-		}).exec()
+		const brand = await BrandModel.findById(id)
+			.where({
+				isMarkedDelete: false,
+			})
+			.exec()
 
-		if (!result) {
+		if (!brand) {
 			return null
 		}
 
-		return result._id?.toString?.()
+		brand.brand_name = `${brand.brand_name}_${Date.now()}`
+		brand.isMarkedDelete = true
+
+		await brand.save()
+
+		return brand._id.toHexString()
 	}
 
 	async find(options: {

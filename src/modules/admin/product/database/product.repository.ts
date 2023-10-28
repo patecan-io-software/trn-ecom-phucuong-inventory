@@ -130,6 +130,7 @@ export class ProductRepository extends BaseRepository {
 			return null
 		}
 
+		product.product_name = `${product.product_name}_${Date.now()}`
 		product.isMarkedDelete = true
 		product.product_categories = []
 		product.product_brand = null
@@ -144,7 +145,9 @@ export class ProductRepository extends BaseRepository {
 	}): Promise<IPaginationResult> {
 		const { keyword, page, page_size } = options
 
-		const query: any = {}
+		const query: any = {
+			isMarkedDelete: false,
+		}
 		if (keyword) {
 			const escapedKeyword = Utils.escapeRegExp(keyword)
 			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
