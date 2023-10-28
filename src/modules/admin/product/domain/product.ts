@@ -87,11 +87,7 @@ export class Product {
 	}
 
 	update(dto: UpdateProductDTO) {
-		if (dto.isPublished !== undefined) {
-			this.props.product_status = dto.isPublished
-				? ProductStatus.Published
-				: ProductStatus.Draft
-		}
+		this.props.product_status = ProductStatus.Published
 		dto.product_variants.forEach((updated) => {
 			const variant = this.props.product_variants.find(
 				(variant) => variant.sku === updated.sku,
