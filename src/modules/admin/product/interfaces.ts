@@ -4,4 +4,5 @@ export interface ProductModuleConfig {
 		brand: string
 		category: string
 	}
+	defaultProductImageUrl: string
 }

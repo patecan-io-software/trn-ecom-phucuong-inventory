@@ -2,6 +2,7 @@ import { Product, ProductVariantStatus, ProductVariantType } from '../domain'
 import {
 	DuplicateProductVariantException,
 	InsufficientProductVariantException,
+	InvalidProductBannerImageException,
 	InvalidProductVariantTypeException,
 } from '../errors/product.errors'
 import { ProductDTOBuilder } from './utils/product.factory'

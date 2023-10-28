@@ -105,13 +105,9 @@ export class CreateProductRequestDTO {
 	@IsIn(SIZE_UNIT)
 	product_size_unit: string
 
-	@ApiProperty({
-		type: ProductImage,
-	})
-	@Type(() => ProductImage)
-	@ValidateNested()
-	@IsNotEmpty()
-	product_banner_image: ProductImage
+	@ApiProperty()
+	@IsOptional()
+	product_banner_image: string
 
 	@ApiProperty({
 		type: [CreateProductVariantDTO],
@@ -123,9 +119,9 @@ export class CreateProductRequestDTO {
 
 	@ApiProperty({
 		required: false,
-		default: false,
+		default: true,
 	})
-	isPublished: boolean = false
+	isPublished: boolean = true
 }
 
 export class CreateProductResponseDTO extends PartialType(SuccessResponseDTO) {

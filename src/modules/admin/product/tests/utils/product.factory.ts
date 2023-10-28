@@ -16,10 +16,7 @@ export class ProductDTOBuilder {
 		this._result = {
 			product_name: '',
 			product_description: '',
-			product_banner_image: {
-				imageName: '',
-				imageUrl: '',
-			},
+			product_banner_image: '',
 			product_brand: '',
 			product_categories: [],
 			product_height: 0,
@@ -36,10 +33,18 @@ export class ProductDTOBuilder {
 		return this
 	}
 
+	withBannerImage(imageUrl: string) {
+		this._result.product_banner_image = imageUrl
+		return this
+	}
+
 	withOneVariant(variantType: ProductVariantType) {
 		this._result.product_variants.push(
 			ProductVariantFactory.createVariantWithType('SKU01', variantType),
 		)
+		this._result.product_banner_image =
+			this._result.product_variants[0].image_list[0].imageUrl
+
 		return this
 	}
 
@@ -56,6 +61,9 @@ export class ProductDTOBuilder {
 			ProductVariantFactory.createVariantWithType('SKU02', variantType),
 			ProductVariantFactory.createVariantWithType('SKU03', variantType),
 		]
+		this._result.product_banner_image =
+			this._result.product_variants[0].image_list[0].imageUrl
+
 		return this
 	}
 
@@ -74,6 +82,10 @@ export class ProductDTOBuilder {
 				ProductVariantType.ColorAndMaterial,
 			),
 		]
+
+		this._result.product_banner_image =
+			this._result.product_variants[0].image_list[0].imageUrl
+
 		return this
 	}
 
@@ -88,6 +100,10 @@ export class ProductDTOBuilder {
 				ProductVariantType.ColorAndMaterial,
 			),
 		]
+
+		this._result.product_banner_image =
+			this._result.product_variants[0].image_list[0].imageUrl
+
 		return this
 	}
 
@@ -109,6 +125,10 @@ export class ProductDTOBuilder {
 				material,
 			),
 		]
+
+		this._result.product_banner_image =
+			this._result.product_variants[0].image_list[0].imageUrl
+
 		return this
 	}
 }

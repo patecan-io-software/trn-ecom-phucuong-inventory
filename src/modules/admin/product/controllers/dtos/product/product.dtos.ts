@@ -38,6 +38,7 @@ export class ProductImage {
 
 export class ProductVariantDTO {
 	@ApiProperty()
+	@IsNotEmpty()
 	sku: string
 
 	@ApiProperty()
@@ -76,10 +77,9 @@ export class ProductDTO {
 	product_description: string
 
 	@ApiProperty({
-		type: ProductImage,
+		type: String,
 	})
-	@Type(() => ProductImage)
-	product_banner_image: ProductImage
+	product_banner_image: string
 
 	@ApiProperty({
 		type: BrandDTO,

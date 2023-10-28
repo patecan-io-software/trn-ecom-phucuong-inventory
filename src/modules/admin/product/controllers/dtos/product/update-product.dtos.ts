@@ -8,24 +8,27 @@ import {
 import { Type } from 'class-transformer'
 import { BrandDTO } from '../brand/brand.dtos'
 import { SuccessResponseDTO } from '@libs'
+import { ArrayMinSize, IsArray, IsNotEmpty } from 'class-validator'
 
 export class UpdateProductRequestDTO {
 	@ApiProperty()
+	@IsNotEmpty()
 	product_name: string
 
 	@ApiProperty()
 	product_description: string
 
-	@ApiProperty({
-		type: ProductImage,
-	})
-	@Type(() => ProductImage)
-	product_banner_image: ProductImage
+	@ApiProperty()
+	@IsNotEmpty()
+	product_banner_image: string
 
 	@ApiProperty()
+	@IsNotEmpty()
 	product_brand: string
 
 	@ApiProperty()
+	@IsArray()
+	@ArrayMinSize(1)
 	product_categories: string[]
 
 	@ApiProperty()
@@ -51,10 +54,10 @@ export class UpdateProductRequestDTO {
 	product_variants: ProductVariantDTO[]
 
 	@ApiProperty({
-		required: false,
-		default: false,
+		required: true,
+		default: true,
 	})
-	isPublished: boolean = false
+	isPublished: boolean = true
 }
 
 export class UpdateProductResponseDTO extends PartialType(SuccessResponseDTO) {

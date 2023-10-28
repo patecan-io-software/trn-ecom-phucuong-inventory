@@ -9,5 +9,6 @@ export default () => ({
 		supabaseKey: process.env.SUPABASE_KEY,
 		supabaseUrl: process.env.SUPABASE_URL,
 		tempPath: 'temp',
+		defaultPath: 'default',
 	} as ImageUploaderConfig,
 })

@@ -10,7 +10,7 @@ import { DuplicateProductNameException } from '../errors/product.errors'
 import { ProductVariant } from '../domain/product-variant'
 import { IPaginationResult, Utils } from '@libs'
 import { ProductMaterial, ProductMaterialModel } from './models/material.model'
-import mongoose, { ClientSession, Connection } from 'mongoose'
+import mongoose, { Connection } from 'mongoose'
 import {
 	BaseRepository,
 	DATABASE_CONNECTION,

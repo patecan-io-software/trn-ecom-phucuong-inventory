@@ -57,7 +57,7 @@ export class ProductController {
 	@Get()
 	@ApiResponse({
 		status: 200,
-		type: ProductDTO,
+		type: SearchProductsResponseDTO,
 	})
 	async searchProducts(
 		@Query() query: SearchProductsQueryDTO,

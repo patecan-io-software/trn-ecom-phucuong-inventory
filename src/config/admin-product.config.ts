@@ -10,5 +10,6 @@ export default () => ({
 			category: 'category',
 			product: 'product',
 		},
+		defaultProductImageUrl: process.env.ADMIN_PRODUCT_DEFAULT_IMAGE_URL,
 	} as ProductModuleConfig,
 })

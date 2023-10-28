@@ -54,13 +54,17 @@ export class ImageUploader {
 	}
 
 	async copyFromTempTo(fromPath: string, destinationPath: string) {
-		const { bucketName, tempPath, supabaseUrl } = this.config
-		const [parentFolder] = fromPath.split('/').filter((folder) => !!folder)
-		if (!parentFolder.toString().trim().includes(tempPath)) {
+		const { bucketName, supabaseUrl, defaultPath, tempPath } = this.config
+
+		if (
+			!fromPath.startsWith(tempPath) &&
+			!fromPath.startsWith(defaultPath)
+		) {
 			throw new UploadFileFailedException(
-				`Parent folder must be ${tempPath}`,
+				`Path of image must start with ${tempPath} or ${defaultPath}`,
 			)
 		}
+
 		const { data, error } = await this.supabaseClient.storage
 			.from(bucketName)
 			.copy(fromPath, destinationPath)

@@ -56,3 +56,13 @@ export class ProductNotFoundException extends BaseException {
 		super(`Product with id ${productId} not found`)
 	}
 }
+
+export class InvalidProductBannerImageException extends BaseException {
+	public code = 'INVALID_PRODUCT_BANNER_IMAGE'
+
+	constructor(product_banner_image: string) {
+		super(
+			`Product banner image name '${product_banner_image}' does not exist in any image list`,
+		)
+	}
+}
