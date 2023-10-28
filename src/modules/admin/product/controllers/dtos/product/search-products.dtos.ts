@@ -50,5 +50,6 @@ export class SearchProductsResponseDTO extends PartialType(SuccessResponseDTO) {
 	constructor(props: any) {
 		super(props)
 		Object.assign(this, props)
+		this.items = props.items.map((item) => new ProductDTO(item))
 	}
 }

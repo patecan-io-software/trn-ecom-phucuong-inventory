@@ -12,6 +12,6 @@ export class GetProductByIdResponseDTO extends PartialType(SuccessResponseDTO) {
 
 	constructor(props: any) {
 		super(props)
-		Object.assign(this, props)
+		this.data = new ProductDTO(props.data)
 	}
 }

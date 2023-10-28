@@ -4,7 +4,10 @@ import { IsNotEmpty } from 'class-validator'
 import { BrandDTO } from '../brand/brand.dtos'
 import { CategoryDTO } from '../common.dto'
 import { DateStringToTimestamp } from 'src/libs/decorators'
-import { ProductVariantStatus } from '@modules/admin/product/domain'
+import {
+	ProductVariant,
+	ProductVariantStatus,
+} from '@modules/admin/product/domain'
 
 export class ProductColor {
 	@ApiProperty()
@@ -118,6 +121,12 @@ export class ProductDTO {
 	@ApiProperty()
 	status: string
 
+	@ApiProperty()
+	has_color: boolean
+
+	@ApiProperty()
+	has_material: boolean
+
 	@ApiProperty({
 		type: Number,
 	})
@@ -132,5 +141,9 @@ export class ProductDTO {
 
 	constructor(props: any) {
 		Object.assign(this, props)
+		const firstVariant = props.product_variants[0]
+
+		this.has_color = !!firstVariant.color
+		this.has_material = !!firstVariant.material
 	}
 }
