@@ -30,12 +30,9 @@ export class CreateProductVariantDTO {
 	@ApiProperty({
 		type: ProductColor,
 	})
-	@IsNotEmpty()
-	@ValidateNested()
 	color: ProductColor
 
 	@ApiProperty()
-	@IsNotEmpty()
 	material: string
 
 	@ApiProperty()
@@ -115,7 +112,7 @@ export class CreateProductRequestDTO {
 	})
 	@Type(() => CreateProductVariantDTO)
 	@ArrayMinSize(1)
-	@ValidateNested()
+	@ValidateNested({ each: true })
 	product_variants: CreateProductVariantDTO[]
 
 	@ApiProperty({
