@@ -65,15 +65,22 @@ export class BrandRepository {
 	}
 
 	async deleteById(id: string): Promise<string> {
-		const result = await BrandModel.findByIdAndUpdate(id, {
-			isMarkedDelete: true,
-		}).exec()
+		const brand = await BrandModel.findById(id)
+			.where({
+				isMarkedDelete: false,
+			})
+			.exec()
 
-		if (!result) {
+		if (!brand) {
 			return null
 		}
 
-		return result._id?.toString?.()
+		brand.brand_name = `${brand.brand_name}_${Date.now()}`
+		brand.isMarkedDelete = true
+
+		await brand.save()
+
+		return brand._id.toHexString()
 	}
 
 	async find(options: {
@@ -98,6 +105,9 @@ export class BrandRepository {
 		const [categoryList, count] = await Promise.all([
 			BrandModel.find(filter)
 				.select('-__v -isMarkedDelete -brand_products')
+				.sort({
+					createdAt: -1,
+				})
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),
@@ -126,7 +136,11 @@ export class BrandRepository {
 				$text: { $search: regexSearch.source },
 			}
 
-			const results = await BrandModel.find(query).exec()
+			const results = await BrandModel.find(query)
+				.sort({
+					createdAt: -1,
+				})
+				.exec()
 
 			return results
 		} catch (error) {

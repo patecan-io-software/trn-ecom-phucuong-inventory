@@ -1,14 +1,9 @@
 import {
-	CreateProductDTO,
 	CreateProductVariantProps,
 	ProductVariantStatus,
 	ProductVariantType,
 } from '../../domain'
-import {
-	getRandomAlphabetString,
-	getRandomColor,
-	getRandomProductColor,
-} from './random'
+import { getRandomAlphabetString, getRandomProductColor } from './random'
 
 export class ProductVariantFactory {
 	static createVariantWithType(
@@ -16,12 +11,18 @@ export class ProductVariantFactory {
 		variantType: ProductVariantType,
 		status: ProductVariantStatus = ProductVariantStatus.Active,
 	): CreateProductVariantProps {
+		const imageName = getRandomAlphabetString(10)
 		const props: CreateProductVariantProps = {
 			sku,
 			quantity: 1,
 			price: 5000,
 			discount_price: 5000,
-			image_list: [],
+			image_list: [
+				{
+					imageName: `temp/${imageName}`,
+					imageUrl: `http://example/products/test/${imageName}`,
+				},
+			],
 			color: null,
 			material: null,
 			status,
@@ -47,12 +48,18 @@ export class ProductVariantFactory {
 		color?: string,
 		material?: string,
 	) {
+		const imageName = getRandomAlphabetString(10)
 		const props: CreateProductVariantProps = {
 			sku,
 			quantity: 1,
 			price: 5000,
 			discount_price: 5000,
-			image_list: [],
+			image_list: [
+				{
+					imageName: `temp/${imageName}`,
+					imageUrl: `http://example/products/test/${imageName}`,
+				},
+			],
 			color: {
 				label: getRandomAlphabetString(5),
 				value: color,

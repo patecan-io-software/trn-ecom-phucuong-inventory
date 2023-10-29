@@ -40,6 +40,9 @@ export class CategoryRepository {
 
 		const findCatetoriesQuery = CategoryModel.find(query)
 			.select(this.getSelectFields())
+			.sort({
+				createdAt: -1,
+			})
 			.skip((page - 1) * page_size)
 			.limit(page_size)
 

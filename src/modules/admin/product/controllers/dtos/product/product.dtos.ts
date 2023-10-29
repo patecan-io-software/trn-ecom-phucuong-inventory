@@ -1,10 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { IsNotEmpty } from 'class-validator'
 import { BrandDTO } from '../brand/brand.dtos'
 import { CategoryDTO } from '../common.dto'
 import { DateStringToTimestamp } from 'src/libs/decorators'
-import { ProductVariantStatus } from '@modules/admin/product/domain'
+import {
+	ProductVariant,
+	ProductVariantStatus,
+} from '@modules/admin/product/domain'
 
 export class ProductColor {
 	@ApiProperty()
@@ -38,6 +41,7 @@ export class ProductImage {
 
 export class ProductVariantDTO {
 	@ApiProperty()
+	@IsNotEmpty()
 	sku: string
 
 	@ApiProperty()
@@ -53,6 +57,9 @@ export class ProductVariantDTO {
 	price: number
 
 	@ApiProperty()
+	@Transform((params) => {
+		return params.value ?? params.obj.price
+	})
 	discount_price: number
 
 	@ApiProperty({
@@ -76,10 +83,9 @@ export class ProductDTO {
 	product_description: string
 
 	@ApiProperty({
-		type: ProductImage,
+		type: String,
 	})
-	@Type(() => ProductImage)
-	product_banner_image: ProductImage
+	product_banner_image: string
 
 	@ApiProperty({
 		type: BrandDTO,
@@ -118,6 +124,12 @@ export class ProductDTO {
 	@ApiProperty()
 	status: string
 
+	@ApiProperty()
+	has_color: boolean
+
+	@ApiProperty()
+	has_material: boolean
+
 	@ApiProperty({
 		type: Number,
 	})
@@ -132,5 +144,9 @@ export class ProductDTO {
 
 	constructor(props: any) {
 		Object.assign(this, props)
+		const firstVariant = props.product_variants[0]
+
+		this.has_color = !!firstVariant.color
+		this.has_material = !!firstVariant.material
 	}
 }

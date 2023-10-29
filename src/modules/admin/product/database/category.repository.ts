@@ -97,10 +97,20 @@ export class CategoryRepository {
 	}
 
 	async deleteById(id: string): Promise<boolean> {
-		const result = await CategoryModel.findByIdAndUpdate(id, {
-			isMarkedDelete: true,
+		const category = await CategoryModel.findById(id, {
+			isMarkedDelete: false,
 		}).exec()
-		return result ? true : false
+
+		if (!category) {
+			return false
+		}
+
+		category.category_name = `${category.category_name}_${Date.now()}`
+		category.isMarkedDelete = true
+
+		await category.save()
+
+		return true
 	}
 
 	async find(options: {
@@ -124,6 +134,9 @@ export class CategoryRepository {
 		const [categoryList, count] = await Promise.all([
 			CategoryModel.find(filter)
 				.select('-__v -category_products -isMarkedDelete')
+				.sort({
+					createdAt: -1,
+				})
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),

@@ -38,6 +38,9 @@ export class BrandRepository {
 
 		const findBrandQuery = BrandModel.find(query)
 			.select(this.getSelectFields())
+			.sort({
+				createdAt: -1,
+			})
 			.skip((page - 1) * page_size)
 			.limit(page_size)
 

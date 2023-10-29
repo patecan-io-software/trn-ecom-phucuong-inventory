@@ -21,7 +21,7 @@ import {
 export interface CreateProductDTO {
 	product_name: string
 	product_description: string
-	product_banner_image: ProductImage
+	product_banner_image: string
 	product_brand: string
 	product_categories: string[]
 	product_height: number
@@ -37,7 +37,7 @@ export interface CreateProductDTO {
 export interface UpdateProductDTO {
 	product_name: string
 	product_description: string
-	product_banner_image: ProductImage
+	product_banner_image: string
 	product_brand: string
 	product_categories: string[]
 	product_height: number
@@ -53,7 +53,7 @@ export interface ProductProps {
 	_id?: string
 	product_name: string
 	product_description: string
-	product_banner_image: ProductImage
+	product_banner_image: string
 	product_brand: string
 	product_categories: string[]
 	product_height: number
@@ -137,6 +137,10 @@ export class Product {
 			activeProductVariants.length === 0
 		) {
 			throw new InsufficientProductVariantException()
+		}
+
+		if (activeProductVariants.length === 1) {
+			return
 		}
 
 		// Remove check for VariantType of None since it is deprecated

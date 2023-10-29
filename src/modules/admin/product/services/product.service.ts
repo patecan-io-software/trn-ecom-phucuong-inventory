@@ -10,11 +10,15 @@ import {
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { UpdateCategoryDTO } from './dtos/update-category.dto'
 import { CreateCategoryDTO } from './dtos/create-category.dto'
-import { ProductNotFoundException } from '../errors/product.errors'
+import {
+	InvalidProductBannerImageException,
+	ProductNotFoundException,
+} from '../errors/product.errors'
 import { InventoryService } from '@modules/admin/inventory'
 import { PRODUCT_MODULE_CONFIG } from '../constants'
 import { ProductModuleConfig } from '../interfaces'
 import { ImageUploader } from '@modules/admin/image-uploader'
+import { randomInt } from 'crypto'
 
 @Injectable()
 export class ProductService {
@@ -32,6 +36,8 @@ export class ProductService {
 		dto._id = this.productRepo.genId()
 
 		await this.updateProductImage(dto._id, dto)
+		const product = Product.createProduct(dto)
+
 		const product = Product.createProduct(dto)
 
 		const productRepo =
@@ -164,9 +170,23 @@ export class ProductService {
 		productId: string,
 		product: CreateProductDTO | UpdateProductDTO,
 	) {
-		const productImages = product.product_variants
-			.flatMap((variant) => variant.image_list)
-			.concat(product.product_banner_image)
+		const productImages: Record<string, any> = product.product_variants
+			.flatMap((variant) => {
+				// use default variant image in case user does not specify image for variant
+				variant.image_list =
+					variant.image_list.length === 0
+						? [
+								{
+									imageName: `${randomInt(
+										100,
+									)}_${Date.now()}`,
+									imageUrl:
+										this.config.defaultProductImageUrl,
+								},
+						  ]
+						: variant.image_list
+				return variant.image_list
+			})
 			.reduce((pre, cur) => {
 				return {
 					...pre,
@@ -186,13 +206,22 @@ export class ProductService {
 				productImages[imageName].imageUrl = newImageUrl
 			}),
 		)
-		product.product_banner_image =
-			productImages[product.product_banner_image.imageName]
+
 		product.product_variants.forEach((variant) => {
-			variant.image_list.forEach((image) => {
-				image.imageUrl = productImages[image.imageName].imageUrl
-			})
+			if (variant.image_list)
+				variant.image_list.forEach((image) => {
+					image.imageUrl = productImages[image.imageName].imageUrl
+				})
 		})
+
+		// if product banner image is not found or invalid, use first image in image list
+		if (!productImages[product.product_banner_image]) {
+			product.product_banner_image =
+				Object.values(productImages)[0].imageUrl
+		} else {
+			product.product_banner_image =
+				productImages[product.product_banner_image].imageUrl
+		}
 	}
 
 	private async removeCategoryImage(categoryId: string) {

@@ -10,7 +10,7 @@ import { DuplicateProductNameException } from '../errors/product.errors'
 import { ProductVariant } from '../domain/product-variant'
 import { IPaginationResult, Utils } from '@libs'
 import { ProductMaterial, ProductMaterialModel } from './models/material.model'
-import mongoose, { ClientSession, Connection } from 'mongoose'
+import mongoose, { Connection } from 'mongoose'
 import {
 	BaseRepository,
 	DATABASE_CONNECTION,
@@ -124,12 +124,34 @@ export class ProductRepository extends BaseRepository {
 		} as any)
 	}
 
+	async queryById(id: string) {
+		const product = await ProductModel.findById(id)
+			.where({
+				isMarkedDelete: false,
+			})
+			.select(this.getSelectFields())
+			.exec()
+
+		if (!product) {
+			return null
+		}
+
+		return this.mapProduct(
+			product.toObject({
+				versionKey: false,
+				depopulate: true,
+				flattenObjectIds: true,
+			}),
+		)
+	}
+
 	async deleteProductById(id: string) {
 		const product = await ProductModel.findById(id).exec()
 		if (!product) {
 			return null
 		}
 
+		product.product_name = `${product.product_name}_${Date.now()}`
 		product.isMarkedDelete = true
 		product.product_categories = []
 		product.product_brand = null
@@ -144,7 +166,9 @@ export class ProductRepository extends BaseRepository {
 	}): Promise<IPaginationResult> {
 		const { keyword, page, page_size } = options
 
-		const query: any = {}
+		const query: any = {
+			isMarkedDelete: false,
+		}
 		if (keyword) {
 			const escapedKeyword = Utils.escapeRegExp(keyword)
 			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
@@ -153,13 +177,16 @@ export class ProductRepository extends BaseRepository {
 
 		const findProductsQuery = ProductModel.find(query)
 			.select('-__v')
+			.sort({
+				createdAt: -1,
+			})
 			.skip((page - 1) * page_size)
 			.limit(page_size)
 
 		keyword && findProductsQuery.where({ $text: { $search: keyword } })
 
 		const [results, totalCount] = await Promise.all([
-			findProductsQuery.exec(),
+			findProductsQuery.select(this.getSelectFields()).exec(),
 			ProductModel.countDocuments(query),
 		])
 
@@ -248,5 +275,9 @@ export class ProductRepository extends BaseRepository {
 			variant.status ||= ProductVariantStatus.Active
 		})
 		return product
+	}
+
+	private getSelectFields() {
+		return '-isMarkedDelete -product_isActive'
 	}
 }

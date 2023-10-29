@@ -16,8 +16,8 @@ export const productSchema = new Schema(
 			required: true,
 		},
 		product_banner_image: {
-			imageName: String,
-			imageUrl: String,
+			type: String,
+			required: true,
 		},
 		product_slug: String, // --> Quan-Jean-cao-cap
 		product_brand: {
