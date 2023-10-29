@@ -38,7 +38,6 @@ export class ProductService {
 		await this.updateProductImage(dto._id, dto)
 		const product = Product.createProduct(dto)
 
-		const product = Product.createProduct(dto)
 
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()

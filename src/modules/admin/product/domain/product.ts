@@ -88,6 +88,21 @@ export class Product {
 
 	update(dto: UpdateProductDTO) {
 		this.props.product_status = ProductStatus.Published
+
+		if (dto.product_variants.length > this.props.product_variants.length) {
+			const updatedVariantSku = dto.product_variants.map(variant => variant.sku)
+			const oldVariantSku = this.props.product_variants.map(variant => variant.sku)
+
+			const variantNotInOld = updatedVariantSku.filter(variant => !oldVariantSku.includes(variant))
+
+			variantNotInOld.forEach((sku) => {
+				const variant = dto.product_variants.find(
+					(variant) => variant.sku === sku,
+				)
+				this.props.product_variants.push(ProductVariant.create(variant))
+			})
+		}
+
 		dto.product_variants.forEach((updated) => {
 			const variant = this.props.product_variants.find(
 				(variant) => variant.sku === updated.sku,
