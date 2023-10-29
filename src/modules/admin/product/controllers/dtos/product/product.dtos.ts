@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { IsNotEmpty } from 'class-validator'
 import { BrandDTO } from '../brand/brand.dtos'
 import { CategoryDTO } from '../common.dto'
@@ -57,6 +57,9 @@ export class ProductVariantDTO {
 	price: number
 
 	@ApiProperty()
+	@Transform((params) => {
+		return params.value ?? params.obj.price
+	})
 	discount_price: number
 
 	@ApiProperty({

@@ -125,9 +125,12 @@ export class ProductRepository extends BaseRepository {
 	}
 
 	async queryById(id: string) {
-		const product = await ProductModel.findById(id).where({
-			isMarkedDelete: false,
-		})
+		const product = await ProductModel.findById(id)
+			.where({
+				isMarkedDelete: false,
+			})
+			.select(this.getSelectFields())
+			.exec()
 
 		if (!product) {
 			return null
@@ -180,7 +183,7 @@ export class ProductRepository extends BaseRepository {
 		keyword && findProductsQuery.where({ $text: { $search: keyword } })
 
 		const [results, totalCount] = await Promise.all([
-			findProductsQuery.exec(),
+			findProductsQuery.select(this.getSelectFields()).exec(),
 			ProductModel.countDocuments(query),
 		])
 
@@ -269,5 +272,9 @@ export class ProductRepository extends BaseRepository {
 			variant.status ||= ProductVariantStatus.Active
 		})
 		return product
+	}
+
+	private getSelectFields() {
+		return '-isMarkedDelete -product_isActive'
 	}
 }

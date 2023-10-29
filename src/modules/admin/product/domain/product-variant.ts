@@ -66,13 +66,13 @@ export class ProductVariant {
 		const { color, discount_price, image_list, material, price, quantity } =
 			props
 		this.props.color = color
-		this.props.discount_price = discount_price
+		this.props.discount_price = discount_price || price
 		this.props.image_list = image_list
 		this.props.material = material
 		this.props.price = price
 		this.props.quantity = quantity
 		this.props.discount_percentage = Math.round(
-			((price - discount_price) / price) * 100,
+			((price - this.props.discount_price) / price) * 100,
 		)
 
 		this.updateVariantType()

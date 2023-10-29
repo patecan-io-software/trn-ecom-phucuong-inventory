@@ -8,7 +8,12 @@ import {
 import { Type } from 'class-transformer'
 import { BrandDTO } from '../brand/brand.dtos'
 import { SuccessResponseDTO } from '@libs'
-import { ArrayMinSize, IsArray, IsNotEmpty } from 'class-validator'
+import {
+	ArrayMinSize,
+	IsArray,
+	IsNotEmpty,
+	ValidateNested,
+} from 'class-validator'
 
 export class UpdateProductRequestDTO {
 	@ApiProperty()
@@ -51,6 +56,7 @@ export class UpdateProductRequestDTO {
 		type: [ProductVariantDTO],
 	})
 	@Type(() => ProductVariantDTO)
+	@ValidateNested()
 	product_variants: ProductVariantDTO[]
 
 	@ApiProperty({
