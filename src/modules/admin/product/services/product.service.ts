@@ -38,7 +38,6 @@ export class ProductService {
 		await this.updateProductImage(dto._id, dto)
 		const product = Product.createProduct(dto)
 
-
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()
 		try {
@@ -66,7 +65,8 @@ export class ProductService {
 			throw new ProductNotFoundException(productId)
 		}
 
-		await this.removeProductImage(productId)
+		// NOTES: Disable removing product image when update product to avoid conflict issue. It is better to handle by CRON instead
+		// await this.removeProductImage(productId)
 		await this.updateProductImage(productId, dto)
 
 		product.update(dto)
