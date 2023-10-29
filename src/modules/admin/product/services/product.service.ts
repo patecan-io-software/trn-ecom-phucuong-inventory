@@ -196,7 +196,7 @@ export class ProductService {
 				}
 			}, {})
 
-		await Promise.all(
+		const results = await Promise.allSettled(
 			Object.keys(productImages).map(async (imageName) => {
 				const newImageUrl = await this.imageUploader.copyFromTempTo(
 					productImages[imageName].imageUrl,
@@ -205,6 +205,11 @@ export class ProductService {
 				productImages[imageName].imageUrl = newImageUrl
 			}),
 		)
+		const failedResults = results.filter(
+			(result) => result.status === 'rejected',
+		)
+
+		this.logger.warn(JSON.stringify(failedResults))
 
 		product.product_variants.forEach((variant) => {
 			if (variant.image_list)
