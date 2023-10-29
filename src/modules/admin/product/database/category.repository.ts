@@ -134,6 +134,9 @@ export class CategoryRepository {
 		const [categoryList, count] = await Promise.all([
 			CategoryModel.find(filter)
 				.select('-__v -category_products -isMarkedDelete')
+				.sort({
+					createdAt: -1,
+				})
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),

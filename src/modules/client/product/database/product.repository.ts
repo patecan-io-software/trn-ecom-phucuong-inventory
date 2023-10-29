@@ -24,6 +24,9 @@ export class ProductRepository {
 
 		const findProductsQuery = ProductModel.find(query)
 			.select(this.getSelectFields())
+			.sort({
+				createdAt: -1,
+			})
 			.skip((page - 1) * page_size)
 			.limit(page_size)
 
@@ -105,6 +108,9 @@ export class ProductRepository {
 		const [productsList, count] = await Promise.all([
 			ProductModel.find(query)
 				.select(this.getSelectFields())
+				.sort({
+					createdAt: -1,
+				})
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),
@@ -145,7 +151,10 @@ export class ProductRepository {
 
 		const [productsList, count] = await Promise.all([
 			ProductModel.find(query)
-				.select('-__v -isMarkedDelete')
+				.select(this.getSelectFields())
+				.sort({
+					createdAt: -1,
+				})
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),

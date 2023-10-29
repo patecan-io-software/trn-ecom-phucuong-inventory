@@ -177,6 +177,9 @@ export class ProductRepository extends BaseRepository {
 
 		const findProductsQuery = ProductModel.find(query)
 			.select('-__v')
+			.sort({
+				createdAt: -1,
+			})
 			.skip((page - 1) * page_size)
 			.limit(page_size)
 

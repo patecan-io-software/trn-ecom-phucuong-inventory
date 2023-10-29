@@ -105,6 +105,9 @@ export class BrandRepository {
 		const [categoryList, count] = await Promise.all([
 			BrandModel.find(filter)
 				.select('-__v -isMarkedDelete -brand_products')
+				.sort({
+					createdAt: -1,
+				})
 				.skip((page - 1) * page_size)
 				.limit(page_size)
 				.exec(),
@@ -133,7 +136,11 @@ export class BrandRepository {
 				$text: { $search: regexSearch.source },
 			}
 
-			const results = await BrandModel.find(query).exec()
+			const results = await BrandModel.find(query)
+				.sort({
+					createdAt: -1,
+				})
+				.exec()
 
 			return results
 		} catch (error) {
