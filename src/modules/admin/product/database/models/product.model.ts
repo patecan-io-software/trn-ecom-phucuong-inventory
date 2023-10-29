@@ -96,22 +96,22 @@ export const productSchema = new Schema(
 productSchema.index({ product_name: 'text', product_description: 'text' })
 productSchema.index({ product_status: 1 })
 
-productSchema.pre('save', async function (next) {
-	for (let i = 0; i < this.product_variants.length; i++) {
-		const variant = this.product_variants[i]
-		if (variant.discount_price !== variant.price) {
-			variant.discount_percentage = Math.round(
-				(variant.discount_price / variant.price) * 100,
-			)
-		}
-		if (variant.discount_percentage !== 0) {
-			variant.discount_price = Math.round(
-				(variant.price * (100 - variant.discount_percentage)) / 100,
-			)
-		}
-	}
+// productSchema.pre('save', async function (next) {
+// 	for (let i = 0; i < this.product_variants.length; i++) {
+// 		const variant = this.product_variants[i]
+// 		if (variant.discount_price !== variant.price) {
+// 			variant.discount_percentage = Math.round(
+// 				(variant.discount_price / variant.price) * 100,
+// 			)
+// 		}
+// 		if (variant.discount_percentage !== 0) {
+// 			variant.discount_price = Math.round(
+// 				(variant.price * (100 - variant.discount_percentage)) / 100,
+// 			)
+// 		}
+// 	}
 
-	next()
-})
+// 	next()
+// })
 
 export const ProductModel = mongoose.model(PRODUCT_MODEL, productSchema)
