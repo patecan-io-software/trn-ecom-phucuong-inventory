@@ -62,6 +62,9 @@ export class ProductVariantDTO {
 	})
 	discount_price: number
 
+	@ApiProperty()
+	discount_percentage: number
+
 	@ApiProperty({
 		type: [ProductImage],
 	})

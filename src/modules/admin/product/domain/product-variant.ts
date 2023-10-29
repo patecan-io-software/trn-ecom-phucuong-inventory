@@ -1,4 +1,7 @@
-import { DuplicateImageNameException } from '../errors/product.errors'
+import {
+	DuplicateImageNameException,
+	InvalidDiscountPriceException,
+} from '../errors/product.errors'
 import {
 	ProductColor,
 	ProductImage,
@@ -80,6 +83,10 @@ export class ProductVariant {
 
 	protected validate() {
 		const imageSet = new Set()
+		const { price, discount_price } = this.props
+		if (discount_price > price) {
+			throw new InvalidDiscountPriceException(price, discount_price)
+		}
 		this.props.image_list.forEach((image) => {
 			if (imageSet.has(image.imageName)) {
 				throw new DuplicateImageNameException(image.imageName)

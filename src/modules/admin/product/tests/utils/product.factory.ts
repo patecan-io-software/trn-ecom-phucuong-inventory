@@ -55,6 +55,14 @@ export class ProductDTOBuilder {
 		return this
 	}
 
+	withPrice(price: number, discount_price: number) {
+		this._result.product_variants.forEach((variant) => {
+			variant.price = price
+			variant.discount_price = discount_price
+		})
+		return this
+	}
+
 	withMultipleVariantsOfTheSameType(variantType: ProductVariantType) {
 		this._result.product_variants = [
 			ProductVariantFactory.createVariantWithType('SKU01', variantType),

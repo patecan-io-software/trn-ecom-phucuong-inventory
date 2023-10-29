@@ -66,3 +66,13 @@ export class InvalidProductBannerImageException extends BaseException {
 		)
 	}
 }
+
+export class InvalidDiscountPriceException extends BaseException {
+	public code = 'INVALID_DISCOUNT_PRICE'
+
+	constructor(price: number, discount_price: number) {
+		super(
+			`Invalid discount price: ${discount_price}. Must be less than or equal to price: ${price}`,
+		)
+	}
+}

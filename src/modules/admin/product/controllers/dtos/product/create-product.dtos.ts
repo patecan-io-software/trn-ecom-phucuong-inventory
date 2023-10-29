@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
 	ArrayMinSize,
 	IsArray,
@@ -13,7 +13,7 @@ import {
 	ValidateNested,
 } from 'class-validator'
 import { SIZE_UNIT } from '../../../constants'
-import { SuccessResponseDTO } from '@libs'
+import { SuccessResponseDTO, isNullOrUndefined } from '@libs'
 import {
 	ProductColor,
 	ProductDTO,
@@ -40,19 +40,20 @@ export class CreateProductVariantDTO {
 
 	@ApiProperty()
 	@IsNotEmpty()
-	@IsPositive()
+	@IsNumber()
 	quantity: number
 
 	@ApiProperty()
 	@IsNotEmpty()
-	@IsPositive()
+	@IsNumber()
 	price: number
 
 	@ApiProperty({
 		required: false,
 	})
-	@IsOptional()
-	discount_price: number = 0
+	@IsNumber()
+	@Transform((params) => params.value ?? params.obj.price)
+	discount_price: number
 
 	@ApiProperty({
 		type: [ProductImage],
@@ -60,7 +61,7 @@ export class CreateProductVariantDTO {
 	@Type(() => ProductImage)
 	@IsArray()
 	@IsOptional()
-	@MinLength(0)
+	@ValidateNested()
 	image_list: ProductImage[] = []
 
 	@ApiProperty({
@@ -114,7 +115,7 @@ export class CreateProductRequestDTO {
 	})
 	@Type(() => CreateProductVariantDTO)
 	@ArrayMinSize(1)
-	@ValidateIf((o) => o.product_variants.length > 1)
+	@ValidateNested()
 	product_variants: CreateProductVariantDTO[]
 
 	@ApiProperty({

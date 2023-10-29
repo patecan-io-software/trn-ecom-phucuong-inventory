@@ -2,13 +2,31 @@ import { Product, ProductVariantStatus, ProductVariantType } from '../domain'
 import {
 	DuplicateProductVariantException,
 	InsufficientProductVariantException,
-	InvalidProductBannerImageException,
+	InvalidDiscountPriceException,
 	InvalidProductVariantTypeException,
 } from '../errors/product.errors'
 import { ProductDTOBuilder } from './utils/product.factory'
 
 describe('Product', () => {
 	describe('When a product is created', () => {
+		it('Throw error any variant has discount price bigger than price', () => {
+			const productDTOBuilder = new ProductDTOBuilder()
+
+			const productDTO = productDTOBuilder
+				.createProduct()
+				.withOneVariant(ProductVariantType.ColorAndMaterial)
+				.withPrice(100, 200).result
+
+			let error
+			try {
+				Product.createProduct(productDTO)
+			} catch (e) {
+				error = e
+			} finally {
+				expect(error).toBeInstanceOf(InvalidDiscountPriceException)
+			}
+		})
+
 		describe('If product has no active variant', () => {
 			it('Throw error if product status is Published', () => {
 				const productDTOBuilder = new ProductDTOBuilder()

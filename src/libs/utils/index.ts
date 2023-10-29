@@ -11,3 +11,4 @@ export class Utils {
 }
 
 export * from './transforms'
+export * from './checkers'
