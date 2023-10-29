@@ -70,7 +70,10 @@ export class ImageUploader {
 			.copy(fromPath, destinationPath)
 
 		if (error) {
-			throw new UploadFileFailedException(error.message)
+			this.logger.warn(error)
+			if (error.message !== 'The resource already exists') {
+				throw new UploadFileFailedException(error.message)
+			}
 		}
 
 		return new URL(
