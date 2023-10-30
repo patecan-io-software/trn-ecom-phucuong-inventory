@@ -1,4 +1,5 @@
 import {
+	Body,
 	ClassSerializerInterceptor,
 	Controller,
 	Get,
@@ -15,10 +16,14 @@ import { InventoryRepository } from '../database'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AdminAuth } from '@modules/admin/auth'
 import {
+	UpdateInventoryQueryDTO,
 	UpdateInventoryRequestDTO,
 	UpdateInventoryResponseDTO,
 } from './dtos/update-inventory.dtos'
 import { InventoryService } from '../services/inventory.service'
+import { isNotEmptyObject, validate } from 'class-validator'
+import { BadRequestException } from '@libs'
+import { plainToInstance } from 'class-transformer'
 
 @Controller('/v1/admin/inventories')
 @ApiTags('Admin - Inventory')
@@ -45,8 +50,28 @@ export class InventoryController {
 	@Put(':sku')
 	async updateInventory(
 		@Param('sku') sku: string,
-		@Query() dto: UpdateInventoryRequestDTO,
+		@Query() queryDTO: UpdateInventoryQueryDTO,
+		@Body() body: UpdateInventoryRequestDTO,
 	): Promise<UpdateInventoryResponseDTO> {
+		let dto: UpdateInventoryRequestDTO
+		// TODO: Query is used by mistake instead of request body. Will be replaced in the future with respective request body
+		if (isNotEmptyObject(queryDTO)) {
+			dto = plainToInstance(
+				UpdateInventoryRequestDTO,
+				{
+					inventory_stock: queryDTO.inventory_stock,
+				},
+				{
+					enableImplicitConversion: true,
+				},
+			)
+			const validateResult = await validate(dto)
+			if (validateResult.length > 0) {
+				throw new BadRequestException(validateResult)
+			}
+		} else {
+			dto = body
+		}
 		const result = await this.inventoryService.updateInventory(sku, dto)
 		return new UpdateInventoryResponseDTO({ data: result })
 	}
