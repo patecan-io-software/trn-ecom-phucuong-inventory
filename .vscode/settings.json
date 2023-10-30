@@ -6,5 +6,8 @@
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "files.eol": "\r\n",
-    "files.exclude": {}
+    "files.exclude": {},
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }

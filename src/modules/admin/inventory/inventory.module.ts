@@ -1,42 +1,13 @@
-import { Module } from '@nestjs/common'
-import { MongooseModule } from '@infras/mongoose'
+import { Global, Module } from '@nestjs/common'
 import { InventoryService } from './services/inventory.service'
+import { InventoryRepository } from './database/inventory.repository'
+import { InventoryFactory } from './domain'
 import { InventoryController } from './controllers/inventory.controller'
-import {
-	BrandRepository,
-	CatSchema,
-	CategoryRepository,
-	InventoryRepository,
-	categorySchema,
-} from './database'
-import { BRAND_MODEL, CATEGORY_MODEL, CAT_MODEL } from './constants'
-import { CategoryController } from './controllers/category.controller'
-import { BrandController } from './controllers/brand.controller'
-import { brandSchema } from './database/models/brand.model'
 
+@Global()
 @Module({
-	imports: [
-		MongooseModule.forFeature([
-			{
-				name: CAT_MODEL,
-				schema: CatSchema,
-			},
-			{
-				name: CATEGORY_MODEL,
-				schema: categorySchema,
-			},
-			{
-				name: BRAND_MODEL,
-				schema: brandSchema,
-			},
-		]),
-	],
-	providers: [
-		InventoryService,
-		InventoryRepository,
-		CategoryRepository,
-		BrandRepository,
-	],
-	controllers: [InventoryController, CategoryController, BrandController],
+	providers: [InventoryService, InventoryRepository, InventoryFactory],
+	controllers: [InventoryController],
+	exports: [InventoryService],
 })
 export class InventoryModule {}

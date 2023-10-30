@@ -9,7 +9,17 @@ export class BadRequestException extends BaseException {
 		if (validationErrors.length === 0) {
 			message = 'Invalid request data'
 		} else {
-			message = Object.values(validationErrors[0].constraints)[0]
+			const list = validationErrors
+			let error = list.pop()
+			while (error) {
+				if (!error.constraints) {
+					list.push(...error.children)
+					error = list.pop()
+					continue
+				}
+				message = Object.values(error.constraints)[0]
+				break
+			}
 		}
 		super(message)
 	}

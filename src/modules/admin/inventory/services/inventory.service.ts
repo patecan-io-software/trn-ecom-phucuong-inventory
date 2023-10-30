@@ -1,54 +1,122 @@
-import { Injectable } from '@nestjs/common'
-import { CategoryRepository, InventoryRepository } from '../database'
-import { Category } from '../domain'
-import { CategoryNotFoundException } from '../errors/category.errors'
-import { UpdateCategoryDTO } from './dtos/update-category.dto'
-import { CreateCategoryDTO } from './dtos/create-category.dto'
+import { Injectable, Logger } from '@nestjs/common'
+import { InventoryRepository } from '../database/inventory.repository'
+import {
+	Product,
+	ProductVariant,
+	SerializedProductVariant,
+} from '@modules/admin/product'
+import {
+	InventoryNotFoundException,
+	SkuAlreadyExistsException,
+} from '../errors/inventory.errors'
+import { Inventory, InventoryFactory } from '../domain'
+import { UpdateInventoryRequestDTO } from '../controllers/dtos/update-inventory.dtos'
+import { UpdateInventoryDTO } from './dtos/update-inventory.dtos'
+import { ProductRepository } from '@modules/admin/product/database'
 
 @Injectable()
 export class InventoryService {
+	private readonly logger = new Logger(InventoryService.name)
 	constructor(
 		private readonly inventoryRepo: InventoryRepository,
-		private readonly categoryRepo: CategoryRepository,
+		private readonly inventoryFactory: InventoryFactory,
 	) {}
 
-	async createCategory(dto: CreateCategoryDTO) {
-		const category: Category = {
-			...dto,
-			_id: undefined,
-			category_isActive: true,
+	async createInventories(
+		product: Product,
+		sessionId?: string,
+	): Promise<Inventory[]> {
+		const { product_variants } = product.serialize()
+		const skuList = product_variants.map((variant) => variant.sku)
+		const existingInventoryList =
+			await this.inventoryRepo.getBatchInventories(skuList)
+
+		if (existingInventoryList.length > 0) {
+			const skuList = existingInventoryList.map(
+				(inventory) => inventory.inventory_sku,
+			)
+			throw new SkuAlreadyExistsException(skuList)
 		}
-		const result = await this.categoryRepo.create(category)
+
+		const inventoryList =
+			this.inventoryFactory.createInventoriesForProduct(product)
+
+		let inventoryRepo: InventoryRepository
+		if (sessionId) {
+			inventoryRepo =
+				this.inventoryRepo.getRepositoryTransaction<InventoryRepository>(
+					sessionId,
+				)
+		} else {
+			inventoryRepo = this.inventoryRepo
+		}
+
+		await inventoryRepo.saveBatch(inventoryList)
+		return inventoryList
+	}
+
+	async updateInventoriesOfProduct(product: Product, sessionId?: string) {
+		const { product_variants } = product.serialize()
+		const variantObj: { [key: string]: SerializedProductVariant } =
+			product_variants.reduce((pre, cur) => {
+				pre[cur.sku] = cur
+				return pre
+			}, {})
+		const inventoryList = await this.inventoryRepo.getBatchInventories(
+			Object.keys(variantObj),
+		)
+
+		const updatedInventoryList = []
+
+		inventoryList.forEach((inventory) => {
+			const variant = variantObj[inventory.inventory_sku]
+			let updated = false
+			if (inventory.inventory_stock !== variant.quantity) {
+				inventory.inventory_stock = variant.quantity
+				updated = true
+			}
+			if (inventory.inventory_price !== variant.price) {
+				inventory.inventory_price = variant.price
+				updated = true
+			}
+			if (inventory.inventory_discount_price !== variant.discount_price) {
+				inventory.inventory_discount_price = variant.discount_price
+				updated = true
+			}
+			if (updated) {
+				updatedInventoryList.push(inventory)
+			}
+		})
+
+		if (updatedInventoryList.length === 0) {
+			return
+		}
+
+		let inventoryRepo: InventoryRepository
+		if (sessionId) {
+			inventoryRepo =
+				this.inventoryRepo.getRepositoryTransaction<InventoryRepository>(
+					sessionId,
+				)
+		} else {
+			inventoryRepo = this.inventoryRepo
+		}
+		await inventoryRepo.saveBatch(updatedInventoryList)
+	}
+
+	async updateInventory(
+		sku: string,
+		dto: UpdateInventoryDTO,
+	): Promise<Inventory> {
+		const inventory = await this.inventoryRepo.getBySku(sku)
+		if (!inventory) {
+			throw new InventoryNotFoundException(sku)
+		}
+
+		inventory.inventory_stock = dto.inventory_stock
+
+		const result = await this.inventoryRepo.save(inventory)
+
 		return result
-	}
-
-	async getCategoryById(categoryId: string): Promise<Category> {
-		const category = await this.categoryRepo.getById(categoryId)
-		if (!category) {
-			throw new CategoryNotFoundException(categoryId)
-		}
-		return category
-	}
-
-	async updateCategory(dto: UpdateCategoryDTO): Promise<Category> {
-		const category = await this.categoryRepo.getById(dto._id)
-		if (!category) {
-			throw new CategoryNotFoundException(dto._id)
-		}
-		category.category_name = dto.category_name
-		category.category_description = dto.category_description
-		category.category_logoUrl = dto.category_logoUrl
-		category.category_images = dto.category_images
-
-		const result = await this.categoryRepo.update(category)
-
-		return result
-	}
-
-	async deleteCategory(categoryId: string) {
-		const success = await this.categoryRepo.deleteById(categoryId)
-		if (!success) {
-			throw new CategoryNotFoundException(categoryId)
-		}
 	}
 }
