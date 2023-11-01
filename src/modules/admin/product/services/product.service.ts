@@ -98,12 +98,13 @@ export class ProductService {
 	}
 
 	async createCategory(dto: CreateCategoryDTO) {
+		const categoryId = this.categoryRepo.genId()
+		await this.updateCategoryImage(categoryId, dto)
 		const category: Category = {
 			...dto,
-			_id: this.categoryRepo.genId(),
+			_id: categoryId,
 			category_isActive: true,
 		}
-		await this.updateCategoryImage(category, false)
 		try {
 			const result = await this.categoryRepo.create(category)
 			return result
@@ -127,12 +128,13 @@ export class ProductService {
 		if (!category) {
 			throw new CategoryNotFoundException(dto._id)
 		}
+
+		await this.updateCategoryImage(category._id, dto)
+
 		category.category_name = dto.category_name
 		category.category_description = dto.category_description
 		category.category_logoUrl = dto.category_logoUrl
 		category.category_images = dto.category_images
-
-		await this.updateCategoryImage(category, true)
 
 		const result = await this.categoryRepo.update(category)
 
@@ -146,23 +148,27 @@ export class ProductService {
 		}
 	}
 
-	private async updateCategoryImage(category: Category, remove = false) {
-		if (remove) {
-			await this.removeCategoryImage(category._id)
-		}
-		const categoryId = category._id
-		const [logo, ...imageList] = await Promise.all(
-			category.category_images.map(async (image) => {
+	private async updateCategoryImage(
+		categoryId: string,
+		dto: CreateCategoryDTO | UpdateCategoryDTO,
+	) {
+		const results = await Promise.allSettled(
+			dto.category_images.map(async (image) => {
 				const newImageUrl = await this.imageUploader.copyFromTempTo(
 					image.imageUrl,
 					`${this.config.basePaths.category}/${categoryId}/${image.imageName}`,
 				)
 				image.imageUrl = newImageUrl
-				return image
 			}),
 		)
-		category.category_logoUrl = logo.imageUrl
-		category.category_images = imageList
+
+		const failedResults = results.filter(
+			(result) => result.status === 'rejected',
+		)
+
+		this.logger.warn(JSON.stringify(failedResults))
+
+		dto.category_logoUrl = dto.category_images[0].imageUrl
 	}
 
 	private async updateProductImage(
