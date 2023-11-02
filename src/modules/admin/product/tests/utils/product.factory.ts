@@ -27,6 +27,7 @@ export class ProductDTOBuilder {
 				value: 0,
 				unit: '',
 			},
+			product_warranty: '',
 			isPublished,
 			product_variants: [],
 		}
