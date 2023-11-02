@@ -80,7 +80,7 @@ export const productSchema = new Schema(
 			},
 		],
 		product_warranty: {
-			type: Number,
+			type: String,
 			default: null,
 		},
 		product_isActive: { type: Boolean, default: true },
