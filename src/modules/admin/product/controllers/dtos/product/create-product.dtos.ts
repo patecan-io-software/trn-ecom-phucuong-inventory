@@ -108,6 +108,12 @@ export class CreateProductRequestDTO {
 	product_banner_image: string
 
 	@ApiProperty({
+		required: false,
+	})
+	@IsOptional()
+	product_warranty: string = null
+
+	@ApiProperty({
 		type: [CreateProductVariantDTO],
 	})
 	@Type(() => CreateProductVariantDTO)

@@ -12,6 +12,7 @@ import {
 	ArrayMinSize,
 	IsArray,
 	IsNotEmpty,
+	IsOptional,
 	ValidateNested,
 } from 'class-validator'
 
@@ -58,6 +59,12 @@ export class UpdateProductRequestDTO {
 	@Type(() => ProductVariantDTO)
 	@ValidateNested()
 	product_variants: ProductVariantDTO[]
+
+	@ApiProperty({
+		required: false,
+	})
+	@IsOptional()
+	product_warranty: string = null
 
 	@ApiProperty({
 		required: true,

@@ -30,6 +30,7 @@ export interface CreateProductDTO {
 	product_size_unit: string
 	product_weight: ProductWeight
 	product_variants: CreateProductVariantProps[]
+	product_warranty: string
 	isPublished?: boolean
 	_id?: string
 }
@@ -46,6 +47,7 @@ export interface UpdateProductDTO {
 	product_size_unit: string
 	product_weight: ProductWeight
 	product_variants: UpdateVariantProps[]
+	product_warranty: string
 	isPublished?: boolean
 }
 
@@ -63,6 +65,7 @@ export interface ProductProps {
 	product_weight: ProductWeight
 	product_variants: ProductVariant[]
 	product_status: ProductStatus
+	product_warranty: string
 }
 
 export type SerializedProduct = Omit<ProductProps, 'product_variants'> & {
@@ -130,6 +133,8 @@ export class Product {
 		this.props.product_length = dto.product_length
 		this.props.product_size_unit = dto.product_size_unit
 		this.props.product_weight = dto.product_weight
+		this.props.product_warranty =
+			dto.product_warranty || this.props.product_warranty
 
 		this.validate()
 	}

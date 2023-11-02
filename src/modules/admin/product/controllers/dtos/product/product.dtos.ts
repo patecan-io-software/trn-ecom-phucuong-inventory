@@ -133,6 +133,9 @@ export class ProductDTO {
 	@ApiProperty()
 	has_material: boolean
 
+	@ApiProperty()
+	product_warranty: string
+
 	@ApiProperty({
 		type: Number,
 	})
