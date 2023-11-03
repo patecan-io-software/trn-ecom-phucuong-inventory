@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import mongoose from 'mongoose'
-import { CATEGORY_MODEL } from '../constants'
 import {
 	CategoryExistsException,
 	CategoryNotFoundException,
-	InvalidParentCategoryException,
 } from '../errors/category.errors'
 import { Category, CategoryModel } from './models/category.model'
 import { Utils, isNullOrUndefined } from '@libs'

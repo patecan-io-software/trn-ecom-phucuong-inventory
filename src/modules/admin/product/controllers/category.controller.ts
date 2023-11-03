@@ -42,7 +42,7 @@ import { ImageUploader } from '@modules/admin/image-uploader'
 import {
 	CategoryNotFoundException,
 	ParentCategoryCannotBeChangedException,
-	UpdateCategoryFailedException,
+	InvalidParentCategoryException,
 } from '../errors/category.errors'
 
 @Controller('v1/admin/categories')
@@ -56,7 +56,6 @@ export class CategoryController {
 		@Inject(PRODUCT_MODULE_CONFIG)
 		private readonly config: ProductModuleConfig,
 		private readonly imageUploader: ImageUploader,
-		private readonly inventoryService: ProductService,
 		private readonly categoryRepo: CategoryRepository,
 	) {}
 
@@ -74,7 +73,7 @@ export class CategoryController {
 				dto.parent_id,
 			)
 			if (!parentCategory || !parentCategory.is_parent) {
-				throw new UpdateCategoryFailedException(dto.parent_id)
+				throw new InvalidParentCategoryException()
 			}
 		}
 
@@ -130,17 +129,15 @@ export class CategoryController {
 		// update category from parent to child
 		if (category.is_parent && body.parent_id) {
 			if (category.child_category_count > 0) {
-				throw new UpdateCategoryFailedException(
-					'Parent category cannot be changed to child category',
+				throw new ParentCategoryCannotBeChangedException(
+					category.child_category_count,
 				)
 			}
 			const parentCategory = await this.categoryRepo.getById(
 				body.parent_id,
 			)
 			if (!parentCategory || !parentCategory.is_parent) {
-				throw new UpdateCategoryFailedException(
-					'Invalid parent category. Parent category is neither not found nor a parent category',
-				)
+				throw new InvalidParentCategoryException()
 			}
 		}
 
