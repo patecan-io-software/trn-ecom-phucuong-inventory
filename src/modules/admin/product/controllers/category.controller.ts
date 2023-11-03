@@ -49,7 +49,6 @@ import {
 @ApiTags('Admin - Category')
 @UseInterceptors(ClassSerializerInterceptor)
 @AdminAuth('apiKey')
-@ApiExtraModels(CategoryDTO)
 export class CategoryController {
 	private readonly logger: Logger = new Logger(CategoryController.name)
 

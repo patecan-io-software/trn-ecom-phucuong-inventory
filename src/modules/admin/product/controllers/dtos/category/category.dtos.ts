@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
 
 export class CategoryImage {
@@ -52,7 +52,21 @@ export class CategoryDTO {
 	updatedAt?: Date
 
 	@ApiProperty({
-		type: () => CategoryDTO,
+		type: 'object',
+		properties: {
+			_id: {
+				type: 'string',
+			},
+			category_name: {
+				type: 'string',
+			},
+			category_description: {
+				type: 'string',
+			},
+			is_parent: {
+				type: 'boolean',
+			},
+		},
 	})
 	parent_category?: CategoryDTO
 
