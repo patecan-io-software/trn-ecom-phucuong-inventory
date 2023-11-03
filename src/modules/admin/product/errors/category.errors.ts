@@ -16,3 +16,31 @@ export class CategoryNotFoundException extends BaseException {
 		super(`Category with ids ${list.join(', ')} not found`)
 	}
 }
+
+export class InvalidParentCategoryException extends BaseException {
+	public code = 'INVALID_PARENT_CATEGORY'
+
+	constructor(categoryId: string) {
+		super(
+			`Parent categor with ID ${categoryId} not found or not a parent category`,
+		)
+	}
+}
+
+export class UpdateCategoryFailedException extends BaseException {
+	public code = 'UPDATE_CATEGORY_FAILED'
+
+	constructor(message: string) {
+		super(message || 'Update category failed')
+	}
+}
+
+export class ParentCategoryCannotBeChangedException extends BaseException {
+	public code = 'PARENT_CATEGORY_CANNOT_BE_CHANGED'
+
+	constructor(child_category_count: number) {
+		super(
+			`Parent category cannot be changed. Child category count: ${child_category_count}`,
+		)
+	}
+}

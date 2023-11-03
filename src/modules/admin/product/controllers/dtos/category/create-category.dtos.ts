@@ -1,11 +1,20 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { CategoryDTO, CategoryImage } from './common.dto'
 import { SuccessResponseDTO } from '@libs'
-import { Type } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
+import { IsOptional } from 'class-validator'
+import { CategoryDTO, CategoryImage } from './category.dtos'
 
-export class UpdateCategoryRequestDTO {
+export class CreateCategoryRequestDTO {
 	@ApiProperty()
+	@Expose()
 	category_name: string
+
+	@ApiProperty({
+		required: false,
+		default: null,
+	})
+	@IsOptional()
+	parent_id: string = null
 
 	@ApiProperty()
 	category_description: string
@@ -19,14 +28,15 @@ export class UpdateCategoryRequestDTO {
 	category_images: CategoryImage[]
 }
 
-export class UpdateCategoryResponseDTO extends PartialType(SuccessResponseDTO) {
+export class CreateCategoryResponseDTO extends PartialType(SuccessResponseDTO) {
 	@ApiProperty({
 		type: CategoryDTO,
 	})
 	@Type(() => CategoryDTO)
+	@Expose()
 	data: CategoryDTO
 
-	constructor(props: Partial<UpdateCategoryResponseDTO>) {
+	constructor(props: any) {
 		super(props)
 		Object.assign(this, props)
 	}

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, OnModuleInit } from '@nestjs/common'
 import { MongooseModule } from '@infras/mongoose'
 import { ProductService } from './services/product.service'
 import {

@@ -2,12 +2,12 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsNotEmpty } from 'class-validator'
 import { BrandDTO } from '../brand/brand.dtos'
-import { CategoryDTO } from '../common.dto'
 import { DateStringToTimestamp } from 'src/libs/decorators'
 import {
 	ProductVariant,
 	ProductVariantStatus,
 } from '@modules/admin/product/domain'
+import { CategoryDTO } from '../category/category.dtos'
 
 export class ProductColor {
 	@ApiProperty()

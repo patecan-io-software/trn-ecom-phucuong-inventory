@@ -1,12 +1,6 @@
-import { v4 as uuidv4 } from 'uuid'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { CategoryRepository, ProductRepository } from '../database'
-import {
-	Category,
-	CreateProductDTO,
-	Product,
-	UpdateProductDTO,
-} from '../domain'
+import { CreateProductDTO, Product, UpdateProductDTO } from '../domain'
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { UpdateCategoryDTO } from './dtos/update-category.dto'
 import { CreateCategoryDTO } from './dtos/create-category.dto'
@@ -97,25 +91,7 @@ export class ProductService {
 		return result
 	}
 
-	async createCategory(dto: CreateCategoryDTO) {
-		const categoryId = this.categoryRepo.genId()
-		await this.updateCategoryImage(categoryId, dto)
-		const category: Category = {
-			...dto,
-			_id: categoryId,
-			category_isActive: true,
-		}
-		try {
-			const result = await this.categoryRepo.create(category)
-			return result
-		} catch (error) {
-			this.logger.error(error)
-			await this.removeCategoryImage(category._id)
-			throw error
-		}
-	}
-
-	async getCategoryById(categoryId: string): Promise<Category> {
+	async getCategoryById(categoryId: string): Promise<any> {
 		const category = await this.categoryRepo.getById(categoryId)
 		if (!category) {
 			throw new CategoryNotFoundException(categoryId)
@@ -123,7 +99,7 @@ export class ProductService {
 		return category
 	}
 
-	async updateCategory(dto: UpdateCategoryDTO): Promise<Category> {
+	async updateCategory(dto: UpdateCategoryDTO): Promise<any> {
 		const category = await this.categoryRepo.getById(dto._id)
 		if (!category) {
 			throw new CategoryNotFoundException(dto._id)
@@ -139,13 +115,6 @@ export class ProductService {
 		const result = await this.categoryRepo.update(category)
 
 		return result
-	}
-
-	async deleteCategory(categoryId: string) {
-		const success = await this.categoryRepo.deleteById(categoryId)
-		if (!success) {
-			throw new CategoryNotFoundException(categoryId)
-		}
 	}
 
 	private async updateCategoryImage(

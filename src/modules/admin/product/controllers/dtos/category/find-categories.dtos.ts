@@ -1,8 +1,8 @@
-import { SuccessResponseDTO } from '@libs'
+import { SuccessResponseDTO, TransformQueryBoolean } from '@libs'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { CategoryDTO } from './common.dto'
 import { Transform, Type } from 'class-transformer'
 import { IsOptional } from 'class-validator'
+import { CategoryDTO } from './category.dtos'
 
 export class FindCategoriesQueryDTO {
 	@ApiProperty({
@@ -11,6 +11,14 @@ export class FindCategoriesQueryDTO {
 	@IsOptional()
 	@Transform((params) => (!params.value ? '' : params.value))
 	category_name: string = ''
+
+	@ApiProperty({
+		required: false,
+		type: 'number',
+	})
+	@IsOptional()
+	@Transform(TransformQueryBoolean)
+	is_parent: boolean
 
 	@ApiProperty({
 		required: false,
