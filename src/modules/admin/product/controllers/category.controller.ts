@@ -190,6 +190,9 @@ export class CategoryController {
 		categoryId: string,
 		dto: CreateCategoryRequestDTO | UpdateCategoryRequestDTO,
 	) {
+		const logoImageName = dto.category_images.find(
+			(image) => image.imageUrl === dto.category_logoUrl,
+		).imageName
 		const results = await Promise.allSettled(
 			dto.category_images.map(async (image) => {
 				const newImageUrl = await this.imageUploader.copyFromTempTo(
@@ -206,7 +209,9 @@ export class CategoryController {
 
 		this.logger.warn(JSON.stringify(failedResults))
 
-		dto.category_logoUrl = dto.category_images[0].imageUrl
+		dto.category_logoUrl = dto.category_images.find(
+			(image) => image.imageName === logoImageName,
+		).imageUrl
 	}
 
 	private async removeCategoryImage(categoryId: string) {
