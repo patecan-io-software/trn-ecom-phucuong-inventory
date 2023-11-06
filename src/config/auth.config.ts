@@ -1,3 +1,4 @@
+
 import { AUTH_MODULE_CONFIG, AuthModuleConfig } from '@modules/admin/auth'
 
 export default () => ({

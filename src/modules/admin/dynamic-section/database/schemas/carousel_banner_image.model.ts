@@ -27,7 +27,7 @@ export const carouselBannerSchema = new Schema(
 			type: Date,
 			default: Date.now,
 		},
-		brand_isActive: { type: Boolean, default: true },
+		carouselBanner_isActive: { type: Boolean, default: true },
 		isMarkedDelete: { type: Boolean, default: false },
 	},
 	{
@@ -40,11 +40,11 @@ export interface CarouselBanner {
 	_id: string
 	carouselBanner_name: string
 	carouselBanner_description: string,
-	carouselBanner_link: string,
 	carouselBanner_images: {
 		imageName: string,
 		imageUrl: string,
 	}[],
+	carouselBanner_link: string,
 	start_date?: Date,
 	end_date?: Date,
 	createdAt?: Date

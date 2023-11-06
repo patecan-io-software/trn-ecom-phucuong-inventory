@@ -8,27 +8,17 @@ export const categoryThumbnailSchema = new Schema(
 			required: true,
 			unique: true,
 		},
-		carouselBanner_description: {
+		categoryThumbnail_description: {
 			type: String,
 			trim: true,
 		},
-		carouselBanner_images: [
-			{
-				imageName: { type: String },
-				imageUrl: { type: String },
-			},
-		],
-		carouselBanner_link: { type: String, default: "/"},
-		start_date: {
-			type: Date,
-			default: Date.now,
+		categoryThumbnail_types: {
+			type: String,
+			enum: ['grid', 'slider'],
 		},
-		end_date: {
-			type: Date,
-			default: Date.now,
-		},
-		brand_isActive: { type: Boolean, default: true },
-		isMarkedDelete: { type: Boolean, default: false },
+		categoryThumbnails_ids: [
+			{type: Schema.Types.ObjectId, ref: 'Category'},
+		]
 	},
 	{
 		timestamps: true,
@@ -36,22 +26,17 @@ export const categoryThumbnailSchema = new Schema(
 	},
 )
 
-export interface CategoryBanner {
+export interface CategoryThumbnail {
 	_id: string
-	carouselBanner_name: string
-	carouselBanner_description: string,
-	carouselBanner_link: string,
-	carouselBanner_images: {
-		imageName: string,
-		imageUrl: string,
-	}[],
-	start_date?: Date,
-	end_date?: Date,
+	categoryThumbnail_name: string
+	categoryThumbnail_description: string,
+	categoryThumbnail_types: string,
+	categoryThumbnails_ids: [],
 	createdAt?: Date
 	updatedAt?: Date
 }
 
 // Create Index //
-categoryThumbnailSchema.index({ 'carouselBanner_images.imageUrl': 'text', carouselBanner_link: 'text' })
+categoryThumbnailSchema.index({ 'categoryThumbnails_ids': 'text'})
 
-export const CarouselBannerModel = mongoose.model("CategoryThumbnail", categoryThumbnailSchema)
+export const CategoryThumbnailModel = mongoose.model("CategoryThumbnail", categoryThumbnailSchema)

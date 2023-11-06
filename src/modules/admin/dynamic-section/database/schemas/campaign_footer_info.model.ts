@@ -1,24 +1,23 @@
 import mongoose, { Schema } from 'mongoose'
 
-export const campaignSchema = new Schema(
+export const campaignFooterInfoSchema = new Schema(
 	{
-		campaign_name: {
+		campaignFooterInfo_name: {
 			type: String,
 			trim: true,
 			required: true,
 			unique: true,
 		},
-		campaign_content: {
+		campaignFooterInfo_content: {
 			type: String,
 			trim: true,
 		},
-		campaign_images: [
+		campaignFooterInfo_image:
 			{
 				imageName: { type: String },
 				imageUrl: { type: String },
 			},
-		],
-		campaign_link: { type: String, default: "/"},
+		campaignFooterInfo_link: { type: String, default: '/' },
 		start_date: {
 			type: Date,
 			default: Date.now,
@@ -27,24 +26,24 @@ export const campaignSchema = new Schema(
 			type: Date,
 			default: Date.now,
 		},
-		campaign_isActive: { type: Boolean, default: true },
+		campaignFooterInfo_isActive: { type: Boolean, default: true },
 		isMarkedDelete: { type: Boolean, default: false },
 	},
 	{
 		timestamps: true,
-		collection: 'Campaigns',
+		collection: 'CampaignFooterInfos',
 	},
 )
 
-export interface Campaign {
+export interface CampaignFooterInfo {
 	_id: string
-	campaign_name: string
-	campaign_description: string
-	campaign_images: {
+	campaignFooterInfo_name: string
+	campaignFooterInfo_content: string,
+	campaignFooterInfo_image: {
 		imageName: string,
 		imageUrl: string,
-	}[],
-	campaign_link: string,
+	},
+	campaignFooterInfo_link: string,
 	start_date?: Date,
 	end_date?: Date,
 	createdAt?: Date
@@ -52,6 +51,6 @@ export interface Campaign {
 }
 
 // Create Index //
-campaignSchema.index({ campaign_name: 'text', campaign_link: 'text' })
 
-export const CampaignModel = mongoose.model("Campaign", campaignSchema)
+
+export const CampaignFooterInfoModel = mongoose.model('CampaignFooterInfo', campaignFooterInfoSchema)
