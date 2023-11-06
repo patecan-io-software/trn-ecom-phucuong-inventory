@@ -39,7 +39,7 @@ export const campaignSchema = new Schema(
 export interface Campaign {
 	_id: string
 	campaign_name: string
-	campaign_description: string
+	campaign_content: string
 	campaign_images: {
 		imageName: string,
 		imageUrl: string,

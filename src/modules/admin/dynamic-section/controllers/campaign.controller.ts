@@ -19,6 +19,11 @@ import { AdminAuth } from '@modules/admin/auth'
 import mongoose from 'mongoose'
 import { CampaignRepository } from '@modules/admin/dynamic-section/database/campaign.repository'
 import { Campaign } from '@modules/admin/dynamic-section/database/schemas/campaign.model'
+import {
+	CreateCampaignRequestDTO,
+	CreateCampaignResponseDTO,
+} from '@modules/admin/dynamic-section/controllers/dto/campaign/campaign.dto'
+
 
 @Controller('v1/admin/campaigns')
 @ApiTags('Admin - Campaign')
@@ -33,26 +38,26 @@ export class CampaignController {
 
 	}
 
-	// @Post()
-	// @ApiResponse({
-	// 	status: 201,
-	// 	type: CreateCampaignResponseDTO,
-	// })
-	// async create(
-	// 	@Body() dto: CreateCampaignResponseDTO,
-	// ): Promise<CreateCampaignResponseDTO> {
-	// 	let campaign: Campaign = {
-	// 		_id: new mongoose.Types.ObjectId().toHexString(),
-	// 		...dto,
-	// 	}
-	// 	try {
-	// 		brand = await this.brandRepo.create(brand)
-	// 		return new CreateBrandResponseDTO({ data: brand })
-	// 	} catch (error) {
-	// 		this.logger.error(error)
-	// 		await this.removeBrandImage(brand._id)
-	// 		throw error
-	// 	}
-	// }
+	@Post()
+	@ApiResponse({
+		status: 201,
+		type: CreateCampaignResponseDTO,
+	})
+	async create(
+		@Body() dto: CreateCampaignRequestDTO,
+	): Promise<CreateCampaignResponseDTO> {
+		let campaign: Campaign = {
+			_id: new mongoose.Types.ObjectId().toHexString(),
+			...dto,
+		}
+
+		try {
+			campaign = await this.campaignRepo.create(campaign)
+			return new CreateCampaignResponseDTO({ data: campaign })
+		} catch (error) {
+			this.logger.error(error)
+			throw error
+		}
+	}
 
 }
