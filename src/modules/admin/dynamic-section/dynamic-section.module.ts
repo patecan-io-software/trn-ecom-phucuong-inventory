@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { CampaignController } from './controllers/campaign.controller'
 import { CampaignRepository } from './database/campaign.repository'
 import { PageTemplateRepository } from './database'
 import { PageTemplateDefaultController } from './controllers/page-template-default.controller'
 import { DYNAMIC_SECTION_MODULE_CONFIG } from './constants'
-import { ConfigService } from '@nestjs/config'
+import { ClientPageTemplateDefaultController } from './controllers/client-page-template.controller'
 
 @Module({
 	providers: [
@@ -17,6 +18,10 @@ import { ConfigService } from '@nestjs/config'
 			inject: [ConfigService],
 		},
 	],
-	controllers: [CampaignController, PageTemplateDefaultController],
+	controllers: [
+		CampaignController,
+		PageTemplateDefaultController,
+		ClientPageTemplateDefaultController,
+	],
 })
 export class DynamicSectionModule {}

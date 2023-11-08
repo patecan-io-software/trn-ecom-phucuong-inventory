@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { IsArray, IsNotEmpty, IsOptional } from 'class-validator'
 
 export class PageSectionDTO {
@@ -59,11 +59,13 @@ export class PageTemplateDTO {
 	@ApiProperty({
 		type: 'number',
 	})
+	@Transform(({ value }) => value?.getTime?.() || null)
 	createdAt: number
 
 	@ApiProperty({
 		type: 'number',
 	})
+	@Transform(({ value }) => value?.getTime?.() || null)
 	updatedAt: number
 
 	constructor(props: any) {
