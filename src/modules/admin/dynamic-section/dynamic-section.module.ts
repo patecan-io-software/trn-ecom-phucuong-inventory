@@ -6,6 +6,7 @@ import { PageTemplateRepository } from './database'
 import { PageTemplateDefaultController } from './controllers/page-template-default.controller'
 import { DYNAMIC_SECTION_MODULE_CONFIG } from './constants'
 import { ClientPageTemplateDefaultController } from './controllers/client-page-template.controller'
+import { CategoryEventHandler } from './event-handlers/category.event-handler'
 
 @Module({
 	providers: [
@@ -17,6 +18,7 @@ import { ClientPageTemplateDefaultController } from './controllers/client-page-t
 				configService.get(DYNAMIC_SECTION_MODULE_CONFIG),
 			inject: [ConfigService],
 		},
+		CategoryEventHandler,
 	],
 	controllers: [
 		CampaignController,

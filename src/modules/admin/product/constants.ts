@@ -8,3 +8,9 @@ export const BRAND_MODEL = 'INVENTORY.BRAND_MODEL'
 export const MATERIAL_MODEL = 'INVENTORY.MATERIAL_MODEL'
 
 export const SIZE_UNIT = ['cm', 'm', 'mm', 'inch']
+
+export const CATEGORY_EVENTS = {
+	OnCreated: 'CATEGORY.CREATED',
+	OnUpdated: 'CATEGORY.UPDATED',
+	OnDeleted: 'CATEGORY.DELETED',
+}

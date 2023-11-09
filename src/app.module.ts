@@ -13,6 +13,7 @@ import { InventoryModule } from '@modules/admin/inventory'
 import { UtilityModule } from '@infras/utility'
 import { AdminAuthModule } from '@modules/admin/auth'
 import { DynamicSectionModule } from '@modules/admin/dynamic-section'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { DynamicSectionModule } from '@modules/admin/dynamic-section'
 				configSevice.get(DATABASE_CONFIG),
 			inject: [ConfigService],
 		}),
+		EventEmitterModule.forRoot(),
 
 		UtilityModule,
 
@@ -39,4 +41,6 @@ import { DynamicSectionModule } from '@modules/admin/dynamic-section'
 	controllers: [AppController],
 	providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+	constructor() {}
+}

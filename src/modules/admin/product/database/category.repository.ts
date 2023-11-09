@@ -7,14 +7,22 @@ import {
 import { Category, CategoryModel } from './models/category.model'
 import { Utils, isNullOrUndefined } from '@libs'
 import { MongoDBErrorHandler } from '@infras/mongoose'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { CATEGORY_EVENTS } from '../constants'
 
 @Injectable()
 export class CategoryRepository {
 	private logger: Logger = new Logger(CategoryRepository.name)
-	constructor() {}
+	constructor(private readonly eventEmitter: EventEmitter2) {}
 
 	genId() {
 		return new mongoose.Types.ObjectId().toHexString()
+	}
+
+	onChanged(handle: any) {
+		CategoryModel.watch().on('change', (data) => {
+			console.log(data)
+		})
 	}
 
 	async create(category: Category): Promise<Category> {
@@ -26,6 +34,7 @@ export class CategoryRepository {
 		})
 		try {
 			const result = await cat.save()
+
 			return result.toObject({
 				versionKey: false,
 				flattenObjectIds: true,
@@ -86,6 +95,11 @@ export class CategoryRepository {
 			const model = new CategoryModel(category)
 			model.isNew = false
 			await model.save()
+
+			this.eventEmitter.emitAsync(CATEGORY_EVENTS.OnUpdated, {
+				category: model,
+			})
+
 			return model.toObject({
 				flattenObjectIds: true,
 			})
@@ -123,6 +137,10 @@ export class CategoryRepository {
 		model.isMarkedDelete = true
 
 		await model.save()
+
+		this.eventEmitter.emitAsync(CATEGORY_EVENTS.OnDeleted, {
+			category: model,
+		})
 
 		return true
 	}

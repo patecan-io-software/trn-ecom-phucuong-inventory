@@ -56,5 +56,6 @@ import { ConfigService } from '@nestjs/config'
 		ProductController,
 		ProductMaterialController,
 	],
+	exports: [ProductService],
 })
 export class AdminProductModule {}
