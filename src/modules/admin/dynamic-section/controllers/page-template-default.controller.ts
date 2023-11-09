@@ -3,8 +3,10 @@ import {
 	Body,
 	ClassSerializerInterceptor,
 	Controller,
+	Get,
 	Inject,
 	Logger,
+	Param,
 	Post,
 	UseInterceptors,
 } from '@nestjs/common'
@@ -20,8 +22,10 @@ import { ImageUploader } from '@modules/admin/image-uploader'
 import {
 	FooterSectionDTO,
 	ImageSectionDTO,
+	PageTemplateDTO,
 } from './dto/page-template/page-template.dtos'
 import { isURL } from 'class-validator'
+import { PageTemplateNotFoundException } from '../errors/page-template.errors'
 
 @Controller('v1/admin/page-templates/default')
 @ApiTags('Admin - Page Template')
@@ -91,6 +95,23 @@ export class PageTemplateDefaultController {
 				updatedAt: pageTemplate.updatedAt.getTime(),
 			},
 		})
+	}
+
+	@Get()
+	@ApiResponse({
+		status: 200,
+		type: PageTemplateDTO,
+	})
+	async getPageTemplate(): Promise<PageTemplateDTO> {
+		const pageTemplate = await this.pageTemplateRepo.getByName(
+			this.PAGE_TEMPLATE_NAME,
+		)
+
+		if (!pageTemplate) {
+			throw new PageTemplateNotFoundException(this.PAGE_TEMPLATE_NAME)
+		}
+
+		return new PageTemplateDTO(pageTemplate)
 	}
 
 	private async handleBannerSection(

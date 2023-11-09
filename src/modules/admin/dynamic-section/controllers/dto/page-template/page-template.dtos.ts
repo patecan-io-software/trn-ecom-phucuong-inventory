@@ -60,15 +60,15 @@ export class PageTemplateDTO {
 		type: 'number',
 	})
 	@Transform(({ value }) => value?.getTime?.() || null)
-	createdAt: number
+	createdAt: Date
 
 	@ApiProperty({
 		type: 'number',
 	})
 	@Transform(({ value }) => value?.getTime?.() || null)
-	updatedAt: number
+	updatedAt: Date
 
-	constructor(props: any) {
+	constructor(props: Partial<PageTemplateDTO>) {
 		Object.assign(this, props)
 	}
 }

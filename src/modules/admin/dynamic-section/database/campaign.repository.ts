@@ -41,6 +41,24 @@ export class CampaignRepository {
 		}
 	}
 
+	async getByName(name: string) {
+		const campaign = await CampaignModel.findOne({
+			campaign_name: name,
+			isMarkedDelete: false,
+		})
+		if (!campaign) {
+			return null
+		}
+		return campaign.toObject({
+			versionKey: false,
+			flattenObjectIds: true,
+			transform: (doc, ret) => {
+				delete ret.__v
+				delete ret.isMarkedDelete
+			},
+		})
+	}
+
 	// async getById(id: string): Promise<Brand> {
 	// 	const brand = await BrandModel.findById(id)
 	// 		.where({

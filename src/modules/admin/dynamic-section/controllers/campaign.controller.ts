@@ -2,7 +2,9 @@ import {
 	Body,
 	ClassSerializerInterceptor,
 	Controller,
+	Get,
 	Logger,
+	Param,
 	Post,
 	UseInterceptors,
 } from '@nestjs/common'
@@ -10,12 +12,13 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { AdminAuth } from '@modules/admin/auth'
 import mongoose from 'mongoose'
-import { CampaignRepository } from '@modules/admin/dynamic-section/database/campaign.repository'
-import { Campaign } from '@modules/admin/dynamic-section/database/schemas/campaign.model'
+import { CampaignNotFoundException } from '../errors/dynamic-section.errors'
+import { Campaign, CampaignRepository } from '../database'
 import {
+	CampaignDTO,
 	CreateCampaignRequestDTO,
 	CreateCampaignResponseDTO,
-} from '@modules/admin/dynamic-section/controllers/dto/campaign/campaign.dto'
+} from './dto/campaign/campaign.dto'
 
 @Controller('v1/admin/campaigns')
 @ApiTags('Admin - Campaign')
@@ -46,5 +49,20 @@ export class CampaignController {
 			this.logger.error(error)
 			throw error
 		}
+	}
+
+	@Get('/:name')
+	@ApiResponse({
+		status: 200,
+		type: CampaignDTO,
+	})
+	async getCampaignByName(
+		@Param('name') campaignName: string,
+	): Promise<CampaignDTO> {
+		const campaign = await this.campaignRepo.getByName(campaignName)
+		if (!campaign) {
+			throw new CampaignNotFoundException(campaignName)
+		}
+		return new CampaignDTO(campaign)
 	}
 }
