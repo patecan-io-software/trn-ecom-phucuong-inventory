@@ -13,13 +13,14 @@ export class CampaignRepository {
 	private logger: Logger = new Logger(CampaignRepository.name)
 	constructor() {}
 
-	async create(campaign: Partial<Campaign>): Promise<Campaign> {
+	async save(campaign: Partial<Campaign>): Promise<Campaign> {
 		const campaignModel = new CampaignModel({
 			_id: campaign._id
 				? new mongoose.Types.ObjectId(campaign._id)
 				: new mongoose.Types.ObjectId(),
 			...campaign,
 		})
+		campaignModel.isNew = campaign._id ? false : true
 		try {
 			const result = await campaignModel.save()
 			return result.toObject({
@@ -41,7 +42,7 @@ export class CampaignRepository {
 		}
 	}
 
-	async getByName(name: string) {
+	async getByName(name: string): Promise<Campaign> {
 		const campaign = await CampaignModel.findOne({
 			campaign_name: name,
 			isMarkedDelete: false,

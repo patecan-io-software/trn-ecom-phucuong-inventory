@@ -94,9 +94,6 @@ export class CreateCampaignRequestDTO {
 	campaign_isActive: boolean
 
 	@ApiProperty()
-	isMarkedDelete: boolean
-
-	@ApiProperty()
 	@IsNotEmpty()
 	@IsNumber()
 	startDate: number

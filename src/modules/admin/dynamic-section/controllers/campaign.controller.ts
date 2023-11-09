@@ -37,13 +37,16 @@ export class CampaignController {
 	async create(
 		@Body() dto: CreateCampaignRequestDTO,
 	): Promise<CreateCampaignResponseDTO> {
-		let campaign: Campaign = {
-			_id: new mongoose.Types.ObjectId().toHexString(),
-			...dto,
+		let campaign = await this.campaignRepo.getByName(dto.campaign_name)
+		if (!campaign) {
+			campaign = dto as any
+		} else {
+			// TODO: Temporarily allows to update campaign_content only
+			campaign.campaign_content = dto.campaign_content
 		}
 
 		try {
-			campaign = await this.campaignRepo.create(campaign)
+			campaign = await this.campaignRepo.save(campaign)
 			return new CreateCampaignResponseDTO({ data: campaign })
 		} catch (error) {
 			this.logger.error(error)
