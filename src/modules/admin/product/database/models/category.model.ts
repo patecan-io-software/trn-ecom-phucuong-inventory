@@ -1,4 +1,4 @@
-import mongoose, { Schema, mongo } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import { CATEGORY_MODEL } from '../../constants'
 
 export const categorySchema = new Schema(
@@ -36,6 +36,7 @@ export const categorySchema = new Schema(
 	{
 		timestamps: true,
 		collection: 'Categories',
+		toObject: { virtuals: true },
 	},
 )
 const textIndexOptions = {
@@ -48,5 +49,43 @@ categorySchema.index(
 	{ category_name: 'text', category_description: 'text' },
 	textIndexOptions,
 )
+
+categorySchema.virtual('is_parent').get(function (this: any) {
+	return !this.parent_category
+})
+
+categorySchema.virtual('parent_category', {
+	ref: CATEGORY_MODEL,
+	localField: 'parent_id',
+	foreignField: '_id',
+	justOne: true,
+})
+
+categorySchema.virtual('child_category_count', {
+	ref: CATEGORY_MODEL,
+	localField: '_id',
+	foreignField: 'parent_id',
+	count: true,
+})
+
+export interface Category {
+	_id: string
+	category_name: string
+	category_description: string
+	category_logoUrl: string
+	parent_id: string
+	category_images: {
+		imageName: string
+		imageUrl: string
+	}[]
+	category_isActive: boolean
+	createdAt?: Date
+	updatedAt?: Date
+
+	// populate
+	parent_category?: Category
+	is_parent?: boolean
+	child_category_count?: number
+}
 
 export const CategoryModel = mongoose.model(CATEGORY_MODEL, categorySchema)

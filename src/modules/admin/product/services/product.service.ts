@@ -1,12 +1,6 @@
-import { v4 as uuidv4 } from 'uuid'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { CategoryRepository, ProductRepository } from '../database'
-import {
-	Category,
-	CreateProductDTO,
-	Product,
-	UpdateProductDTO,
-} from '../domain'
+import { CreateProductDTO, Product, UpdateProductDTO } from '../domain'
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { UpdateCategoryDTO } from './dtos/update-category.dto'
 import { CreateCategoryDTO } from './dtos/create-category.dto'
@@ -97,24 +91,7 @@ export class ProductService {
 		return result
 	}
 
-	async createCategory(dto: CreateCategoryDTO) {
-		const category: Category = {
-			...dto,
-			_id: this.categoryRepo.genId(),
-			category_isActive: true,
-		}
-		await this.updateCategoryImage(category, false)
-		try {
-			const result = await this.categoryRepo.create(category)
-			return result
-		} catch (error) {
-			this.logger.error(error)
-			await this.removeCategoryImage(category._id)
-			throw error
-		}
-	}
-
-	async getCategoryById(categoryId: string): Promise<Category> {
+	async getCategoryById(categoryId: string): Promise<any> {
 		const category = await this.categoryRepo.getById(categoryId)
 		if (!category) {
 			throw new CategoryNotFoundException(categoryId)
@@ -122,47 +99,45 @@ export class ProductService {
 		return category
 	}
 
-	async updateCategory(dto: UpdateCategoryDTO): Promise<Category> {
+	async updateCategory(dto: UpdateCategoryDTO): Promise<any> {
 		const category = await this.categoryRepo.getById(dto._id)
 		if (!category) {
 			throw new CategoryNotFoundException(dto._id)
 		}
+
+		await this.updateCategoryImage(category._id, dto)
+
 		category.category_name = dto.category_name
 		category.category_description = dto.category_description
 		category.category_logoUrl = dto.category_logoUrl
 		category.category_images = dto.category_images
-
-		await this.updateCategoryImage(category, true)
 
 		const result = await this.categoryRepo.update(category)
 
 		return result
 	}
 
-	async deleteCategory(categoryId: string) {
-		const success = await this.categoryRepo.deleteById(categoryId)
-		if (!success) {
-			throw new CategoryNotFoundException(categoryId)
-		}
-	}
-
-	private async updateCategoryImage(category: Category, remove = false) {
-		if (remove) {
-			await this.removeCategoryImage(category._id)
-		}
-		const categoryId = category._id
-		const [logo, ...imageList] = await Promise.all(
-			category.category_images.map(async (image) => {
+	private async updateCategoryImage(
+		categoryId: string,
+		dto: CreateCategoryDTO | UpdateCategoryDTO,
+	) {
+		const results = await Promise.allSettled(
+			dto.category_images.map(async (image) => {
 				const newImageUrl = await this.imageUploader.copyFromTempTo(
 					image.imageUrl,
 					`${this.config.basePaths.category}/${categoryId}/${image.imageName}`,
 				)
 				image.imageUrl = newImageUrl
-				return image
 			}),
 		)
-		category.category_logoUrl = logo.imageUrl
-		category.category_images = imageList
+
+		const failedResults = results.filter(
+			(result) => result.status === 'rejected',
+		)
+
+		this.logger.warn(JSON.stringify(failedResults))
+
+		dto.category_logoUrl = dto.category_images[0].imageUrl
 	}
 
 	private async updateProductImage(

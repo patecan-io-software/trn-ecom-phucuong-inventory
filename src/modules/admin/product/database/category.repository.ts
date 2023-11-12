@@ -1,21 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common'
 import mongoose from 'mongoose'
-import { CATEGORY_MODEL } from '../constants'
-import { Category } from '../domain'
-import { CategoryExistsException } from '../errors/category.errors'
-import { categorySchema } from './models/category.model'
-import { Utils } from '@libs'
+import {
+	CategoryExistsException,
+	CategoryNotFoundException,
+} from '../errors/category.errors'
+import { Category, CategoryModel } from './models/category.model'
+import { Utils, isNullOrUndefined } from '@libs'
 import { MongoDBErrorHandler } from '@infras/mongoose'
-
-const CategoryModel = mongoose.model(CATEGORY_MODEL, categorySchema)
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { CATEGORY_EVENTS } from '../constants'
 
 @Injectable()
 export class CategoryRepository {
 	private logger: Logger = new Logger(CategoryRepository.name)
-	constructor() {}
+	constructor(private readonly eventEmitter: EventEmitter2) {}
 
 	genId() {
 		return new mongoose.Types.ObjectId().toHexString()
+	}
+
+	onChanged(handle: any) {
+		CategoryModel.watch().on('change', (data) => {
+			console.log(data)
+		})
 	}
 
 	async create(category: Category): Promise<Category> {
@@ -27,6 +34,7 @@ export class CategoryRepository {
 		})
 		try {
 			const result = await cat.save()
+
 			return result.toObject({
 				versionKey: false,
 				flattenObjectIds: true,
@@ -66,7 +74,17 @@ export class CategoryRepository {
 			.where({
 				isMarkedDelete: false,
 			})
+			.populate({
+				path: 'parent_category',
+				select: '_id category_name category_description',
+			})
+			.populate('child_category_count')
 			.select('-__v -isMarkedDelete -category_products')
+
+		if (!result) {
+			return null
+		}
+
 		return result.toObject({
 			flattenObjectIds: true,
 		})
@@ -74,16 +92,15 @@ export class CategoryRepository {
 
 	async update(category: Category): Promise<Category> {
 		try {
-			const result = await CategoryModel.findByIdAndUpdate(
-				category._id,
-				category,
-				{
-					new: true,
-				},
-			)
-				.select('-__v -isMarkedDelete -category_products')
-				.exec()
-			return result.toObject({
+			const model = new CategoryModel(category)
+			model.isNew = false
+			await model.save()
+
+			this.eventEmitter.emitAsync(CATEGORY_EVENTS.OnUpdated, {
+				category: model,
+			})
+
+			return model.toObject({
 				flattenObjectIds: true,
 			})
 		} catch (error) {
@@ -96,25 +113,41 @@ export class CategoryRepository {
 		}
 	}
 
-	async deleteById(id: string): Promise<boolean> {
-		const category = await CategoryModel.findById(id, {
-			isMarkedDelete: false,
-		}).exec()
+	async delete(categoryOrId: Category | string): Promise<boolean> {
+		let category
+		if (typeof categoryOrId === 'string') {
+			category = await CategoryModel.findById(categoryOrId)
+				.where({
+					isMarkedDelete: false,
+				})
+				.populate('child_category_count')
+				.exec()
 
-		if (!category) {
-			return false
+			if (!category) {
+				throw new CategoryNotFoundException(categoryOrId)
+			}
+		} else {
+			category = categoryOrId
 		}
 
-		category.category_name = `${category.category_name}_${Date.now()}`
-		category.isMarkedDelete = true
+		const model = new CategoryModel(category)
+		model.isNew = false
 
-		await category.save()
+		model.category_name = `${category.category_name}_${Date.now()}`
+		model.isMarkedDelete = true
+
+		await model.save()
+
+		this.eventEmitter.emitAsync(CATEGORY_EVENTS.OnDeleted, {
+			category: model,
+		})
 
 		return true
 	}
 
 	async find(options: {
 		category_name: string
+		is_parent: boolean
 		page: number
 		page_size: number
 	}): Promise<{
@@ -124,16 +157,36 @@ export class CategoryRepository {
 		total_page: number
 		total_count: number
 	}> {
-		const { page = 1, page_size = 10, category_name } = options
+		const { page = 1, page_size = 10, category_name, is_parent } = options
 		const filter = {
 			isMarkedDelete: false,
 			...(category_name && {
 				$text: { $search: category_name },
 			}),
 		}
+		if (!isNullOrUndefined(is_parent)) {
+			let parentFilter
+			if (is_parent) {
+				parentFilter = {
+					parent_id: {
+						$eq: null,
+					},
+				}
+			} else {
+				parentFilter = {
+					parent_id: {
+						$ne: null,
+					},
+				}
+			}
+			filter['parent_id'] = parentFilter.parent_id
+		}
 		const [categoryList, count] = await Promise.all([
 			CategoryModel.find(filter)
-				.select('-__v -category_products -isMarkedDelete')
+				.populate({
+					path: 'parent_category',
+					select: '_id category_name category_description',
+				})
 				.sort({
 					createdAt: -1,
 				})
@@ -166,6 +219,10 @@ export class CategoryRepository {
 			}
 
 			const results = await CategoryModel.find(query)
+				.populate({
+					path: 'parent_category',
+					select: '_id category_name category_description',
+				})
 				.sort({ score: { $meta: 'textScore' } }) // Sort by text search score
 				.lean()
 				.exec()

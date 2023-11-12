@@ -12,7 +12,7 @@ import {
 	Query,
 	UseInterceptors,
 } from '@nestjs/common'
-import { CategoryDTO, ObjectIdParam } from './dtos/common.dto'
+import { ObjectIdParam } from './dtos/common.dto'
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { SuccessResponseDTO } from '@libs'
 import { Brand, BrandRepository } from '../database'

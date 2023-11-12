@@ -100,6 +100,9 @@ export class ClientProductDTO {
 	product_categories: ProductCategory[]
 
 	@ApiProperty()
+	product_warranty: string
+
+	@ApiProperty()
 	sku: string
 
 	@ApiProperty()
@@ -176,6 +179,9 @@ export class ProductDetailResponseDTO {
 		type: [ProductCategory],
 	})
 	product_categories: ProductCategory[]
+
+	@ApiProperty()
+	product_warranty: string
 
 	@ApiProperty()
 	sku: string

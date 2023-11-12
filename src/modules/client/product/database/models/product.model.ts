@@ -71,6 +71,10 @@ export const productSchema = new Schema(
 				],
 			},
 		],
+		product_warranty: {
+			type: String,
+			default: null,
+		},
 		product_isActive: { type: Boolean, default: true },
 		isMarkedDelete: { type: Boolean, default: false },
 		product_status: {

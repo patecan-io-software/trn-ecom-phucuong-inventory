@@ -79,6 +79,7 @@ export class ProductRepository extends BaseRepository {
 			product_size_unit: raw.product_size_unit,
 			product_status: raw.product_status,
 			product_variants: raw.product_variants,
+			product_warranty: raw.product_warranty,
 			product_isActive: true,
 			isMarkedDelete: false,
 		})
