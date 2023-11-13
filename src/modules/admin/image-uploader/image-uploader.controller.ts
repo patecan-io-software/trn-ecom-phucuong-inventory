@@ -14,7 +14,7 @@ import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('/v1/admin/image')
 @ApiTags('Admin - Image Upload')
-@AdminAuth('apiKey')
+@AdminAuth('jwtToken')
 export class ImageUploaderController {
 	constructor(private readonly imageUploader: ImageUploader) {}
 

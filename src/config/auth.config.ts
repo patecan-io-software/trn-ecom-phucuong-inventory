@@ -1,4 +1,3 @@
-
 import { AUTH_MODULE_CONFIG, AuthModuleConfig } from '@modules/admin/auth'
 
 export default () => ({
@@ -6,5 +5,6 @@ export default () => ({
 		apiKey: process.env.ADMIN_AUTH_API_KEY,
 		bypassApiKey:
 			process.env.DEBUG_ADMIN_AUTH_BYPASS_API_KEY === '1' ? true : false,
+		apiSecret: process.env.SUPABASE_JWT_SECRET,
 	} as AuthModuleConfig,
 })
