@@ -14,8 +14,10 @@ export const AdminAuth = (type: AuthType) => {
 	switch (type) {
 		case 'apiKey':
 			decorators.push(UseGuards(AuthGuard('apiKey')))
+			break
 		case 'jwtToken':
 			decorators.push(UseGuards(AuthGuard('jwtToken')))
+			break
 		default:
 	}
 

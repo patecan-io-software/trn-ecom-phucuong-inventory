@@ -17,6 +17,7 @@ class ApiKeyAuthGuardClass implements CanActivate {
 		@Inject(AUTH_MODULE_CONFIG)
 		private readonly authGuardConfig: AuthModuleConfig,
 	) {}
+
 	canActivate(context: ExecutionContext): boolean | Promise<boolean> {
 		if (this.authGuardConfig.bypassApiKey) {
 			return true
@@ -35,7 +36,10 @@ class ApiKeyAuthGuardClass implements CanActivate {
 	private extractTokenFromHeader(req: Request) {
 		const [type, token] =
 			(req.headers[API_KEY_HEADER] as string)?.split(' ') ?? []
-		return type === 'Bearer' ? token : undefined
+		if (type && type === 'Bearer') {
+			return token
+		}
+		return type // If no type is specified, `type` is token
 	}
 }
 
@@ -47,7 +51,10 @@ class JwtAuthGuardClass implements CanActivate {
 		private readonly authGuardConfig: AuthModuleConfig,
 	) {}
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const { bypassApiKey, apiSecret } = this.authGuardConfig
+		const {
+			bypassApiKey,
+			supabaseConfig: { jwtSecret: apiSecret },
+		} = this.authGuardConfig
 		if (bypassApiKey) {
 			return true
 		}
