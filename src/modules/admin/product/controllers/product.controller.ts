@@ -35,7 +35,7 @@ import { GetProductByIdResponseDTO } from './dtos/product/get-by-id.dtos'
 @Controller('v1/admin/products')
 @ApiTags('Admin - Product')
 @UseInterceptors(ClassSerializerInterceptor)
-@AdminAuth('apiKey')
+@AdminAuth('jwtToken')
 export class ProductController {
 	constructor(
 		private readonly productService: ProductService,

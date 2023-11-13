@@ -28,7 +28,7 @@ import { plainToInstance } from 'class-transformer'
 @Controller('/v1/admin/inventories')
 @ApiTags('Admin - Inventory')
 @UseInterceptors(ClassSerializerInterceptor)
-@AdminAuth('apiKey')
+@AdminAuth('jwtToken')
 export class InventoryController {
 	constructor(
 		private readonly inventoryRepo: InventoryRepository,
