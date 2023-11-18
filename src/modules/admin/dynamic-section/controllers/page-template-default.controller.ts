@@ -66,6 +66,7 @@ export class PageTemplateDefaultController {
 				this.handleCategorySection(section as ImageSectionDTO)
 				break
 			case 'banner_section':
+			case 'coupon_banner_section':
 				await this.handleBannerSection(
 					templateId,
 					section as ImageSectionDTO,
