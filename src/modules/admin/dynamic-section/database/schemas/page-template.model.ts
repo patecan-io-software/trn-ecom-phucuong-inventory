@@ -25,6 +25,7 @@ export const pageTemplateSchema = new Schema(
 export interface PageSection {
 	name: string
 	type: string
+	is_active: boolean
 	[key: string]: any
 }
 

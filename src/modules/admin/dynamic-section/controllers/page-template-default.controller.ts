@@ -4,6 +4,7 @@ import {
 	ClassSerializerInterceptor,
 	Controller,
 	Get,
+	HttpCode,
 	Inject,
 	Logger,
 	Param,
@@ -43,6 +44,7 @@ export class PageTemplateDefaultController {
 	) {}
 
 	@Post('sections')
+	@HttpCode(200)
 	@ApiResponse({
 		status: 200,
 		type: UpdateSectionResponseDTO,
@@ -51,6 +53,7 @@ export class PageTemplateDefaultController {
 		@Body() dto: UpdateSectionRequestDTO,
 	): Promise<UpdateSectionResponseDTO> {
 		const { section } = dto
+		section.is_active = section.is_active ?? true
 		// temporarily handle default page template only
 		const pageTemplate = await this.pageTemplateRepo.getByName(
 			this.PAGE_TEMPLATE_NAME,
@@ -87,14 +90,10 @@ export class PageTemplateDefaultController {
 			pageTemplate.section_list[existingSectionIndex] = section as any
 		}
 
-		await this.pageTemplateRepo.save(pageTemplate)
+		const updated = await this.pageTemplateRepo.save(pageTemplate)
 
 		return new UpdateSectionResponseDTO({
-			data: {
-				...pageTemplate,
-				createdAt: pageTemplate.createdAt.getTime(),
-				updatedAt: pageTemplate.updatedAt.getTime(),
-			},
+			data: updated,
 		})
 	}
 
