@@ -31,6 +31,10 @@ export class ClientPageTemplateDefaultController {
 			throw new PageTemplateNotFoundException(templateName)
 		}
 
+		pageTemplate.section_list = pageTemplate.section_list.filter(
+			(section) => section.is_active,
+		)
+
 		return new PageTemplateDTO(pageTemplate)
 	}
 }

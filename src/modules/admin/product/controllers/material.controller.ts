@@ -16,7 +16,7 @@ import { AdminAuth } from '@modules/admin/auth'
 @Controller('v1/admin/materials')
 @ApiTags('Admin - Material')
 @UseInterceptors(ClassSerializerInterceptor)
-@AdminAuth('apiKey')
+@AdminAuth('jwtToken')
 export class ProductMaterialController {
 	constructor(private readonly productRepo: ProductRepository) {}
 

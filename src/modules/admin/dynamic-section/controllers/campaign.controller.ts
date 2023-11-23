@@ -23,7 +23,7 @@ import {
 @Controller('v1/admin/campaigns')
 @ApiTags('Admin - Campaign')
 @UseInterceptors(ClassSerializerInterceptor)
-@AdminAuth('apiKey')
+@AdminAuth('jwtToken')
 export class CampaignController {
 	private readonly logger: Logger = new Logger(CampaignController.name)
 

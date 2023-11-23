@@ -42,7 +42,7 @@ import { ProductModuleConfig } from '../interfaces'
 @Controller('v1/admin/brands')
 @ApiTags('Admin - Brand')
 @UseInterceptors(ClassSerializerInterceptor)
-@AdminAuth('apiKey')
+@AdminAuth('jwtToken')
 export class BrandController {
 	private readonly logger: Logger = new Logger(BrandController.name)
 	private readonly brandImageBasePath

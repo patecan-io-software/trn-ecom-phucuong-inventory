@@ -9,7 +9,12 @@ export class PageSectionDTO {
 
 	@ApiProperty()
 	@IsNotEmpty()
-	type: string;
+	type: string
+
+	@ApiProperty()
+	@IsOptional()
+	@Type(() => Boolean)
+	is_active: boolean = true;
 
 	[key: string]: any
 }
