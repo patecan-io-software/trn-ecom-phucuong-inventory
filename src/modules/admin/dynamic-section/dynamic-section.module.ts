@@ -7,6 +7,7 @@ import { PageTemplateDefaultController } from './controllers/page-template-defau
 import { DYNAMIC_SECTION_MODULE_CONFIG } from './constants'
 import { ClientPageTemplateDefaultController } from './controllers/client-page-template.controller'
 import { CategoryEventHandler } from './event-handlers/category.event-handler'
+import { ClientCampaignController } from './controllers/client-campaign.controller'
 
 @Module({
 	providers: [
@@ -22,6 +23,7 @@ import { CategoryEventHandler } from './event-handlers/category.event-handler'
 	],
 	controllers: [
 		CampaignController,
+		ClientCampaignController,
 		PageTemplateDefaultController,
 		ClientPageTemplateDefaultController,
 	],
