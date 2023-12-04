@@ -5,11 +5,11 @@ import { CategoryNotFoundException } from '../errors/category.errors'
 import { UpdateCategoryDTO } from './dtos/update-category.dto'
 import { CreateCategoryDTO } from './dtos/create-category.dto'
 import { ProductNotFoundException } from '../errors/product.errors'
-import { InventoryService } from '@modules/admin/inventory'
-import { PRODUCT_MODULE_CONFIG } from '../constants'
+import { PRODUCT_EVENTS, PRODUCT_MODULE_CONFIG } from '../constants'
 import { ProductModuleConfig } from '../interfaces'
 import { ImageUploader } from '@modules/admin/image-uploader'
 import { randomInt } from 'crypto'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Injectable()
 export class ProductService {
@@ -20,7 +20,7 @@ export class ProductService {
 		private readonly imageUploader: ImageUploader,
 		private readonly productRepo: ProductRepository,
 		private readonly categoryRepo: CategoryRepository,
-		private readonly inventoryService: InventoryService,
+		private readonly eventEmitter: EventEmitter2,
 	) {}
 
 	async createProduct(dto: CreateProductDTO) {
@@ -34,11 +34,6 @@ export class ProductService {
 		try {
 			const newProduct = await productRepo.save(product)
 
-			await this.inventoryService.createInventories(
-				product,
-				productRepo.sessionId,
-			)
-
 			await productRepo.commitTransaction()
 
 			return newProduct
@@ -47,6 +42,12 @@ export class ProductService {
 			await productRepo.abortTransaction()
 			this.removeProductImage(dto._id)
 			throw error
+		} finally {
+			const productData = product.serialize()
+			await this.eventEmitter.emitAsync(PRODUCT_EVENTS.OnCreated, {
+				productId: productData._id,
+				variantList: productData.product_variants,
+			})
 		}
 	}
 
@@ -61,18 +62,13 @@ export class ProductService {
 		await this.updateProductImage(productId, dto)
 
 		product.update(dto)
+		const result = product.updateVariants(dto.product_variants)
 
 		const productRepo =
 			await this.productRepo.startTransaction<ProductRepository>()
 
 		try {
 			const updatedProduct = await productRepo.save(product, false)
-
-			await this.inventoryService.updateInventoriesOfProduct(
-				product,
-				productRepo.sessionId,
-			)
-
 			await productRepo.commitTransaction()
 
 			return updatedProduct
@@ -80,11 +76,27 @@ export class ProductService {
 			this.logger.error(error)
 			await productRepo.abortTransaction()
 			throw error
+		} finally {
+			await this.eventEmitter.emitAsync(PRODUCT_EVENTS.OnUpdated, {
+				productId,
+				newVariantList: result.newVariantList.map((variant) =>
+					variant.serialize(),
+				),
+				updatedVariantList: result.updatedVariantList.map((variant) =>
+					variant.serialize(),
+				),
+				deletedVariantList: result.deletedVariantList.map((variant) =>
+					variant.serialize(),
+				),
+			})
 		}
 	}
 
 	async deleteProduct(productId: string) {
 		const result = await this.productRepo.deleteProductById(productId)
+		await this.eventEmitter.emitAsync(PRODUCT_EVENTS.OnDeleted, {
+			productId,
+		})
 		return result
 	}
 

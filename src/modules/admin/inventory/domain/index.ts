@@ -1,2 +1,2 @@
-export * from './inventory'
 export * from './inventory-factory'
+export * from './interfaces'

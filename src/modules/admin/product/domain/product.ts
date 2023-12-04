@@ -9,6 +9,8 @@ import {
 	CreateProductDTO,
 	CreateProductVariantDTO,
 	UpdateProductDTO,
+	UpdateProductVariantDTO,
+	UpdateProductVariantResult,
 } from './interfaces'
 import {
 	ProductVariant,
@@ -39,6 +41,10 @@ export class Product {
 		this.validate()
 	}
 
+	get id() {
+		return this.props._id
+	}
+
 	get variantType() {
 		return this.props.product_variants[0].variantType
 	}
@@ -50,49 +56,8 @@ export class Product {
 		this.props._id = id
 	}
 
-	update(dto: UpdateProductDTO) {
+	update(dto: Omit<UpdateProductDTO, 'product_variants'>) {
 		this.props.product_status = ProductStatus.Published
-
-		const { product_variants } = this.props
-
-		product_variants.forEach((variant) => {
-			const updated = dto.product_variants.find(
-				(updated) => updated.sku === variant.sku,
-			)
-			if (!updated) {
-				throw new MissingProductVariantException(variant.sku)
-			}
-
-			const { property_list, metadata } =
-				Product.createPropertyList(updated)
-
-			variant.update({
-				...updated,
-				metadata,
-				property_list,
-			})
-		})
-
-		if (dto.product_variants.length > this.props.product_variants.length) {
-			const newVariantList = dto.product_variants.filter(
-				(variant) =>
-					!this.props.product_variants.find(
-						(v) => v.sku === variant.sku,
-					),
-			)
-
-			newVariantList.forEach((variant) => {
-				const { property_list, metadata } =
-					Product.createPropertyList(variant)
-				product_variants.push(
-					ProductVariant.create({
-						...variant,
-						metadata,
-						property_list,
-					}),
-				)
-			})
-		}
 
 		this.props.product_name = dto.product_name
 		this.props.product_description = dto.product_description
@@ -103,6 +68,71 @@ export class Product {
 			dto.product_warranty || this.props.product_warranty
 
 		this.validate()
+	}
+
+	updateVariants(
+		variantList: UpdateProductVariantDTO[],
+	): UpdateProductVariantResult {
+		const { product_variants } = this.props
+
+		// convert variantList to object with key is sku
+		const variantMap = variantList.reduce(
+			(map, variant) => {
+				map[variant.sku] = variant
+				return map
+			},
+			{} as Record<string, UpdateProductVariantDTO>,
+		)
+
+		const updatedVariantList: ProductVariant[] = []
+		const deletedVariantList: ProductVariant[] = []
+
+		product_variants.forEach((variant) => {
+			const updated = variantMap[variant.sku]
+			// if variant is not in variantList, it means that variant is deleted
+			if (!updated) {
+				deletedVariantList.push(variant)
+				return false
+			}
+
+			// if variant is in variantList, it means that variant is updated
+			const { property_list, metadata } =
+				Product.createPropertyList(updated)
+
+			variant.update({
+				...updated,
+				metadata,
+				property_list,
+			})
+
+			updatedVariantList.push(variant)
+		})
+
+		const newVariantList = variantList
+			.filter(
+				(variant) =>
+					!product_variants.find((v) => v.sku === variant.sku),
+			)
+			.map((variant) => {
+				const { property_list, metadata } =
+					Product.createPropertyList(variant)
+				return ProductVariant.create({
+					...variant,
+					metadata,
+					property_list,
+				})
+			})
+
+		product_variants.length = 0
+		product_variants.push(...updatedVariantList, ...newVariantList)
+
+		this.validateVariant()
+
+		return {
+			newVariantList,
+			updatedVariantList,
+			deletedVariantList,
+		}
 	}
 
 	serialize(): SerializedProduct {

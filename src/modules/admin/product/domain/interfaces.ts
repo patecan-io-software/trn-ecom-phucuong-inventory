@@ -1,3 +1,4 @@
+import { ProductVariant } from './product-variant'
 import { ProductImage, ProductVariantStatus } from './types'
 
 export interface CreateProductDTO {
@@ -47,3 +48,9 @@ export interface CreateProductVariantDTO {
 }
 
 export type UpdateProductVariantDTO = CreateProductVariantDTO
+
+export interface UpdateProductVariantResult {
+	newVariantList: ProductVariant[]
+	updatedVariantList: ProductVariant[]
+	deletedVariantList: ProductVariant[]
+}
