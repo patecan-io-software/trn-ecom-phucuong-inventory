@@ -14,3 +14,9 @@ export const CATEGORY_EVENTS = {
 	OnUpdated: 'CATEGORY.UPDATED',
 	OnDeleted: 'CATEGORY.DELETED',
 }
+
+export const PRODUCT_EVENTS = {
+	OnCreated: 'PRODUCT.CREATED',
+	OnUpdated: 'PRODUCT.UPDATED',
+	OnDeleted: 'PRODUCT.DELETED',
+}

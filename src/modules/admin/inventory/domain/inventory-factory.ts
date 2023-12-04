@@ -1,5 +1,5 @@
 import { Product } from '@modules/admin/product'
-import { Inventory } from './inventory'
+import { Inventory, ProductVariant } from './interfaces'
 
 export class InventoryFactory {
 	createInventoriesForProduct(product: Product): Inventory[] {
@@ -9,7 +9,6 @@ export class InventoryFactory {
 			inventory_location: '',
 			inventory_parents: null,
 			inventory_productId: productId,
-			inventory_reservations: null,
 			inventory_shopId: null,
 			inventory_sku: variant.sku,
 			inventory_stock: variant.quantity,
@@ -17,5 +16,22 @@ export class InventoryFactory {
 			inventory_discount_price: variant.discount_price,
 		}))
 		return inventoryList
+	}
+
+	createInventoryForProductVariant(
+		productId: string,
+		variant: ProductVariant,
+	): Inventory {
+		return {
+			_id: undefined,
+			inventory_location: '',
+			inventory_parents: null,
+			inventory_productId: productId,
+			inventory_shopId: null,
+			inventory_sku: variant.sku,
+			inventory_stock: variant.quantity,
+			inventory_price: variant.price,
+			inventory_discount_price: variant.discount_price,
+		}
 	}
 }

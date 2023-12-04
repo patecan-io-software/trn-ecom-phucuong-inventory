@@ -7,6 +7,13 @@ export interface Inventory {
 	inventory_price: number
 	inventory_discount_price: number
 	inventory_shopId: string
-	inventory_reservations: string
 	inventory_parents: string
+}
+
+export interface ProductVariant {
+	sku: string
+	quantity: number
+	price: number
+	discount_price: number
+	discount_percentage: number
 }
