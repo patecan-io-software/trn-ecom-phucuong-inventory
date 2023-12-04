@@ -64,9 +64,10 @@ export class ProductController {
 	async searchProducts(
 		@Query() query: SearchProductsQueryDTO,
 	): Promise<SearchProductsResponseDTO> {
-		const { q, page, page_size } = query
+		const { q, sku, page, page_size } = query
 		const results = await this.productRepo.searchProductsByKeyword({
 			keyword: q,
+			sku,
 			page,
 			page_size,
 		})
