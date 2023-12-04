@@ -1,13 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsNotEmpty } from 'class-validator'
+import {
+	IsArray,
+	IsIn,
+	IsNotEmpty,
+	IsNumber,
+	IsOptional,
+	IsString,
+	Validate,
+	ValidateIf,
+	ValidateNested,
+} from 'class-validator'
 import { BrandDTO } from '../brand/brand.dtos'
 import { DateStringToTimestamp } from 'src/libs/decorators'
-import {
-	ProductVariant,
-	ProductVariantStatus,
-} from '@modules/admin/product/domain'
+import { ProductVariantStatus } from '@modules/admin/product/domain'
 import { CategoryDTO } from '../category/category.dtos'
+import { SIZE_UNIT } from '../../../constants'
+import { isNullOrUndefined } from '@libs'
 
 export class ProductColor {
 	@ApiProperty()
@@ -19,63 +28,173 @@ export class ProductColor {
 	label: string
 }
 
-export class ProductWeight {
+export class ProductMeasurement {
 	@ApiProperty()
 	@IsNotEmpty()
-	unit: string
+	@IsNumber()
+	@Validate((params) => params.value >= 0)
+	width: number
 
 	@ApiProperty()
 	@IsNotEmpty()
-	value: number
+	@IsNumber()
+	@Validate((params) => params.value >= 0)
+	length: number
+
+	@ApiProperty()
+	@IsNotEmpty()
+	@IsNumber()
+	@Validate((params) => params.value >= 0)
+	height: number
+
+	@ApiProperty()
+	@IsNotEmpty()
+	@IsNumber()
+	@Validate((params) => params.value >= 0)
+	weight: number
+
+	@ApiProperty()
+	@IsNotEmpty()
+	@IsIn(SIZE_UNIT)
+	sizeUnit: string
+
+	@ApiProperty()
+	@IsNotEmpty()
+	@IsString()
+	weightUnit: string
 }
 
 export class ProductImage {
-	@ApiProperty()
+	@ApiProperty({
+		required: true,
+		description:
+			'Name of the image. This name must be unique within variant',
+		example: '5001698574720731',
+	})
 	@IsNotEmpty()
 	imageName: string
 
-	@ApiProperty()
+	@ApiProperty({
+		required: true,
+		description:
+			'When create or update product, this value is path of image in temp folder. When get product, this value is path of image in public folder',
+		example: 'temp/5001698574720731',
+	})
 	@IsNotEmpty()
 	imageUrl: string
 }
-
 export class ProductVariantDTO {
-	@ApiProperty()
+	@ApiProperty({
+		required: false,
+		description:
+			'SKU of the product variant. SKU must be unique across all products',
+		example: 'SKU-011223-01-001',
+	})
 	@IsNotEmpty()
 	sku: string
 
-	@ApiProperty()
+	@ApiProperty({
+		type: ProductColor,
+		description:
+			'Color of the product. This is one of the variant properties',
+		example: {
+			label: 'Đỏ',
+			value: '#ff0000',
+		},
+	})
+	@ValidateIf((params) => {
+		console.log(params)
+		return !isNullOrUndefined(params.color)
+	})
 	color: ProductColor
 
-	@ApiProperty()
+	@ApiProperty({
+		required: false,
+		description:
+			'Material of the variant. This is one of the variant properties',
+		example: 'Vải',
+	})
+	@ValidateIf((params) => !isNullOrUndefined(params.material))
 	material: string
 
-	@ApiProperty()
+	@ApiProperty({
+		type: ProductMeasurement,
+		required: false,
+		description:
+			'Measurement of the variant. This is one of the variant properties',
+		example: {
+			width: 10,
+			length: 20,
+			height: 30,
+			weight: 5,
+			sizeUnit: 'cm',
+			weightUnit: 'kg',
+		},
+	})
+	@Type(() => ProductMeasurement)
+	@ValidateNested()
+	@ValidateIf((params) => !isNullOrUndefined(params.measurement))
+	measurement: ProductMeasurement
+
+	@ApiProperty({
+		required: true,
+		description: 'Quantity of the variant',
+		example: 10,
+	})
+	@IsNotEmpty()
+	@IsNumber()
 	quantity: number
 
-	@ApiProperty()
+	@ApiProperty({
+		required: true,
+		description: 'Price of the variant',
+		example: 100000,
+	})
+	@IsNotEmpty()
+	@IsNumber()
 	price: number
 
-	@ApiProperty()
-	@Transform((params) => {
-		return params.value ?? params.obj.price
+	@ApiProperty({
+		required: false,
+		description:
+			'Discount price of the variant. This value should be less than price',
+		example: 90000,
 	})
+	@IsNumber()
+	@Transform((params) => params.value ?? params.obj.price)
 	discount_price: number
-
-	@ApiProperty()
-	discount_percentage: number
 
 	@ApiProperty({
 		type: [ProductImage],
+		required: false,
+		description: 'List of images of the variant',
+		example: [
+			{
+				imageName: '5001698574720731',
+				imageUrl: 'temp/5001698574720731',
+			},
+			{
+				imageName: '4291698574408393',
+				imageUrl: 'temp/4291698574408393',
+			},
+		],
 	})
 	@Type(() => ProductImage)
-	image_list: ProductImage[]
+	@IsArray()
+	@IsOptional()
+	@ValidateNested()
+	image_list: ProductImage[] = []
 
 	@ApiProperty({
 		type: ProductVariantStatus,
+		required: false,
+		description:
+			'Status of the product. When status is Inactive, this variant will not be shown in client app. Default is Active',
 		enum: [ProductVariantStatus.Active, ProductVariantStatus.Inactive],
+		example: ProductVariantStatus.Active,
 	})
-	status: ProductVariantStatus
+	@IsOptional()
+	status: ProductVariantStatus = ProductVariantStatus.Active
 }
 
 export class ProductDTO {
@@ -102,22 +221,6 @@ export class ProductDTO {
 	@Type(() => CategoryDTO)
 	product_categories: CategoryDTO[]
 
-	@ApiProperty()
-	product_height: number
-
-	@ApiProperty()
-	product_width: number
-
-	@ApiProperty()
-	product_length: number
-
-	@ApiProperty()
-	product_size_unit: string[]
-
-	@ApiProperty()
-	@Type(() => ProductWeight)
-	product_weight: ProductWeight
-
 	@ApiProperty({
 		type: [ProductVariantDTO],
 	})
@@ -132,6 +235,12 @@ export class ProductDTO {
 
 	@ApiProperty()
 	has_material: boolean
+
+	@ApiProperty()
+	has_measurement: boolean
+
+	@ApiProperty()
+	has_weight: boolean
 
 	@ApiProperty()
 	product_warranty: string
@@ -150,9 +259,21 @@ export class ProductDTO {
 
 	constructor(props: any) {
 		Object.assign(this, props)
-		const firstVariant = props.product_variants[0]
+
+		this.product_variants = props.product_variants.map((variant) => {
+			const { property_list, metadata, ...variantProps } = variant
+			return {
+				...variantProps,
+				color: metadata.color ?? null,
+				material: metadata.material ?? null,
+				measurement: metadata.measurement ?? null,
+			}
+		})
+
+		const firstVariant = this.product_variants[0]
 
 		this.has_color = !!firstVariant.color
 		this.has_material = !!firstVariant.material
+		this.has_measurement = !!firstVariant.measurement
 	}
 }

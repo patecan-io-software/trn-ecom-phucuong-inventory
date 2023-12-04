@@ -20,6 +20,23 @@ export class ProductColor {
 	value: string
 }
 
+export class ProductMeasurement {
+	@ApiProperty()
+	width: number
+
+	@ApiProperty()
+	length: number
+
+	@ApiProperty()
+	height: number
+
+	@ApiProperty()
+	sizeUnit: string
+
+	@ApiProperty()
+	weightUnit: string
+}
+
 export class ProductImage {
 	@ApiProperty()
 	imageName: string
@@ -39,17 +56,29 @@ export class ProductCategory {
 	category_logoUrl: string
 }
 
-export class ProductVariant {
+export class VariantMetadata {
 	@ApiProperty()
-	sku: string
-
-	@ApiProperty({
-		type: ProductColor,
-	})
 	color: ProductColor
 
 	@ApiProperty()
 	material: string
+
+	@ApiProperty()
+	measurement: ProductMeasurement
+}
+
+export class ProductVariant {
+	@ApiProperty()
+	sku: string
+
+	@ApiProperty()
+	color: string
+
+	@ApiProperty()
+	material: string
+
+	@ApiProperty()
+	measurement: string
 
 	@ApiProperty()
 	quantity: number
@@ -68,6 +97,12 @@ export class ProductVariant {
 	})
 	@Type(() => ProductImage)
 	image_list: ProductImage[]
+
+	@ApiProperty({
+		type: VariantMetadata,
+	})
+	@Type(() => VariantMetadata)
+	metadata: VariantMetadata
 }
 
 export class ClientProductDTO {
@@ -124,8 +159,10 @@ export class ClientProductDTO {
 	image: ProductImage
 
 	constructor(props: any) {
-		Object.assign(this, props)
 		const firstVariant = props.product_variants[0]
+		delete props.product_variants
+
+		Object.assign(this, props)
 		this.sku = firstVariant.sku
 		this.price = firstVariant.price
 		this.discount_percentage = firstVariant.discount_percentage
@@ -163,14 +200,6 @@ export class ProductDetailResponseDTO {
 	product_brand: ProductBrand
 
 	@ApiProperty({
-		type: [ProductColor],
-	})
-	product_colors: ProductColor[]
-
-	@ApiProperty()
-	product_materials: string[]
-
-	@ApiProperty({
 		type: [ProductVariant],
 	})
 	product_variants: ProductVariant[]
@@ -183,21 +212,6 @@ export class ProductDetailResponseDTO {
 	@ApiProperty()
 	product_warranty: string
 
-	@ApiProperty()
-	sku: string
-
-	@ApiProperty()
-	price: number
-
-	@ApiProperty()
-	discount_percentage: number
-
-	@ApiProperty()
-	discount_price: number
-
-	@ApiProperty()
-	quantity: number
-
 	@ApiProperty({
 		type: ProductImage,
 	})
@@ -206,12 +220,20 @@ export class ProductDetailResponseDTO {
 
 	constructor(props: any) {
 		Object.assign(this, props)
-		const firstVariant = props.product_variants[0]
-		this.sku = firstVariant.sku
-		this.price = firstVariant.price
-		this.discount_percentage = firstVariant.discount_percentage
-		this.discount_price = firstVariant.discount_price
-		this.quantity = firstVariant.quantity
-		this.image = firstVariant.image_list[0]
+
+		this.product_variants = props.product_variants.map((variant) => {
+			const { property_list, ...variantProps } = variant
+			const properties = property_list.reduce((pre, cur) => {
+				const { key, value } = cur
+				pre[key] = value
+				return pre
+			}, {})
+			return {
+				...variantProps,
+				color: properties.color ?? null,
+				material: properties.material ?? null,
+				measurement: properties.measurement ?? null,
+			}
+		})
 	}
 }

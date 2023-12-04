@@ -1,8 +1,4 @@
-import {
-	CreateProductDTO,
-	ProductVariantStatus,
-	ProductVariantType,
-} from '../../domain'
+import { CreateProductDTO, ProductVariantStatus } from '../../domain'
 import { ProductVariantFactory } from './product-variant.factory'
 
 export class ProductDTOBuilder {
@@ -19,14 +15,6 @@ export class ProductDTOBuilder {
 			product_banner_image: '',
 			product_brand: '',
 			product_categories: [],
-			product_height: 0,
-			product_width: 0,
-			product_length: 0,
-			product_size_unit: '',
-			product_weight: {
-				value: 0,
-				unit: '',
-			},
 			product_warranty: '',
 			isPublished,
 			product_variants: [],
@@ -39,9 +27,12 @@ export class ProductDTOBuilder {
 		return this
 	}
 
-	withOneVariant(variantType: ProductVariantType) {
+	withOneVariant(
+		property_list: string[],
+		status: ProductVariantStatus = ProductVariantStatus.Active,
+	) {
 		this._result.product_variants.push(
-			ProductVariantFactory.createVariantWithType('SKU01', variantType),
+			ProductVariantFactory.createVariant('SKU01', property_list, status),
 		)
 		this._result.product_banner_image =
 			this._result.product_variants[0].image_list[0].imageUrl
@@ -49,27 +40,23 @@ export class ProductDTOBuilder {
 		return this
 	}
 
-	withVariantStatus(status: ProductVariantStatus) {
-		this._result.product_variants.forEach((variant) => {
-			variant.status = status
-		})
-		return this
-	}
-
-	withPrice(price: number, discount_price: number) {
+	withPrice(
+		price: number,
+		discount_price: number,
+		discount_percentage?: number,
+	) {
 		this._result.product_variants.forEach((variant) => {
 			variant.price = price
 			variant.discount_price = discount_price
+			variant.discount_percentage = discount_percentage
 		})
 		return this
 	}
 
-	withMultipleVariantsOfTheSameType(variantType: ProductVariantType) {
-		this._result.product_variants = [
-			ProductVariantFactory.createVariantWithType('SKU01', variantType),
-			ProductVariantFactory.createVariantWithType('SKU02', variantType),
-			ProductVariantFactory.createVariantWithType('SKU03', variantType),
-		]
+	withVariant(sku: string, property_list: string[]) {
+		this._result.product_variants.push(
+			ProductVariantFactory.createVariant(sku, property_list),
+		)
 		this._result.product_banner_image =
 			this._result.product_variants[0].image_list[0].imageUrl
 
@@ -78,18 +65,9 @@ export class ProductDTOBuilder {
 
 	withMultipleVariantsOfDifferentType() {
 		this._result.product_variants = [
-			ProductVariantFactory.createVariantWithType(
-				'SKU01',
-				ProductVariantType.ColorOnly,
-			),
-			ProductVariantFactory.createVariantWithType(
-				'SKU02',
-				ProductVariantType.MaterialOnly,
-			),
-			ProductVariantFactory.createVariantWithType(
-				'SKU03',
-				ProductVariantType.ColorAndMaterial,
-			),
+			ProductVariantFactory.createVariant('SKU01', ['color']),
+			ProductVariantFactory.createVariant('SKU02', ['material']),
+			ProductVariantFactory.createVariant('SKU03', ['color', 'material']),
 		]
 
 		this._result.product_banner_image =
@@ -100,14 +78,8 @@ export class ProductDTOBuilder {
 
 	withDuplicateVariantSKU(sku: string) {
 		this._result.product_variants = [
-			ProductVariantFactory.createVariantWithType(
-				sku,
-				ProductVariantType.ColorAndMaterial,
-			),
-			ProductVariantFactory.createVariantWithType(
-				sku,
-				ProductVariantType.ColorAndMaterial,
-			),
+			ProductVariantFactory.createVariant(sku, ['color']),
+			ProductVariantFactory.createVariant(sku, ['color']),
 		]
 
 		this._result.product_banner_image =
@@ -116,22 +88,47 @@ export class ProductDTOBuilder {
 		return this
 	}
 
-	withDuplicateVariantValue(color: string, material: string) {
+	withDuplicateVariantValue(
+		color: string,
+		material?: string,
+		size?: {
+			width: number
+			height: number
+			length: number
+			weight: number
+			sizeUnit: string
+			weightUnit: string
+		},
+	) {
+		const property_list = [
+			{
+				name: 'color',
+				value: {
+					value: color,
+					label: color,
+				},
+			},
+			{
+				name: 'material',
+				value: material,
+			},
+			{
+				name: 'size',
+				value: size,
+			},
+		]
 		this._result.product_variants = [
-			ProductVariantFactory.createVariantWithVariantValue(
+			ProductVariantFactory.createVariantWithValue(
 				'SKU01',
-				color,
-				material,
+				property_list,
 			),
-			ProductVariantFactory.createVariantWithVariantValue(
+			ProductVariantFactory.createVariantWithValue(
 				'SKU02',
-				color,
-				material,
+				property_list,
 			),
-			ProductVariantFactory.createVariantWithVariantValue(
+			ProductVariantFactory.createVariantWithValue(
 				'SKU03',
-				color,
-				material,
+				property_list,
 			),
 		]
 

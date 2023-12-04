@@ -32,42 +32,24 @@ export const productSchema = new Schema(
 				category_logoUrl: String, // Store the brand logo URL denormalized
 			},
 		],
-		product_height: {
-			type: Number,
-		},
-		product_width: {
-			type: Number,
-		},
-		product_length: {
-			type: Number,
-		},
-		product_size_unit: {
-			type: String,
-			enum: ['cm', 'm', 'mm', 'inch'],
-		},
-		product_weight: {
-			value: { type: Number },
-			unit: {
-				type: String,
-				enum: ['kg', 'g'],
-			},
-		},
 		product_variants: [
 			{
+				_id: false,
 				sku: String,
-				color: {
-					type: Schema.Types.Mixed,
-					default: null,
-					label: { type: String },
-					value: { type: String },
-				},
-				material: String,
+				property_list: [
+					{
+						_id: false,
+						key: String,
+						value: String,
+					},
+				],
 				price: Number,
 				discount_price: Number,
 				discount_percentage: Number,
 				quantity: Number,
 				image_list: [
 					{
+						_id: false,
 						imageName: String,
 						imageUrl: String,
 					},
@@ -76,6 +58,10 @@ export const productSchema = new Schema(
 					type: String,
 					default: ProductVariantStatus.Active,
 					required: false,
+				},
+				metadata: {
+					type: Schema.Types.Mixed,
+					default: {},
 				},
 			},
 		],
@@ -94,6 +80,7 @@ export const productSchema = new Schema(
 	{
 		collection: 'Products',
 		timestamps: true,
+		minimize: false,
 	},
 )
 

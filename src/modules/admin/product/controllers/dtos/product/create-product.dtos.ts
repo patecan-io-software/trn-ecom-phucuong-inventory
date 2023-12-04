@@ -1,128 +1,74 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { Transform, Type } from 'class-transformer'
+import { Type } from 'class-transformer'
 import {
 	ArrayMinSize,
 	IsArray,
-	IsIn,
 	IsNotEmpty,
-	IsNumber,
 	IsOptional,
-	IsPositive,
-	MinLength,
-	ValidateIf,
 	ValidateNested,
 } from 'class-validator'
-import { SIZE_UNIT } from '../../../constants'
-import { SuccessResponseDTO, isNullOrUndefined } from '@libs'
-import {
-	ProductColor,
-	ProductDTO,
-	ProductImage,
-	ProductWeight,
-} from './product.dtos'
-import { ProductVariantStatus } from '../../../domain'
+import { SuccessResponseDTO } from '@libs'
+import { ProductDTO, ProductVariantDTO } from './product.dtos'
 
-export class CreateProductVariantDTO {
-	@ApiProperty()
-	@IsNotEmpty()
-	sku: string
-
-	@ApiProperty({
-		type: ProductColor,
-	})
-	color: ProductColor
-
-	@ApiProperty()
-	material: string
-
-	@ApiProperty()
-	@IsNotEmpty()
-	@IsNumber()
-	quantity: number
-
-	@ApiProperty()
-	@IsNotEmpty()
-	@IsNumber()
-	price: number
-
-	@ApiProperty({
-		required: false,
-	})
-	@IsNumber()
-	@Transform((params) => params.value ?? params.obj.price)
-	discount_price: number
-
-	@ApiProperty({
-		type: [ProductImage],
-	})
-	@Type(() => ProductImage)
-	@IsArray()
-	@IsOptional()
-	@ValidateNested()
-	image_list: ProductImage[] = []
-
-	@ApiProperty({
-		type: ProductVariantStatus,
-		required: false,
-		enum: [ProductVariantStatus.Active, ProductVariantStatus.Inactive],
-	})
-	@IsOptional()
-	status: ProductVariantStatus = ProductVariantStatus.Active
-}
+export type CreateProductVariantDTO = ProductVariantDTO
 
 export class CreateProductRequestDTO {
-	@ApiProperty()
+	@ApiProperty({
+		description: 'Name of the product. Name of product must be unique',
+		example: `Test product 011223 01`,
+	})
 	@IsNotEmpty()
 	product_name: string
 
-	@ApiProperty()
+	@ApiProperty({
+		description: 'Description of the product',
+		example: 'This is test product',
+	})
 	@IsNotEmpty()
 	product_description: string
 
-	@ApiProperty()
+	@ApiProperty({
+		description: 'ID of brand',
+		example: '653e4c45c2c90dd459bb8976',
+	})
 	product_brand: string
 
-	@ApiProperty()
+	@ApiProperty({
+		description: 'List IDs of categories. Min size is 1',
+		example: ['653b4c7085e86f091c56cb06'],
+	})
+	@IsArray()
+	@ArrayMinSize(1)
 	product_categories: string[]
 
-	@ApiProperty()
-	@Type(() => ProductWeight)
-	product_weight: ProductWeight
-
-	@ApiProperty()
-	product_height: number
-
-	@ApiProperty()
-	product_width: number
-
-	@ApiProperty()
-	product_length: number
-
-	@ApiProperty()
-	@IsNotEmpty()
-	@IsIn(SIZE_UNIT)
-	product_size_unit: string
-
-	@ApiProperty()
+	@ApiProperty({
+		description: 'Path of banner image in temp folder',
+		example: 'temp/5001698574720731',
+	})
 	@IsOptional()
 	product_banner_image: string
 
 	@ApiProperty({
 		required: false,
+		description: 'Warranty of product',
+		example: '12 tháng',
 	})
 	@IsOptional()
 	product_warranty: string = null
 
 	@ApiProperty({
-		type: [CreateProductVariantDTO],
+		type: [ProductVariantDTO],
 	})
-	@Type(() => CreateProductVariantDTO)
+	@Type(() => ProductVariantDTO)
 	@ArrayMinSize(1)
 	@ValidateNested({ each: true })
 	product_variants: CreateProductVariantDTO[]
 
 	@ApiProperty({
 		required: false,
+		description:
+			'Status of product. If product is Draft, it will not be shown in client app. Default is Published',
+		example: true,
 		default: true,
 	})
 	isPublished: boolean = true

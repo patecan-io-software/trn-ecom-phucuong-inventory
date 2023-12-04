@@ -1,18 +1,15 @@
-import {
-	CreateProductVariantProps,
-	ProductVariantStatus,
-	ProductVariantType,
-} from '../../domain'
+import { randomInt } from 'crypto'
+import { CreateProductVariantDTO, ProductVariantStatus } from '../../domain'
 import { getRandomAlphabetString, getRandomProductColor } from './random'
 
 export class ProductVariantFactory {
-	static createVariantWithType(
+	static createVariant(
 		sku: string,
-		variantType: ProductVariantType,
+		property_list: string[],
 		status: ProductVariantStatus = ProductVariantStatus.Active,
-	): CreateProductVariantProps {
+	): CreateProductVariantDTO {
 		const imageName = getRandomAlphabetString(10)
-		const props: CreateProductVariantProps = {
+		const dto: CreateProductVariantDTO = {
 			sku,
 			quantity: 1,
 			price: 5000,
@@ -23,33 +20,44 @@ export class ProductVariantFactory {
 					imageUrl: `http://example/products/test/${imageName}`,
 				},
 			],
+			status,
 			color: null,
 			material: null,
-			status,
+			measurement: null,
 		}
-		switch (variantType) {
-			case ProductVariantType.None:
-				return props
-			case ProductVariantType.ColorOnly:
-				props.color = getRandomProductColor()
-				return props
-			case ProductVariantType.MaterialOnly:
-				props.material = getRandomAlphabetString(10)
-				return props
-			case ProductVariantType.ColorAndMaterial:
-				props.color = getRandomProductColor()
-				props.material = getRandomAlphabetString(10)
-				return props
-		}
+		property_list.forEach((property) => {
+			switch (property) {
+				case 'color':
+					dto.color = getRandomProductColor()
+					break
+				case 'material':
+					dto.material = getRandomAlphabetString(10)
+					break
+				case 'measurement':
+					dto.measurement = {
+						height: randomInt(100),
+						length: randomInt(100),
+						width: randomInt(100),
+						weight: randomInt(10),
+						sizeUnit: 'cm',
+						weightUnit: 'kg',
+					}
+					break
+				default:
+					throw new Error(`Invalid property name: ${property}`)
+			}
+		})
+
+		return dto
 	}
 
-	static createVariantWithVariantValue(
+	static createVariantWithValue(
 		sku: string,
-		color?: string,
-		material?: string,
-	) {
+		property_list: { name: string; value: any }[],
+		status: ProductVariantStatus = ProductVariantStatus.Active,
+	): CreateProductVariantDTO {
 		const imageName = getRandomAlphabetString(10)
-		const props: CreateProductVariantProps = {
+		const dto: CreateProductVariantDTO = {
 			sku,
 			quantity: 1,
 			price: 5000,
@@ -60,12 +68,16 @@ export class ProductVariantFactory {
 					imageUrl: `http://example/products/test/${imageName}`,
 				},
 			],
-			color: {
-				label: getRandomAlphabetString(5),
-				value: color,
-			},
-			material: material,
+			status,
+			color: null,
+			material: null,
+			measurement: null,
 		}
-		return props
+
+		property_list.forEach((property) => {
+			dto[property.name] = property.value
+		})
+
+		return dto
 	}
 }
