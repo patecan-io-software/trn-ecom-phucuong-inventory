@@ -10,9 +10,6 @@ export const inventorySchema = new Schema(
 		inventory_price: { type: Number, default: 0 },
 		inventory_discount_price: { type: Number, default: 0 },
 		inventory_shopId: { type: Schema.Types.ObjectId, ref: 'Shop' },
-		inventory_reservations: [
-			{ type: Schema.Types.ObjectId, ref: 'Product' },
-		], // Đặt hàng nhưng chưa tới bước thanh toán
 		inventory_parents: { type: Schema.Types.ObjectId, ref: 'Inventory' },
 		inventory_isActive: { type: Boolean, default: true },
 		isMarkedDelete: { type: Boolean, default: false },

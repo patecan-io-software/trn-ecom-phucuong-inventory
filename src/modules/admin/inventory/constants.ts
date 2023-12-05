@@ -1,1 +1,7 @@
 export const INVENTORY_MODEL = 'INVENTORY.INVENTORY_MODEL'
+
+export const PRODUCT_EVENTS = {
+	OnCreated: 'PRODUCT.CREATED',
+	OnUpdated: 'PRODUCT.UPDATED',
+	OnDeleted: 'PRODUCT.DELETED',
+}

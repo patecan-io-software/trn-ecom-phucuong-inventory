@@ -82,18 +82,33 @@ export class InventoryRepository extends BaseRepository {
 	}
 
 	async saveBatch(inventoryList: Inventory[]) {
-		const rawList = inventoryList.map((inventory) => {
-			const raw = new InventoryModel(inventory)
-			if (inventory._id) {
-				raw.isNew = false
-			} else {
-				raw.isNew = true
-			}
-			return raw
-		})
-		await InventoryModel.bulkSave(rawList, {
-			session: this.session,
-		})
+		const operations = inventoryList.map((inventory) => ({
+			updateOne: {
+				filter: { inventory_sku: inventory.inventory_sku },
+				update: inventory,
+				upsert: true,
+			},
+		}))
+
+		await InventoryModel.bulkWrite(operations, { session: this.session })
+	}
+
+	async batchDeleteBySKUs(skuList: string[]) {
+		await InventoryModel.deleteMany(
+			{
+				inventory_sku: { $in: skuList },
+			},
+			{ session: this.session },
+		)
+	}
+
+	async batchDeleteByProductId(productId: string) {
+		await InventoryModel.deleteMany(
+			{
+				inventory_productId: productId,
+			},
+			{ session: this.session },
+		)
 	}
 
 	async save(inventory: Inventory): Promise<Inventory> {
@@ -119,7 +134,6 @@ export class InventoryRepository extends BaseRepository {
 			inventory_shopId: updatedInventory.inventory_shopId,
 			inventory_location: updatedInventory.inventory_location,
 			inventory_isActive: updatedInventory.inventory_isActive,
-			inventory_reservations: updatedInventory.inventory_reservations,
 			inventory_parents: updatedInventory.inventory_parents,
 		} as any
 	}
