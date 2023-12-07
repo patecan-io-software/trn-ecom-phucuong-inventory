@@ -167,11 +167,12 @@ export class ProductRepository extends BaseRepository {
 	}
 
 	async searchProductsByKeyword(options: {
-		keyword: string
+		keyword?: string
+		sku?: string
 		page: number
 		page_size: number
 	}): Promise<IPaginationResult> {
-		const { keyword, page, page_size } = options
+		const { keyword, sku, page, page_size } = options
 
 		const query: any = {
 			isMarkedDelete: false,
@@ -180,6 +181,14 @@ export class ProductRepository extends BaseRepository {
 			const escapedKeyword = Utils.escapeRegExp(keyword)
 			const regexSearch: RegExp = new RegExp(escapedKeyword, 'i') // 'i' for case-insensitive search
 			query.$text = { $search: regexSearch.source }
+		}
+
+		if (sku) {
+			query.product_variants = {
+				$elemMatch: {
+					sku: sku,
+				},
+			}
 		}
 
 		const findProductsQuery = ProductModel.find(query)

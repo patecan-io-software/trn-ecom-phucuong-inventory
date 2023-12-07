@@ -86,6 +86,10 @@ export const productSchema = new Schema(
 
 productSchema.index({ product_name: 'text', product_description: 'text' })
 productSchema.index({ product_status: 1 })
+productSchema.index({
+	'product_variants.sku': 1,
+	createdAt: -1,
+})
 
 // productSchema.pre('save', async function (next) {
 // 	for (let i = 0; i < this.product_variants.length; i++) {

@@ -7,10 +7,20 @@ import { IsOptional } from 'class-validator'
 export class SearchProductsQueryDTO {
 	@ApiProperty({
 		required: false,
+		description: 'Search by product name, description',
 	})
 	@IsOptional()
 	@Transform(TransformQueryString)
 	q: string
+
+	@ApiProperty({
+		required: false,
+		description:
+			'Search by product sku. Result only contain 1 product or empty if not found',
+	})
+	@IsOptional()
+	@Transform(TransformQueryString)
+	sku: string
 
 	@ApiProperty({
 		required: false,
