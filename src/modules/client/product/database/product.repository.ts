@@ -85,17 +85,19 @@ export class ProductRepository {
 			const foundCategory: any = await CategoryModel.findById(category)
 				.lean()
 				.exec()
+			// foundCategory is parent category, therefore we need to find by all child categories including itself
 			if (!foundCategory.parent_id) {
 				console.log('Parent Category' + foundCategory._id)
 				const childCategories = await CategoryModel.find({
 					parent_id: foundCategory._id,
 					isMarkedDelete: false,
 				})
-				const childCategoriesIds = childCategories.map(
-					(childCategory) => childCategory._id,
-				)
-				query['product_categories._id'] = { $in: childCategoriesIds }
+				const searchCategoryIdList = childCategories
+					.map((childCategory) => childCategory._id)
+					.concat(foundCategory._id) // Add parent category to search list
+				query['product_categories._id'] = { $in: searchCategoryIdList }
 			} else {
+				// foundCategory is child category, therefore we need to find by itself only
 				console.log('Child Category' + foundCategory._id)
 				query['product_categories._id'] = foundCategory._id
 			}
