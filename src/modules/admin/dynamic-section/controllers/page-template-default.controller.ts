@@ -118,7 +118,7 @@ export class PageTemplateDefaultController {
 		templateId: string,
 		section: ImageSectionDTO,
 	) {
-		const { imageStoragePath } = this.config
+		const { dynamicSectionImageStoragePath } = this.config
 		const results = await Promise.all(
 			section.image_list.map(async (image) => {
 				if (isURL(image.image_url)) {
@@ -126,7 +126,7 @@ export class PageTemplateDefaultController {
 				}
 				const url = await this.imageUploader.copyFromTempTo(
 					image.image_url,
-					`${imageStoragePath}/${templateId}/${
+					`${dynamicSectionImageStoragePath}/${templateId}/${
 						section.name
 					}/${randomInt(10000)}_${Date.now()}`,
 				)
@@ -146,7 +146,7 @@ export class PageTemplateDefaultController {
 		templateId: string,
 		section: FooterSectionDTO,
 	) {
-		const { imageStoragePath } = this.config
+		const { dynamicSectionImageStoragePath } = this.config
 		const { background_image_url } = section
 		if (isURL(background_image_url)) {
 			return
@@ -154,9 +154,9 @@ export class PageTemplateDefaultController {
 		try {
 			const imageUrl = await this.imageUploader.copyFromTempTo(
 				background_image_url,
-				`${imageStoragePath}/${templateId}/${section.name}/${randomInt(
-					10000,
-				)}_${Date.now()}`,
+				`${dynamicSectionImageStoragePath}/${templateId}/${
+					section.name
+				}/${randomInt(10000)}_${Date.now()}`,
 			)
 			section.background_image_url = imageUrl
 		} catch (error) {
