@@ -51,6 +51,16 @@ export class FooterSectionDTO extends PartialType(PageSectionDTO) {
 	display_text: string
 }
 
+export class LogoSectionDTO extends PartialType(PageSectionDTO) {
+	@ApiProperty()
+	@IsNotEmpty()
+	favicon: string
+
+	@ApiProperty()
+	@IsNotEmpty()
+	logo: string
+}
+
 export class PageTemplateDTO {
 	@ApiProperty()
 	name: string

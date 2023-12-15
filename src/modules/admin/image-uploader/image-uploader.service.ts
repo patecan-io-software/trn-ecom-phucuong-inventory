@@ -53,7 +53,11 @@ export class ImageUploader {
 		return `${supabaseUrl}/${this.PUBLIC_URL_PATH}/${bucketName}/${path}`
 	}
 
-	async copyFromTempTo(fromPath: string, destinationPath: string) {
+	async copyFromTempTo(
+		fromPath: string,
+		destinationPath: string,
+		overwriteIfExists = false,
+	) {
 		const { bucketName, supabaseUrl, defaultPath, tempPath } = this.config
 
 		if (
@@ -65,7 +69,7 @@ export class ImageUploader {
 			)
 		}
 
-		const { data, error } = await this.supabaseClient.storage
+		const { error } = await this.supabaseClient.storage
 			.from(bucketName)
 			.copy(fromPath, destinationPath)
 
@@ -73,6 +77,20 @@ export class ImageUploader {
 			this.logger.warn(error)
 			if (error.message !== 'The resource already exists') {
 				throw new UploadFileFailedException(error.message)
+			}
+			if (overwriteIfExists) {
+				this.logger.debug('Overwrite image in path ' + destinationPath)
+				await this.supabaseClient.storage
+					.from(bucketName)
+					.remove([destinationPath])
+				const { error: reuploadError } =
+					await this.supabaseClient.storage
+						.from(bucketName)
+						.copy(fromPath, destinationPath)
+
+				if (reuploadError) {
+					throw new UploadFileFailedException(error.message)
+				}
 			}
 		}
 

@@ -23,6 +23,7 @@ import { ImageUploader } from '@modules/admin/image-uploader'
 import {
 	FooterSectionDTO,
 	ImageSectionDTO,
+	LogoSectionDTO,
 	PageTemplateDTO,
 } from './dto/page-template/page-template.dtos'
 import { isURL } from 'class-validator'
@@ -79,6 +80,11 @@ export class PageTemplateDefaultController {
 					templateId,
 					section as FooterSectionDTO,
 				)
+			case 'logo_section':
+				await this.handleLogoSection(
+					templateId,
+					section as LogoSectionDTO,
+				)
 		}
 
 		const existingSectionIndex = pageTemplate.section_list.findIndex(
@@ -118,7 +124,7 @@ export class PageTemplateDefaultController {
 		templateId: string,
 		section: ImageSectionDTO,
 	) {
-		const { imageStoragePath } = this.config
+		const { dynamicSectionImageStoragePath } = this.config
 		const results = await Promise.all(
 			section.image_list.map(async (image) => {
 				if (isURL(image.image_url)) {
@@ -126,7 +132,7 @@ export class PageTemplateDefaultController {
 				}
 				const url = await this.imageUploader.copyFromTempTo(
 					image.image_url,
-					`${imageStoragePath}/${templateId}/${
+					`${dynamicSectionImageStoragePath}/${templateId}/${
 						section.name
 					}/${randomInt(10000)}_${Date.now()}`,
 				)
@@ -146,7 +152,7 @@ export class PageTemplateDefaultController {
 		templateId: string,
 		section: FooterSectionDTO,
 	) {
-		const { imageStoragePath } = this.config
+		const { dynamicSectionImageStoragePath } = this.config
 		const { background_image_url } = section
 		if (isURL(background_image_url)) {
 			return
@@ -154,11 +160,47 @@ export class PageTemplateDefaultController {
 		try {
 			const imageUrl = await this.imageUploader.copyFromTempTo(
 				background_image_url,
-				`${imageStoragePath}/${templateId}/${section.name}/${randomInt(
-					10000,
-				)}_${Date.now()}`,
+				`${dynamicSectionImageStoragePath}/${templateId}/${
+					section.name
+				}/${randomInt(10000)}_${Date.now()}`,
 			)
 			section.background_image_url = imageUrl
+		} catch (error) {
+			this.logger.warn(error)
+		}
+	}
+
+	private async handleLogoSection(
+		templateId: string,
+		section: LogoSectionDTO,
+	) {
+		const { dynamicSectionImageStoragePath } = this.config
+		const { favicon, logo } = section
+		const imageList = [
+			{
+				imageName: 'favicon',
+				imageUrl: favicon,
+			},
+			{
+				imageName: 'logo',
+				imageUrl: logo,
+			},
+		]
+		try {
+			await Promise.all(
+				imageList.map(async (image) => {
+					// if image is an URL, skip because it's already uploaded
+					if (isURL(image.imageUrl)) {
+						return
+					}
+					const imageUrl = await this.imageUploader.copyFromTempTo(
+						image.imageUrl,
+						`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${image.imageName}`,
+						true,
+					)
+					section[image.imageName] = imageUrl
+				}),
+			)
 		} catch (error) {
 			this.logger.warn(error)
 		}
