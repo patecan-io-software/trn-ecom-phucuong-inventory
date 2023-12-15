@@ -9,5 +9,6 @@ export default () => ({
 			return `${process.env.CLIENT_WEB_APP_URL}/products?category=${categoryId}`
 		},
 		dynamicSectionImageStoragePath: 'dynamic-section',
+		campaignImageStoragePath: 'campaign',
 	} as DynamicSectionModuleConfig,
 })
