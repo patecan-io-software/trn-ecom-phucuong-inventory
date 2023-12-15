@@ -8,6 +8,7 @@ export default () => ({
 		categoryLinkFunc: (categoryId: string) => {
 			return `${process.env.CLIENT_WEB_APP_URL}/products?category=${categoryId}`
 		},
-		imageStoragePath: 'dynamic-section',
+		dynamicSectionImageStoragePath: 'dynamic-section',
+		campaignImageStoragePath: 'campaign',
 	} as DynamicSectionModuleConfig,
 })

@@ -16,6 +16,7 @@ export const campaignSchema = new Schema(
 			{
 				imageName: { type: String },
 				imageUrl: { type: String },
+				_id: false,
 			},
 		],
 		campaign_link: { type: String, default: '/' },
