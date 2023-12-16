@@ -33,18 +33,18 @@ export class CategoryTreeController {
 		const { view } = q
 		const select =
 			view === 'full' ? 'all' : ['_id', 'category_name', 'parent_id']
-		const categoryList = await this.categoryRepository.findAll(select)
+		const categoryList: any[] =
+			await this.categoryRepository.findAll(select)
 		const categoryTree = []
 		const childrenCategoryList = []
 		// separate root categories and children categories
 		categoryList.forEach((category) => {
+			category.child_category_list = []
 			if (category.parent_id) {
 				childrenCategoryList.push(category)
 			} else {
-				categoryTree.push({
-					...category,
-					level: 1,
-				})
+				category.level = 1 // root category has level = 1
+				categoryTree.push(category)
 			}
 		})
 
@@ -58,13 +58,8 @@ export class CategoryTreeController {
 				category.parent_id,
 			)
 			if (parentCategory) {
-				if (!parentCategory.child_category_list) {
-					parentCategory.child_category_list = []
-				}
-				parentCategory.child_category_list.push({
-					...category,
-					level: parentCategory.level + 1,
-				})
+				category.level = parentCategory.level + 1
+				parentCategory.child_category_list.push(category)
 			} else {
 				// if parent not found, it means that parent is still in childrenCategoryList, so add it back to the list and try again later
 				childrenCategoryList.push(category)
