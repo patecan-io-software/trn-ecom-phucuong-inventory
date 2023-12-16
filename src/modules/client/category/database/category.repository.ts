@@ -23,12 +23,14 @@ export class CategoryRepository {
 		})
 	}
 
-	async findAll(): Promise<Category[]> {
+	async findAll(select?: 'all' | string[]): Promise<Category[]> {
 		const result = await CategoryModel.find()
 			.where({
 				isMarkedDelete: false,
 			})
-			.select(this.getSelectFields())
+			.select(
+				select === 'all' ? this.getSelectFields() : select.join(' '),
+			)
 		return result.map((cat) =>
 			cat.toObject({
 				flattenObjectIds: true,
