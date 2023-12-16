@@ -1,5 +1,5 @@
 import { ValidateMongoObjectId } from '@libs'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { IsNotEmpty, Validate } from 'class-validator'
 
 export class ObjectIdParam {
@@ -42,4 +42,15 @@ export class CategoryDTO {
 	constructor(props: any) {
 		Object.assign(this, props)
 	}
+}
+
+export class CategoryTreeDTO extends PartialType(CategoryDTO) {
+	@ApiProperty({
+		required: false,
+		type: [CategoryTreeDTO],
+	})
+	child_category_list?: CategoryTreeDTO[]
+
+	@ApiProperty()
+	level: number
 }

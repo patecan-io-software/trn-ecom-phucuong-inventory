@@ -82,24 +82,11 @@ export class ProductRepository {
 			category !== 'undefined' &&
 			category !== 'null'
 		) {
-			const foundCategory: any = await CategoryModel.findById(category)
-				.lean()
-				.exec()
-			// foundCategory is parent category, therefore we need to find by all child categories including itself
-			if (!foundCategory.parent_id) {
-				console.log('Parent Category' + foundCategory._id)
-				const childCategories = await CategoryModel.find({
-					parent_id: foundCategory._id,
-					isMarkedDelete: false,
-				})
-				const searchCategoryIdList = childCategories
-					.map((childCategory) => childCategory._id)
-					.concat(foundCategory._id) // Add parent category to search list
-				query['product_categories._id'] = { $in: searchCategoryIdList }
-			} else {
-				// foundCategory is child category, therefore we need to find by itself only
-				console.log('Child Category' + foundCategory._id)
-				query['product_categories._id'] = foundCategory._id
+			const childCategoryList = await this.findAllChildCategories([
+				category,
+			])
+			query['product_categories._id'] = {
+				$in: childCategoryList.concat(category), // include parent category in the list
 			}
 		}
 
@@ -216,6 +203,31 @@ export class ProductRepository {
 			result.toObject({
 				flattenObjectIds: true,
 			}),
+		)
+	}
+
+	private async findAllChildCategories(
+		categoryIds: string[],
+	): Promise<string[]> {
+		const childCategoryList = await CategoryModel.find()
+			.where({
+				isMarkedDelete: false,
+				parent_id: {
+					$in: categoryIds,
+				},
+			})
+			.select('_id')
+			.exec()
+		if (childCategoryList.length === 0) {
+			return []
+		}
+		const nestedChildCategoryList = await this.findAllChildCategories(
+			childCategoryList.map((childCategory) =>
+				childCategory._id.toString(),
+			),
+		)
+		return nestedChildCategoryList.concat(
+			childCategoryList.map((cat) => cat._id.toString()),
 		)
 	}
 
