@@ -72,7 +72,7 @@ export class CategoryController {
 			const parentCategory = await this.categoryRepo.getById(
 				dto.parent_id,
 			)
-			if (!parentCategory || !parentCategory.is_parent) {
+			if (!parentCategory) {
 				throw new InvalidParentCategoryException()
 			}
 		}
@@ -126,17 +126,11 @@ export class CategoryController {
 			throw new CategoryNotFoundException(id)
 		}
 
-		// update category from parent to child
-		if (category.is_parent && body.parent_id) {
-			if (category.child_category_count > 0) {
-				throw new ParentCategoryCannotBeChangedException(
-					category.child_category_count,
-				)
-			}
+		if (body.parent_id) {
 			const parentCategory = await this.categoryRepo.getById(
 				body.parent_id,
 			)
-			if (!parentCategory || !parentCategory.is_parent) {
+			if (!parentCategory) {
 				throw new InvalidParentCategoryException()
 			}
 		}
