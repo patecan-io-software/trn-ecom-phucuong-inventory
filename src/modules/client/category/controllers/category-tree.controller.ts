@@ -3,11 +3,15 @@ import {
 	Controller,
 	Get,
 	HttpCode,
+	Query,
 	UseInterceptors,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { CategoryRepository } from '../database'
-import { GetCategoryTreeResponseDTO } from './dtos/get-category-tree.dtos'
+import {
+	GetCategoryTreeQueryDTO,
+	GetCategoryTreeResponseDTO,
+} from './dtos/get-category-tree.dtos'
 import { CacheInterceptor } from '@nestjs/cache-manager'
 
 @Controller('v1/categories::categoryTree')
@@ -23,8 +27,13 @@ export class CategoryTreeController {
 		type: GetCategoryTreeResponseDTO,
 	})
 	@UseInterceptors(CacheInterceptor)
-	async getCategoryTree(): Promise<GetCategoryTreeResponseDTO> {
-		const categoryList = await this.categoryRepository.findAll()
+	async getCategoryTree(
+		@Query() q: GetCategoryTreeQueryDTO,
+	): Promise<GetCategoryTreeResponseDTO> {
+		const { view } = q
+		const select =
+			view === 'full' ? 'all' : ['_id', 'category_name', 'parent_id']
+		const categoryList = await this.categoryRepository.findAll(select)
 		const categoryTree = []
 		const childrenCategoryList = []
 		// separate root categories and children categories
