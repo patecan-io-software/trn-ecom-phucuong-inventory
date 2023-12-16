@@ -73,7 +73,9 @@ export class CategoryController {
 				dto.parent_id,
 			)
 			if (!parentCategory) {
-				throw new InvalidParentCategoryException()
+				throw new InvalidParentCategoryException(
+					'Invalid parent category',
+				)
 			}
 		}
 
@@ -126,12 +128,20 @@ export class CategoryController {
 			throw new CategoryNotFoundException(id)
 		}
 
+		if (id === body.parent_id) {
+			throw new InvalidParentCategoryException(
+				'Parent category cannot be itself',
+			)
+		}
+
 		if (body.parent_id) {
 			const parentCategory = await this.categoryRepo.getById(
 				body.parent_id,
 			)
 			if (!parentCategory) {
-				throw new InvalidParentCategoryException()
+				throw new InvalidParentCategoryException(
+					'Invalid parent category',
+				)
 			}
 		}
 
