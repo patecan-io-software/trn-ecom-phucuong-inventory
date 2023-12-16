@@ -23,6 +23,19 @@ export class CategoryRepository {
 		})
 	}
 
+	async findAll(): Promise<Category[]> {
+		const result = await CategoryModel.find()
+			.where({
+				isMarkedDelete: false,
+			})
+			.select(this.getSelectFields())
+		return result.map((cat) =>
+			cat.toObject({
+				flattenObjectIds: true,
+			}),
+		)
+	}
+
 	async find(options: {
 		page: number
 		page_size: number

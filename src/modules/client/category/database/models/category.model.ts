@@ -39,6 +39,8 @@ export const categorySchema = new Schema(
 )
 
 export interface Category {
+	_id: string
+	parent_id: string
 	category_name: string
 	category_description: string
 	category_logoUrl: string
