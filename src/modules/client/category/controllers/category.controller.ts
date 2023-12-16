@@ -2,14 +2,14 @@ import {
 	ClassSerializerInterceptor,
 	Controller,
 	Get,
+	HttpCode,
 	Param,
-	Post,
 	Query,
 	UseInterceptors,
 } from '@nestjs/common'
-import { CategoryDTO, CategoryTreeDTO, ObjectIdParam } from './dtos/common.dto'
+import { CategoryDTO, ObjectIdParam } from './dtos/common.dto'
 
-import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
 	FindCategoriesQueryDTO,
 	FindCategoriesResponseDTO,
@@ -17,6 +17,7 @@ import {
 import { CategoryRepository } from '../database'
 import { CategoryNotFoundException } from '../errors/category.errors'
 import { GetCategoryTreeResponseDTO } from './dtos/get-category-tree.dtos'
+import { CacheInterceptor } from '@nestjs/cache-manager'
 
 @Controller('v1/categories')
 @ApiTags('Client - Category')
@@ -36,11 +37,13 @@ export class CategoryController {
 		return new FindCategoriesResponseDTO(result)
 	}
 
-	@Post('/:getCategoryTree')
+	@Get('/:getCategoryTree')
+	@HttpCode(200)
 	@ApiResponse({
 		status: 200,
 		type: GetCategoryTreeResponseDTO,
 	})
+	@UseInterceptors(CacheInterceptor)
 	async getCategoryTree(): Promise<GetCategoryTreeResponseDTO> {
 		const categoryList = await this.categoryRepository.findAll()
 		const categoryTree = []

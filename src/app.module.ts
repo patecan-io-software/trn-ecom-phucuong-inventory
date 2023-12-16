@@ -14,6 +14,7 @@ import { UtilityModule } from '@infras/utility'
 import { AdminAuthModule } from '@modules/admin/auth'
 import { DynamicSectionModule } from '@modules/admin/dynamic-section'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { CacheModule } from '@nestjs/cache-manager'
 
 @Module({
 	imports: [

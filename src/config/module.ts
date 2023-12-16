@@ -6,6 +6,7 @@ import imageUploaderConfig from './image-uploader.config'
 import authConfig from './auth.config'
 import adminProductConfig from './admin-product.config'
 import dynamicSectionConfig from './dynamic-section.config'
+import clientCategoryConfig from './client-category.config'
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import dynamicSectionConfig from './dynamic-section.config'
 				authConfig,
 				adminProductConfig,
 				dynamicSectionConfig,
+				clientCategoryConfig,
 			],
 			validate: validateConfig,
 			envFilePath: '.env',
