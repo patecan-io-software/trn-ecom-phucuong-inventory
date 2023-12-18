@@ -20,10 +20,8 @@ export class CategoryNotFoundException extends BaseException {
 export class InvalidParentCategoryException extends BaseException {
 	public code = 'INVALID_PARENT_CATEGORY'
 
-	constructor() {
-		super(
-			'Invalid parent category. Parent category is neither not found nor a parent category',
-		)
+	constructor(message = 'Invalid parent category') {
+		super(message)
 	}
 }
 
