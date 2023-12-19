@@ -122,12 +122,13 @@ export class PageTemplateDefaultController {
 		section: ImageSectionDTO,
 	) {
 		const { dynamicSectionImageStoragePath } = this.config
+		const now = Date.now()
 		const results = await Promise.all(
 			section.image_list.map(async (image, index) => {
 				if (isURL(image.image_url)) {
 					return
 				}
-				const imageName = `image_${index + 1}`
+				const imageName = `image_${index + 1}_${now}`
 				const url = await this.imageUploader.copyFromTempTo(
 					image.image_url,
 					`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${imageName}`,
@@ -149,17 +150,17 @@ export class PageTemplateDefaultController {
 
 		if (background_image_list) {
 			// handle background image
+			const now = Date.now()
 			section.background_image_list = await Promise.all(
 				background_image_list.map(async (image, index) => {
 					// if image is url, it means that it is already uploaded
 					if (isURL(image)) {
 						return image
 					}
-					const imageName = `image_${index + 1}`
+					const imageName = `image_${index + 1}_${now}`
 					const url = await this.imageUploader.copyFromTempTo(
 						image,
 						`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${imageName}`,
-						true,
 					)
 					return url
 				}),
@@ -179,8 +180,9 @@ export class PageTemplateDefaultController {
 		try {
 			const imageUrl = await this.imageUploader.copyFromTempTo(
 				background_image_url,
-				`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/image_1`,
-				true,
+				`${dynamicSectionImageStoragePath}/${templateId}/${
+					section.name
+				}/image_1_${Date.now()}}`,
 			)
 			section.background_image_url = imageUrl
 		} catch (error) {

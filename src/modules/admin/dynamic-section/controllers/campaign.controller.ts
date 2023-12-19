@@ -49,6 +49,7 @@ export class CampaignController {
 	): Promise<CreateCampaignResponseDTO> {
 		const { campaignImageStoragePath } = this.config
 		// upload images of campaign
+		const now = Date.now()
 		await Promise.all(
 			dto.campaign_images.map(async (image, index) => {
 				image.imageName = `image_${index + 1}`
@@ -58,8 +59,8 @@ export class CampaignController {
 				}
 				const newImageUrl = await this.imageUploader.copyFromTempTo(
 					image.imageUrl,
-					`${campaignImageStoragePath}/${dto.campaign_name}/${image.imageName}`,
-					true,
+					`${campaignImageStoragePath}/${dto.campaign_name}/${image.imageName}_${now}`,
+					false,
 				)
 				image.imageUrl = newImageUrl
 			}),
