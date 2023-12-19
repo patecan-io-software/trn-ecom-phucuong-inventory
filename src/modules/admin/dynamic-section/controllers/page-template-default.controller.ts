@@ -187,6 +187,7 @@ export class PageTemplateDefaultController {
 			},
 		]
 		try {
+			const now = Date.now()
 			await Promise.all(
 				imageList.map(async (image) => {
 					// if image is an URL, skip because it's already uploaded
@@ -195,8 +196,7 @@ export class PageTemplateDefaultController {
 					}
 					const imageUrl = await this.imageUploader.copyFromTempTo(
 						image.imageUrl,
-						`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${image.imageName}`,
-						true,
+						`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${image.imageName}_${now}`,
 					)
 					section[image.imageName] = imageUrl
 				}),
