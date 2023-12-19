@@ -66,7 +66,10 @@ export class PageTemplateDefaultController {
 		switch (section.name) {
 			case 'category_section':
 			case 'category_slider':
-				this.handleCategorySection(section as ImageSectionDTO)
+				await this.handleCategorySection(
+					templateId,
+					section as ImageSectionDTO,
+				)
 				break
 			case 'banner_section':
 			case 'coupon_banner_section':
@@ -120,26 +123,48 @@ export class PageTemplateDefaultController {
 	) {
 		const { dynamicSectionImageStoragePath } = this.config
 		const results = await Promise.all(
-			section.image_list.map(async (image) => {
+			section.image_list.map(async (image, index) => {
 				if (isURL(image.image_url)) {
 					return
 				}
+				const imageName = `image_${index + 1}`
 				const url = await this.imageUploader.copyFromTempTo(
 					image.image_url,
-					`${dynamicSectionImageStoragePath}/${templateId}/${
-						section.name
-					}/${randomInt(10000)}_${Date.now()}`,
+					`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${imageName}`,
 				)
 				image.image_url = url
 			}),
 		)
 	}
 
-	private async handleCategorySection(section: ImageSectionDTO) {
-		const { categoryLinkFunc } = this.config
+	private async handleCategorySection(
+		templateId: string,
+		section: ImageSectionDTO,
+	) {
+		const { categoryLinkFunc, dynamicSectionImageStoragePath } = this.config
+		const { background_image_list } = section
 		section.image_list.forEach((image) => {
 			image.link_url = categoryLinkFunc(image.link_url)
 		})
+
+		if (background_image_list) {
+			// handle background image
+			section.background_image_list = await Promise.all(
+				background_image_list.map(async (image, index) => {
+					// if image is url, it means that it is already uploaded
+					if (isURL(image)) {
+						return image
+					}
+					const imageName = `image_${index + 1}`
+					const url = await this.imageUploader.copyFromTempTo(
+						image,
+						`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${imageName}`,
+						true,
+					)
+					return url
+				}),
+			)
+		}
 	}
 
 	private async handleFooterSection(
@@ -154,9 +179,8 @@ export class PageTemplateDefaultController {
 		try {
 			const imageUrl = await this.imageUploader.copyFromTempTo(
 				background_image_url,
-				`${dynamicSectionImageStoragePath}/${templateId}/${
-					section.name
-				}/${randomInt(10000)}_${Date.now()}`,
+				`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/image_1`,
+				true,
 			)
 			section.background_image_url = imageUrl
 		} catch (error) {
