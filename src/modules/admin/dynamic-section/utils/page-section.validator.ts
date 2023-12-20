@@ -7,6 +7,7 @@ import {
 import {
 	FooterSectionDTO,
 	ImageSectionDTO,
+	LogoSectionDTO,
 	PageSectionDTO,
 } from '../controllers/dto/page-template/page-template.dtos'
 import { plainToInstance } from 'class-transformer'
@@ -25,6 +26,11 @@ export class PageSectionValidator implements ValidatorConstraintInterface {
 			case 'footer':
 				validateErrors = await this.validateFooterSection(
 					section as FooterSectionDTO,
+				)
+				break
+			case 'logo':
+				validateErrors = await this.validateLogoSection(
+					section as LogoSectionDTO,
 				)
 				break
 			default:
@@ -50,6 +56,11 @@ export class PageSectionValidator implements ValidatorConstraintInterface {
 
 	private validateFooterSection(section: FooterSectionDTO) {
 		const instance = plainToInstance(FooterSectionDTO, section)
+		return validate(instance)
+	}
+
+	private validateLogoSection(section: LogoSectionDTO) {
+		const instance = plainToInstance(LogoSectionDTO, section)
 		return validate(instance)
 	}
 }

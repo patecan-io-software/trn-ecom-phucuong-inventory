@@ -23,6 +23,7 @@ import { ImageUploader } from '@modules/admin/image-uploader'
 import {
 	FooterSectionDTO,
 	ImageSectionDTO,
+	LogoSectionDTO,
 	PageTemplateDTO,
 } from './dto/page-template/page-template.dtos'
 import { isURL } from 'class-validator'
@@ -81,6 +82,11 @@ export class PageTemplateDefaultController {
 				await this.handleFooterSection(
 					templateId,
 					section as FooterSectionDTO,
+				)
+			case 'logo_section':
+				await this.handleLogoSection(
+					templateId,
+					section as LogoSectionDTO,
 				)
 		}
 
@@ -185,6 +191,42 @@ export class PageTemplateDefaultController {
 				}/image_1_${Date.now()}}`,
 			)
 			section.background_image_url = imageUrl
+		} catch (error) {
+			this.logger.warn(error)
+		}
+	}
+
+	private async handleLogoSection(
+		templateId: string,
+		section: LogoSectionDTO,
+	) {
+		const { dynamicSectionImageStoragePath } = this.config
+		const { favicon, logo } = section
+		const imageList = [
+			{
+				imageName: 'favicon',
+				imageUrl: favicon,
+			},
+			{
+				imageName: 'logo',
+				imageUrl: logo,
+			},
+		]
+		try {
+			const now = Date.now()
+			await Promise.all(
+				imageList.map(async (image) => {
+					// if image is an URL, skip because it's already uploaded
+					if (isURL(image.imageUrl)) {
+						return
+					}
+					const imageUrl = await this.imageUploader.copyFromTempTo(
+						image.imageUrl,
+						`${dynamicSectionImageStoragePath}/${templateId}/${section.name}/${image.imageName}_${now}`,
+					)
+					section[image.imageName] = imageUrl
+				}),
+			)
 		} catch (error) {
 			this.logger.warn(error)
 		}
