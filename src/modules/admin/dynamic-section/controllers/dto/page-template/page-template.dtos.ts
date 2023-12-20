@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsArray, IsNotEmpty, IsOptional } from 'class-validator'
+import { IsArray, IsNotEmpty, IsOptional, ValidateIf } from 'class-validator'
 
 export class PageSectionDTO {
 	@ApiProperty()
@@ -40,6 +40,17 @@ export class ImageSectionDTO extends PartialType(PageSectionDTO) {
 	@IsArray()
 	@IsNotEmpty()
 	image_list: ImageDTO[]
+
+	@ApiProperty({
+		isArray: true,
+		items: {
+			type: 'string',
+		},
+	})
+	@IsArray()
+	@IsOptional()
+	@Transform(({ value }) => value || [])
+	background_image_list: string[]
 }
 
 export class FooterSectionDTO extends PartialType(PageSectionDTO) {
