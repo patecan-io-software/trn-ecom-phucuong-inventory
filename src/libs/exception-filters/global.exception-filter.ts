@@ -22,7 +22,7 @@ export const createExceptionFilter = (
 			// application exception
 			if (exception instanceof HttpException) {
 				statusCode = exception.getStatus()
-				code = exception.name
+				code = statusCode
 				message = exception.message
 			} else if (exception instanceof BaseException) {
 				statusCode = 400
