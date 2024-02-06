@@ -2,6 +2,7 @@ import {
 	Body,
 	Controller,
 	ForbiddenException,
+	HttpCode,
 	Inject,
 	Logger,
 	Post,
@@ -31,6 +32,7 @@ export class AuthController {
 	}
 
 	@Post('login')
+	@HttpCode(200)
 	async login(@Body() body: AuthLoginRequest): Promise<AuthLoginResponse> {
 		const { email, password } = body
 		const { data, error } = await this.supabase.auth.signInWithPassword({
@@ -49,7 +51,6 @@ export class AuthController {
 		}
 		return {
 			resultCode: 200,
-			message: 'Success',
 			data: {
 				user,
 				session,
