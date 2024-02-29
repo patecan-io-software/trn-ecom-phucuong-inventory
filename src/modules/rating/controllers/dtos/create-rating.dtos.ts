@@ -30,9 +30,6 @@ export class CreateRatingRequestDTO {
 
 	@ApiProperty()
 	avatar_user: string
-
-	@ApiProperty()
-	status: string
 }
 
 export class CreateRatingResponseDTO extends PartialType(SuccessResponseDTO) {
