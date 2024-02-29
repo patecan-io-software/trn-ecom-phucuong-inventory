@@ -1,4 +1,11 @@
-import { Body, Controller, Logger, Param, Post } from '@nestjs/common'
+import {
+	BadRequestException,
+	Body,
+	Controller,
+	Logger,
+	Param,
+	Post,
+} from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
 	CreateRatingRequestDTO,
@@ -8,12 +15,12 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Rating } from '../database/rating.model'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
 
-@Controller('v1/products')
+@Controller('v1/ratings')
 @ApiTags('Rating')
 export class RatingController {
 	private readonly logger: Logger = new Logger(RatingController.name)
 	constructor(private readonly ratingRepo: RatingRepository) {}
-	@Post('/:id/ratings')
+	@Post('')
 	@ApiResponse({
 		status: 201,
 		type: CreateRatingRequestDTO,
@@ -34,6 +41,7 @@ export class RatingController {
 			return new CreateRatingResponseDTO({ data: result })
 		} catch (error) {
 			this.logger.error(error)
+			throw new BadRequestException()
 		}
 	}
 }

@@ -29,7 +29,7 @@ export const ratingSchema = new Schema(
 		user_id: {
 			type: String,
 		},
-		avartar_user: {
+		avatar_user: {
 			type: String,
 			default: 'https://via.placeholder.com/150',
 		},
@@ -53,7 +53,7 @@ export interface Rating {
 	phone?: number
 	has_buy_product?: boolean
 	user_id?: string
-	avartar_user?: string
+	avatar_user?: string
 	status: string
 	createdAt?: Date
 	updatedAt?: Date

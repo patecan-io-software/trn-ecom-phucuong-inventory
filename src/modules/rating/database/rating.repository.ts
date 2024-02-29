@@ -9,12 +9,6 @@ export class RatingRepository {
 		return new mongoose.Types.ObjectId().toHexString()
 	}
 
-	onChanged(handle: any) {
-		RatingModel.watch().on('change', (data) => {
-			console.log(data)
-		})
-	}
-
 	async createRating(rating: Rating) {
 		const rat = new RatingModel({
 			_id: rating._id
@@ -31,6 +25,7 @@ export class RatingRepository {
 			})
 		} catch (error) {
 			this.logger.error(error)
+			throw new Error('Failed to create rating')
 		}
 	}
 }

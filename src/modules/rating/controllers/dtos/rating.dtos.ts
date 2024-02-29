@@ -29,7 +29,7 @@ export class RatingDTO {
 	user_id?: string
 
 	@ApiProperty()
-	avartar_user: string
+	avatar_user: string
 
 	@ApiProperty()
 	status: string
