@@ -26,14 +26,12 @@ export class RatingController {
 		type: CreateRatingRequestDTO,
 	})
 	async create(
-		@Param() { id }: ObjectIdParam,
 		@Body() dto: CreateRatingRequestDTO,
 	): Promise<CreateRatingResponseDTO> {
 		const ratingId = this.ratingRepo.genId()
 		const rating: Rating = {
 			...dto,
 			_id: ratingId,
-			product_id: id,
 			status: 'Pending',
 		}
 		try {
