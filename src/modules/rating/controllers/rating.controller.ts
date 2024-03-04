@@ -5,6 +5,8 @@ import {
 	Logger,
 	Param,
 	Post,
+	Get,
+	InternalServerErrorException,
 } from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
@@ -14,6 +16,7 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Rating } from '../database/rating.model'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
+import { RatingDTO } from './dtos/rating.dtos'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
@@ -40,6 +43,21 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException()
+		}
+	}
+
+	@Get('ratings')
+	@ApiResponse({
+		status: 200,
+		type: [RatingDTO],
+	})
+	async getListRating(): Promise<RatingDTO[]> {
+		try {
+			const ratings = await this.ratingRepo.getAllListRating()
+			return ratings.map((rating) => new RatingDTO(rating))
+		} catch (error) {
+			this.logger.error(error)
+			throw new InternalServerErrorException()
 		}
 	}
 }
