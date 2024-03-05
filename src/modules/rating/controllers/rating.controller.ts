@@ -25,7 +25,7 @@ export class RatingController {
 	constructor(private readonly ratingRepo: RatingRepository) {}
 	@Post('')
 	@ApiResponse({
-		status: 202,
+		status: 201,
 		type: CreateRatingRequestDTO,
 	})
 	async create(
@@ -48,18 +48,23 @@ export class RatingController {
 
 	@Get('/overview/:productId')
 	@ApiResponse({
-		status: 201,
+		status: 200,
 		type: OverviewRatingResponseDTO,
 	})
 	async overview(
 		@Param('productId') productId: string,
 	): Promise<OverviewRatingResponseDTO> {
 		try {
-			const averageRating =
+			const { averageRating, ratingCount, ratingCountRank } =
 				await this.ratingRepo.overviewRating(productId)
 
 			if (averageRating !== null) {
-				return new OverviewRatingResponseDTO(averageRating)
+				const roundedAverage = parseFloat(averageRating.toFixed(1))
+				return new OverviewRatingResponseDTO(
+					roundedAverage,
+					ratingCount,
+					ratingCountRank,
+				)
 			} else {
 				this.logger.error(error)
 				throw new Error(

@@ -6,9 +6,27 @@ export class OverviewRatingResponseDTO {
 		example: 4.5,
 		nullable: true,
 	})
-	data: number | null
+	averageRating: number | null
 
-	constructor(data: number | null) {
-		this.data = data
+	@ApiProperty({
+		description: 'The number ratings for the product',
+		example: 10,
+	})
+	ratingCount: number
+
+	@ApiProperty({
+		description: 'The counts of ratings for rank (1 to 5)',
+		example: [20, 15, 10, 5, 0],
+	})
+	ratingCountRank: number[]
+
+	constructor(
+		averageRating: number | null,
+		ratingCount: number,
+		ratingCountRank: number[],
+	) {
+		this.averageRating = averageRating
+		this.ratingCount = ratingCount
+		this.ratingCountRank = ratingCountRank
 	}
 }

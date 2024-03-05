@@ -29,7 +29,11 @@ export class RatingRepository {
 		}
 	}
 
-	async overviewRating(productId: string): Promise<number | null> {
+	async overviewRating(productId: string): Promise<{
+		averageRating: number | null
+		ratingCount: number
+		ratingCountRank: number[]
+	}> {
 		try {
 			const rating = await RatingModel.find({
 				product_id: productId,
@@ -37,7 +41,11 @@ export class RatingRepository {
 			})
 
 			if (rating.length === 0) {
-				return null
+				return {
+					averageRating: 0,
+					ratingCount: 0,
+					ratingCountRank: [0, 0, 0, 0, 0],
+				}
 			}
 
 			const totalRating = rating.reduce(
@@ -46,7 +54,14 @@ export class RatingRepository {
 			)
 			const averageRating = totalRating / rating.length
 
-			return averageRating
+			const ratingCount = rating.length
+
+			const ratingCountRank = [0, 0, 0, 0, 0]
+			rating.forEach((rating) => {
+				ratingCountRank[rating.rating - 1]++
+			})
+
+			return { averageRating, ratingCount, ratingCountRank }
 		} catch (error) {
 			this.logger.error(error)
 			throw new Error('Failed to fetch and calculate overview rating')
