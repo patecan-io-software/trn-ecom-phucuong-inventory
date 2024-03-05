@@ -46,14 +46,16 @@ export class RatingController {
 		}
 	}
 
-	@Get('ratings')
+	@Get(':productId/ratings')
 	@ApiResponse({
 		status: 200,
 		type: [RatingDTO],
 	})
-	async getListRating(): Promise<RatingDTO[]> {
+	async getListRating(
+		@Param('productId') productId: string,
+	): Promise<RatingDTO[]> {
 		try {
-			const ratings = await this.ratingRepo.getAllListRating()
+			const ratings = await this.ratingRepo.getAllListRating(productId)
 			return ratings.map((rating) => new RatingDTO(rating))
 		} catch (error) {
 			this.logger.error(error)
