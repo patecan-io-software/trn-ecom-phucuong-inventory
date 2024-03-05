@@ -34,10 +34,10 @@ export class RatingRepository {
 		try {
 			const query = { product_id }
 			if (cursor) {
-				query['_id'] = { $gt: cursor } // Sử dụng $gt để lấy các bản ghi có _id lớn hơn cursor
+				query['_id'] = { $gt: cursor }
 			}
 			const ratings = await RatingModel.find(query)
-				.sort({ _id: 1 }) // Sắp xếp tăng dần theo _id
+				.sort({ _id: 1 })
 				.limit(size)
 			return ratings.map((rating) =>
 				rating.toObject({ versionKey: false, flattenObjectIds: true }),
