@@ -30,12 +30,12 @@ export class RatingRepository {
 		}
 	}
 
-	async getAllListRating(product_id: string, page: number, size: number) {
+	async getAllListRating(product_id: string, cursor: number, size: number) {
 		try {
-			const skip = (page - 1) * size // Số bản ghi bỏ qua
+			const skip = (cursor - 1) * size
 			const ratings = await RatingModel.find({ product_id })
 				.skip(skip)
-				.limit(size) // Truy vấn theo productId và phân trang
+				.limit(size)
 			return ratings.map((rating) =>
 				rating.toObject({ versionKey: false, flattenObjectIds: true }),
 			)
@@ -47,7 +47,7 @@ export class RatingRepository {
 
 	async getTotalCount(product_id: string) {
 		try {
-			const totalCount = await RatingModel.countDocuments({ product_id }) // Đếm tổng số lượng đánh giá theo productId
+			const totalCount = await RatingModel.countDocuments({ product_id })
 			return totalCount
 		} catch (error) {
 			this.logger.error(error)

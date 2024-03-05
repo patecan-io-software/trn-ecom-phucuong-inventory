@@ -50,26 +50,26 @@ export class RatingController {
 	@Get('')
 	@ApiResponse({
 		status: 200,
-		type: PaginationDTO, // Thay đổi kiểu trả về thành đối tượng phân trang
+		type: PaginationDTO,
 	})
 	async getListRating(
 		@Query('productId') product_id: string,
-		@Query('page') page: number = 1, // Thêm tham số page mặc định là 1
-		@Query('size') size: number = 10, // Thêm tham số size mặc định là 10
+		@Query('cursor') cursor: number = 1,
+		@Query('size') size: number = 10,
 	): Promise<PaginationDTO<RatingDTO>> {
 		try {
 			const ratings = await this.ratingRepo.getAllListRating(
 				product_id,
-				page,
+				cursor,
 				size,
-			) // Truyền vào productId, page, size
-			const totalCount = await this.ratingRepo.getTotalCount(product_id) // Lấy tổng số lượng đánh giá
+			)
+			const totalCount = await this.ratingRepo.getTotalCount(product_id)
 
 			const paginationData: PaginationDTO<RatingDTO> = {
-				data: ratings.map((rating) => new RatingDTO(rating)), // Dữ liệu đánh giá
-				page, // Số trang hiện tại
-				size, // Kích thước trang
-				totalCount, // Tổng số lượng đánh giá
+				data: ratings.map((rating) => new RatingDTO(rating)),
+				cursor,
+				size,
+				totalCount,
 			}
 
 			return paginationData

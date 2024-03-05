@@ -53,7 +53,7 @@ export class RatingDTO {
 
 export class PaginationDTO<T> {
 	data: T[] // Dữ liệu cần trả về
-	page: number // Số trang hiện tại
+	cursor: number // Số trang hiện tại
 	size: number // Kích thước trang
 	totalCount: number // Tổng số lượng bản ghi
 }
