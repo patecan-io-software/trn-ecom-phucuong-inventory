@@ -30,15 +30,15 @@ export class RatingRepository {
 		}
 	}
 
-	async getAllListRating(productId: string): Promise<Rating[]> {
+	async getAllListRating(product_id: string) {
 		try {
-			const ratings = await RatingModel.find({ productId }).exec()
+			const ratings = await RatingModel.find({ product_id })
 			return ratings.map((rating) =>
 				rating.toObject({ versionKey: false, flattenObjectIds: true }),
 			)
 		} catch (error) {
 			this.logger.error(error)
-			throw new Error('Failed to get all ratings')
+			throw new Error('Failed to retrieve ratings')
 		}
 	}
 }
