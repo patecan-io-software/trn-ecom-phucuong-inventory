@@ -28,4 +28,43 @@ export class RatingRepository {
 			throw new Error('Failed to create rating')
 		}
 	}
+
+	async overviewRating(productId: string): Promise<{
+		averageRating: number | null
+		ratingCount: number
+		ratingCountRank: number[]
+	}> {
+		try {
+			const rating = await RatingModel.find({
+				product_id: productId,
+				status: 'Approved',
+			})
+
+			if (rating.length === 0) {
+				return {
+					averageRating: 0,
+					ratingCount: 0,
+					ratingCountRank: [0, 0, 0, 0, 0],
+				}
+			}
+
+			const totalRating = rating.reduce(
+				(sum, rating) => sum + rating.rating,
+				0,
+			)
+			const averageRating = totalRating / rating.length
+
+			const ratingCount = rating.length
+
+			const ratingCountRank = [0, 0, 0, 0, 0]
+			rating.forEach((rating) => {
+				ratingCountRank[rating.rating - 1]++
+			})
+
+			return { averageRating, ratingCount, ratingCountRank }
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to fetch and calculate overview rating')
+		}
+	}
 }
