@@ -2,11 +2,12 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Get,
 	Logger,
 	Post,
-	Get,
 	InternalServerErrorException,
 	Query,
+	Param,
 } from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
@@ -18,6 +19,8 @@ import { Rating } from '../database/rating.model'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
 import { PaginationDTO, RatingDTO } from './dtos/rating.dtos'
 import { retry } from 'rxjs'
+import { OverviewRatingResponseDTO } from './dtos/overview-rating.dtos'
+import { error } from 'console'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
@@ -76,6 +79,40 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new InternalServerErrorException()
+		}
+	}
+	@Get('/overview/:productId')
+	@ApiResponse({
+		status: 200,
+		type: OverviewRatingResponseDTO,
+	})
+	async overview(
+		@Param('productId') productId: string,
+	): Promise<OverviewRatingResponseDTO> {
+		try {
+			const { averageRating, ratingCount, ratingCountRank } =
+				await this.ratingRepo.overviewRating(productId)
+
+			if (averageRating !== null) {
+				const roundedAverage = parseFloat(averageRating.toFixed(1))
+				return new OverviewRatingResponseDTO(
+					roundedAverage,
+					ratingCount,
+					ratingCountRank,
+				)
+			} else {
+				console.log(
+					'No Approved Ratings found for Product ${productId}',
+				)
+				return new OverviewRatingResponseDTO(
+					averageRating,
+					ratingCount,
+					ratingCountRank,
+				)
+			}
+		} catch (error) {
+			this.logger.error(error)
+			throw new BadRequestException()
 		}
 	}
 }
