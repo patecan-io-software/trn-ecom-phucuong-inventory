@@ -30,15 +30,28 @@ export class RatingRepository {
 		}
 	}
 
-	async getAllListRating(product_id: string) {
+	async getAllListRating(product_id: string, page: number, size: number) {
 		try {
+			const skip = (page - 1) * size // Số bản ghi bỏ qua
 			const ratings = await RatingModel.find({ product_id })
+				.skip(skip)
+				.limit(size) // Truy vấn theo productId và phân trang
 			return ratings.map((rating) =>
 				rating.toObject({ versionKey: false, flattenObjectIds: true }),
 			)
 		} catch (error) {
 			this.logger.error(error)
 			throw new Error('Failed to retrieve ratings')
+		}
+	}
+
+	async getTotalCount(product_id: string) {
+		try {
+			const totalCount = await RatingModel.countDocuments({ product_id }) // Đếm tổng số lượng đánh giá theo productId
+			return totalCount
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to retrieve total count')
 		}
 	}
 }

@@ -16,7 +16,7 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Rating } from '../database/rating.model'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
-import { RatingDTO } from './dtos/rating.dtos'
+import { PaginationDTO, RatingDTO } from './dtos/rating.dtos'
 import { retry } from 'rxjs'
 
 @Controller('v1/ratings')
@@ -50,14 +50,29 @@ export class RatingController {
 	@Get('')
 	@ApiResponse({
 		status: 200,
-		type: [RatingDTO],
+		type: PaginationDTO, // Thay đổi kiểu trả về thành đối tượng phân trang
 	})
 	async getListRating(
 		@Query('productId') product_id: string,
-	): Promise<RatingDTO[]> {
+		@Query('page') page: number = 1, // Thêm tham số page mặc định là 1
+		@Query('size') size: number = 10, // Thêm tham số size mặc định là 10
+	): Promise<PaginationDTO<RatingDTO>> {
 		try {
-			const ratings = await this.ratingRepo.getAllListRating(product_id)
-			return ratings.map((rating) => new RatingDTO(rating))
+			const ratings = await this.ratingRepo.getAllListRating(
+				product_id,
+				page,
+				size,
+			) // Truyền vào productId, page, size
+			const totalCount = await this.ratingRepo.getTotalCount(product_id) // Lấy tổng số lượng đánh giá
+
+			const paginationData: PaginationDTO<RatingDTO> = {
+				data: ratings.map((rating) => new RatingDTO(rating)), // Dữ liệu đánh giá
+				page, // Số trang hiện tại
+				size, // Kích thước trang
+				totalCount, // Tổng số lượng đánh giá
+			}
+
+			return paginationData
 		} catch (error) {
 			this.logger.error(error)
 			throw new InternalServerErrorException()
