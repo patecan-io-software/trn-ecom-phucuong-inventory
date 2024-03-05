@@ -30,11 +30,14 @@ export class RatingRepository {
 		}
 	}
 
-	async getAllListRating(product_id: string, cursor: number, size: number) {
+	async getAllListRating(product_id: string, cursor: string, size: number) {
 		try {
-			const skip = (cursor - 1) * size
-			const ratings = await RatingModel.find({ product_id })
-				.skip(skip)
+			const query = { product_id }
+			if (cursor) {
+				query['_id'] = { $gt: cursor } // Sử dụng $gt để lấy các bản ghi có _id lớn hơn cursor
+			}
+			const ratings = await RatingModel.find(query)
+				.sort({ _id: 1 }) // Sắp xếp tăng dần theo _id
 				.limit(size)
 			return ratings.map((rating) =>
 				rating.toObject({ versionKey: false, flattenObjectIds: true }),

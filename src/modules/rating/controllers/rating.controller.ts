@@ -57,7 +57,7 @@ export class RatingController {
 	})
 	async getListRating(
 		@Query('productId') product_id: string,
-		@Query('cursor') cursor: number = 1,
+		@Query('cursor') cursor: string,
 		@Query('size') size: number = 10,
 	): Promise<PaginationDTO<RatingDTO>> {
 		try {
@@ -81,6 +81,7 @@ export class RatingController {
 			throw new InternalServerErrorException()
 		}
 	}
+
 	@Get('/overview/:productId')
 	@ApiResponse({
 		status: 200,
