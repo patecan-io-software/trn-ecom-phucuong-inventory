@@ -66,9 +66,13 @@ export class RatingController {
 					ratingCountRank,
 				)
 			} else {
-				this.logger.error(error)
-				throw new Error(
+				console.log(
 					'No Approved Ratings found for Product ${productId}',
+				)
+				return new OverviewRatingResponseDTO(
+					averageRating,
+					ratingCount,
+					ratingCountRank,
 				)
 			}
 		} catch (error) {
