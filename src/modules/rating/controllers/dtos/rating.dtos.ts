@@ -45,4 +45,15 @@ export class RatingDTO {
 	})
 	@Transform(({ value }) => value?.getTime?.() || null)
 	updatedAt?: Date
+
+	constructor(data: Partial<RatingDTO>) {
+		Object.assign(this, data)
+	}
+}
+
+export class PaginationDTO<T> {
+	data: T[]
+	cursor: string
+	size: number
+	totalCount: number
 }

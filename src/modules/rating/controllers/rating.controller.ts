@@ -4,8 +4,10 @@ import {
 	Controller,
 	Get,
 	Logger,
-	Param,
 	Post,
+	InternalServerErrorException,
+	Query,
+	Param,
 } from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
@@ -15,6 +17,8 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Rating } from '../database/rating.model'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
+import { PaginationDTO, RatingDTO } from './dtos/rating.dtos'
+import { retry } from 'rxjs'
 import { OverviewRatingResponseDTO } from './dtos/overview-rating.dtos'
 import { error } from 'console'
 
@@ -43,6 +47,38 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException()
+		}
+	}
+
+	@Get('')
+	@ApiResponse({
+		status: 200,
+		type: PaginationDTO,
+	})
+	async getListRating(
+		@Query('productId') product_id: string,
+		@Query('cursor') cursor: string,
+		@Query('size') size: number = 10,
+	): Promise<PaginationDTO<RatingDTO>> {
+		try {
+			const ratings = await this.ratingRepo.getAllListRating(
+				product_id,
+				cursor,
+				size,
+			)
+			const totalCount = await this.ratingRepo.getTotalCount(product_id)
+
+			const paginationData: PaginationDTO<RatingDTO> = {
+				data: ratings.map((rating) => new RatingDTO(rating)),
+				cursor,
+				size,
+				totalCount,
+			}
+
+			return paginationData
+		} catch (error) {
+			this.logger.error(error)
+			throw new InternalServerErrorException()
 		}
 	}
 
