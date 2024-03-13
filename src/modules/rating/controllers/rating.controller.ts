@@ -22,7 +22,10 @@ import { PaginationDTO, RatingDTO } from './dtos/rating.dtos'
 import { retry } from 'rxjs'
 import { OverviewRatingResponseDTO } from './dtos/overview-rating.dtos'
 import { error } from 'console'
-import { UpdateStatusRatingDTO } from './dtos/update-rating-status.dto'
+import {
+	UpdateStatusRatingDTO,
+	UpdateStatusRatingResponseDTO,
+} from './dtos/update-status-rating.dto'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
@@ -121,15 +124,19 @@ export class RatingController {
 
 	@Put('/:ratingId')
 	@ApiResponse({
-		status: 204,
+		status: 200,
 		description: 'Update rating status successfully',
 	})
 	async updateStatusRating(
 		@Param('ratingId') ratingId: string,
 		@Body() dto: UpdateStatusRatingDTO,
-	): Promise<void> {
+	): Promise<UpdateStatusRatingResponseDTO> {
 		try {
-			await this.ratingRepo.updateStatusRating(ratingId, dto.newStatus)
+			const updateRating = await this.ratingRepo.updateStatusRating(
+				ratingId,
+				dto.status,
+			)
+			return new UpdateStatusRatingResponseDTO(updateRating)
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException('Failed to update rating status')

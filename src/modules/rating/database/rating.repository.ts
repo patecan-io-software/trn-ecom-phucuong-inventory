@@ -100,7 +100,7 @@ export class RatingRepository {
 	async updateStatusRating(
 		ratingId: string,
 		newStatus: 'Approved' | 'Refused',
-	): Promise<void> {
+	): Promise<string> {
 		try {
 			const rating = await RatingModel.findById(ratingId)
 
@@ -110,6 +110,8 @@ export class RatingRepository {
 
 			rating.status = newStatus
 			await rating.save()
+
+			return newStatus
 		} catch (error) {
 			this.logger.error(error)
 			throw new Error('Failed to update rating status')
