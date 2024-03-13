@@ -27,12 +27,12 @@ import {
 	UpdateStatusRatingResponseDTO,
 } from './dtos/update-status-rating.dto'
 
-@Controller('v1/ratings')
+@Controller('v1')
 @ApiTags('Rating')
 export class RatingController {
 	private readonly logger: Logger = new Logger(RatingController.name)
 	constructor(private readonly ratingRepo: RatingRepository) {}
-	@Post('')
+	@Post('/ratings')
 	@ApiResponse({
 		status: 201,
 		type: CreateRatingRequestDTO,
@@ -55,7 +55,7 @@ export class RatingController {
 		}
 	}
 
-	@Get('')
+	@Get('/ratings')
 	@ApiResponse({
 		status: 200,
 		type: PaginationDTO,
@@ -87,7 +87,7 @@ export class RatingController {
 		}
 	}
 
-	@Get('/overview/:productId')
+	@Get('/ratings/overview/:productId')
 	@ApiResponse({
 		status: 200,
 		type: OverviewRatingResponseDTO,
@@ -122,7 +122,7 @@ export class RatingController {
 		}
 	}
 
-	@Put('/:ratingId')
+	@Put('/admin/ratings/:ratingId')
 	@ApiResponse({
 		status: 200,
 		description: 'Update rating status successfully',
