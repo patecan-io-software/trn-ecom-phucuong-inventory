@@ -23,7 +23,7 @@ import { PaginationDTO, RatingDTO } from './dtos/rating.dtos'
 import { retry } from 'rxjs'
 import { OverviewRatingResponseDTO } from './dtos/overview-rating.dtos'
 import { error } from 'console'
-import { FilteredByStatusDTO } from './dtos/filtered-rating-by-status.dtos'
+import { FilteredByStatusResponseDTO } from './dtos/filtered-rating-by-status.dtos'
 import {
 	UpdateStatusRatingDTO,
 	UpdateStatusRatingResponseDTO,
@@ -144,27 +144,6 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException('Failed to update rating status')
-		}
-	}
-
-	@Get('/status/:status')
-	@ApiResponse({
-		status: 200,
-		type: FilteredByStatusDTO,
-	})
-	async getRatingsByStatus(
-		@Param('status') status: string,
-	): Promise<Rating[]> {
-		try {
-			const ratings = await this.ratingRepo.getByStatus(status)
-			if (!ratings || ratings.length === 0) {
-				throw new NotFoundException(
-					'No ratings found for the given status',
-				)
-			}
-			return ratings
-		} catch (error) {
-			throw error
 		}
 	}
 }

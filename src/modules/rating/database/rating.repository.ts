@@ -2,7 +2,7 @@ import mongoose, { Model } from 'mongoose'
 import { RatingModule } from '../rating.module'
 import { Rating, RatingModel } from './rating.model'
 import { Logger } from '@nestjs/common'
-import { FilteredByStatusDTO } from '../controllers/dtos/filtered-rating-by-status.dtos'
+import { FilteredByStatusResponseDTO } from '../controllers/dtos/filtered-rating-by-status.dtos'
 import { RatingDTO } from '../controllers/dtos/rating.dtos'
 import { retry } from 'rxjs'
 export class RatingRepository {

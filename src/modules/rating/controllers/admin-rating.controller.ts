@@ -15,7 +15,7 @@ import {
 	UpdateStatusRatingResponseDTO,
 } from './dtos/update-status-rating.dto'
 import { Rating } from '../database/rating.model'
-import { FilteredByStatusDTO } from './dtos/filtered-rating-by-status.dtos'
+import { FilteredByStatusResponseDTO } from './dtos/filtered-rating-by-status.dtos'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
@@ -47,19 +47,17 @@ export class AdminRatingController {
 	@Get('/status/:status')
 	@ApiResponse({
 		status: 200,
-		type: FilteredByStatusDTO,
+		type: FilteredByStatusResponseDTO,
 	})
 	async getRatingsByStatus(
 		@Param('status') status: string,
-	): Promise<Rating[]> {
+	): Promise<{ listRatings: Rating[] }> {
 		try {
 			const ratings = await this.ratingRepo.getByStatus(status)
 			if (!ratings || ratings.length === 0) {
-				throw new NotFoundException(
-					'No ratings found for the given status',
-				)
+				return { listRatings: [] }
 			}
-			return ratings
+			return { listRatings: ratings }
 		} catch (error) {
 			throw error
 		}

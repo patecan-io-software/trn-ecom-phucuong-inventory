@@ -13,3 +13,12 @@ export class FilteredByStatusDTO {
 		this.status = status
 	}
 }
+
+export class FilteredByStatusResponseDTO {
+	@ApiProperty({ type: [FilteredByStatusDTO] })
+	items: FilteredByStatusDTO[]
+
+	constructor(items: FilteredByStatusDTO[]) {
+		this.items = items
+	}
+}
