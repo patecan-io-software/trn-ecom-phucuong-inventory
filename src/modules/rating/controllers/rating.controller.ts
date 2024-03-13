@@ -121,26 +121,4 @@ export class RatingController {
 			throw new BadRequestException()
 		}
 	}
-
-	@Put('/:ratingId')
-	@ApiResponse({
-		status: 200,
-		description: 'Update rating status successfully',
-		type: UpdateStatusRatingResponseDTO,
-	})
-	async updateStatusRating(
-		@Param('ratingId') ratingId: string,
-		@Body() dto: UpdateStatusRatingDTO,
-	): Promise<UpdateStatusRatingResponseDTO> {
-		try {
-			const updateRating = await this.ratingRepo.updateStatusRating(
-				ratingId,
-				dto.status,
-			)
-			return new UpdateStatusRatingResponseDTO(updateRating)
-		} catch (error) {
-			this.logger.error(error)
-			throw new BadRequestException('Failed to update rating status')
-		}
-	}
 }
