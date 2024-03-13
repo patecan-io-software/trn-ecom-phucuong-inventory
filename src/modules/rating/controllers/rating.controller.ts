@@ -27,12 +27,12 @@ import {
 	UpdateStatusRatingResponseDTO,
 } from './dtos/update-status-rating.dto'
 
-@Controller('v1')
+@Controller('v1/ratings')
 @ApiTags('Rating')
 export class RatingController {
 	private readonly logger: Logger = new Logger(RatingController.name)
 	constructor(private readonly ratingRepo: RatingRepository) {}
-	@Post('/ratings')
+	@Post('')
 	@ApiResponse({
 		status: 201,
 		type: CreateRatingRequestDTO,
@@ -55,7 +55,7 @@ export class RatingController {
 		}
 	}
 
-	@Get('/ratings')
+	@Get('')
 	@ApiResponse({
 		status: 200,
 		type: PaginationDTO,
@@ -87,7 +87,7 @@ export class RatingController {
 		}
 	}
 
-	@Get('/ratings/overview/:productId')
+	@Get('/overview/:productId')
 	@ApiResponse({
 		status: 200,
 		type: OverviewRatingResponseDTO,
@@ -119,28 +119,6 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException()
-		}
-	}
-
-	@Put('/admin/ratings/:ratingId')
-	@ApiResponse({
-		status: 200,
-		description: 'Update rating status successfully',
-		type: UpdateStatusRatingResponseDTO,
-	})
-	async updateStatusRating(
-		@Param('ratingId') ratingId: string,
-		@Body() dto: UpdateStatusRatingDTO,
-	): Promise<UpdateStatusRatingResponseDTO> {
-		try {
-			const updateRating = await this.ratingRepo.updateStatusRating(
-				ratingId,
-				dto.status,
-			)
-			return new UpdateStatusRatingResponseDTO(updateRating)
-		} catch (error) {
-			this.logger.error(error)
-			throw new BadRequestException('Failed to update rating status')
 		}
 	}
 }
