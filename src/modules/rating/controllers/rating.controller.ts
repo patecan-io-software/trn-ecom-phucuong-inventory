@@ -120,7 +120,7 @@ export class RatingController {
 		}
 	}
 
-	@Get('/status/:status')
+	@Get('/admin/status/:status')
 	@ApiResponse({
 		status: 200,
 		type: FilteredByStatusDTO,
