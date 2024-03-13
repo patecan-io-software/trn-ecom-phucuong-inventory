@@ -9,6 +9,7 @@ import {
 	Query,
 	Param,
 	NotFoundException,
+	Put,
 } from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
@@ -23,6 +24,10 @@ import { retry } from 'rxjs'
 import { OverviewRatingResponseDTO } from './dtos/overview-rating.dtos'
 import { error } from 'console'
 import { FilteredByStatusDTO } from './dtos/filtered-rating-by-status.dtos'
+import {
+	UpdateStatusRatingDTO,
+	UpdateStatusRatingResponseDTO,
+} from './dtos/update-status-rating.dto'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
@@ -117,6 +122,28 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException()
+		}
+	}
+
+	@Put('/:ratingId')
+	@ApiResponse({
+		status: 200,
+		description: 'Update rating status successfully',
+		type: UpdateStatusRatingResponseDTO,
+	})
+	async updateStatusRating(
+		@Param('ratingId') ratingId: string,
+		@Body() dto: UpdateStatusRatingDTO,
+	): Promise<UpdateStatusRatingResponseDTO> {
+		try {
+			const updateRating = await this.ratingRepo.updateStatusRating(
+				ratingId,
+				dto.status,
+			)
+			return new UpdateStatusRatingResponseDTO(updateRating)
+		} catch (error) {
+			this.logger.error(error)
+			throw new BadRequestException('Failed to update rating status')
 		}
 	}
 
