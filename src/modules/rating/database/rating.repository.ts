@@ -96,4 +96,23 @@ export class RatingRepository {
 			throw new Error('Failed to fetch and calculate overview rating')
 		}
 	}
+
+	async updateStatusRating(
+		ratingId: string,
+		newStatus: 'Approved' | 'Refused',
+	): Promise<void> {
+		try {
+			const rating = await RatingModel.findById(ratingId)
+
+			if (!rating) {
+				throw new Error('Rating not found')
+			}
+
+			rating.status = newStatus
+			await rating.save()
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to update rating status')
+		}
+	}
 }
