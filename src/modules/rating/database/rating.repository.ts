@@ -2,13 +2,17 @@ import mongoose, { Model } from 'mongoose'
 import { RatingModule } from '../rating.module'
 import { Rating, RatingModel } from './rating.model'
 import { Logger } from '@nestjs/common'
-
+import { FilteredByStatusDTO } from '../controllers/dtos/filtered-rating-by-status.dtos'
+import { RatingDTO } from '../controllers/dtos/rating.dtos'
+import { retry } from 'rxjs'
 export class RatingRepository {
 	[x: string]: any
 	private logger: Logger = new Logger(RatingRepository.name)
 	genId() {
 		return new mongoose.Types.ObjectId().toHexString()
 	}
+
+	constructor(private readonly ratingModel: Model<Rating>) {}
 
 	async createRating(rating: Rating) {
 		const rat = new RatingModel({
@@ -95,5 +99,11 @@ export class RatingRepository {
 			this.logger.error(error)
 			throw new Error('Failed to fetch and calculate overview rating')
 		}
+	}
+
+	async getByStatus(status: string): Promise<Rating[]> {
+		const query: any = { status } // Sử dụng trạng thái để truy vấn
+		const ratings = await RatingModel.find(query)
+		return ratings.map((rating) => rating.toObject() as Rating)
 	}
 }

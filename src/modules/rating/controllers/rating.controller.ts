@@ -8,6 +8,7 @@ import {
 	InternalServerErrorException,
 	Query,
 	Param,
+	NotFoundException,
 } from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
@@ -21,10 +22,12 @@ import { PaginationDTO, RatingDTO } from './dtos/rating.dtos'
 import { retry } from 'rxjs'
 import { OverviewRatingResponseDTO } from './dtos/overview-rating.dtos'
 import { error } from 'console'
+import { FilteredByStatusDTO } from './dtos/filtered-rating-by-status.dtos'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
 export class RatingController {
+	[x: string]: any
 	private readonly logger: Logger = new Logger(RatingController.name)
 	constructor(private readonly ratingRepo: RatingRepository) {}
 	@Post('')
@@ -114,6 +117,27 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException()
+		}
+	}
+
+	@Get('/status/:status')
+	@ApiResponse({
+		status: 200,
+		type: FilteredByStatusDTO,
+	})
+	async getRatingsByStatus(
+		@Param('status') status: string,
+	): Promise<Rating[]> {
+		try {
+			const ratings = await this.ratingRepo.getByStatus(status)
+			if (!ratings || ratings.length === 0) {
+				throw new NotFoundException(
+					'No ratings found for the given status',
+				)
+			}
+			return ratings
+		} catch (error) {
+			throw error
 		}
 	}
 }
