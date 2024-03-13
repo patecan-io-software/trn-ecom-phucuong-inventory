@@ -126,6 +126,7 @@ export class RatingController {
 	@ApiResponse({
 		status: 200,
 		description: 'Update rating status successfully',
+		type: UpdateStatusRatingResponseDTO,
 	})
 	async updateStatusRating(
 		@Param('ratingId') ratingId: string,
