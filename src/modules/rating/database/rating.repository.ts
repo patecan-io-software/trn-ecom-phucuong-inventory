@@ -101,8 +101,32 @@ export class RatingRepository {
 		}
 	}
 
+	async updateStatusRating(
+		ratingId: string,
+		newStatus: 'Approved' | 'Refused',
+	): Promise<Rating> {
+		try {
+			const rating = await RatingModel.findById(ratingId)
+
+			if (!rating) {
+				throw new Error('Rating not found')
+			}
+
+			rating.status = newStatus
+			await rating.save()
+
+			return rating.toObject({
+				versionKey: false,
+				flattenObjectIds: true,
+			})
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to update rating status')
+		}
+	}
+
 	async getByStatus(status: string): Promise<Rating[]> {
-		const query: any = { status } // Sử dụng trạng thái để truy vấn
+		const query: any = { status }
 		const ratings = await RatingModel.find(query)
 		return ratings.map((rating) => rating.toObject() as Rating)
 	}
