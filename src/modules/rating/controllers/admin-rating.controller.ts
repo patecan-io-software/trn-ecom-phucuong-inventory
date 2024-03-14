@@ -55,6 +55,11 @@ export class AdminRatingController {
 		status: 200,
 		type: FilteredByStatusResponseDTO,
 	})
+	@Get('/status/:status')
+	@ApiResponse({
+		status: 200,
+		type: FilteredByStatusResponseDTO,
+	})
 	async getRatingsByStatus(
 		@Param('status') status: string,
 		@Query('cursor') cursor: string,
@@ -72,9 +77,9 @@ export class AdminRatingController {
 			let newCursor: string | null = null
 
 			if (ratings.length > 0) {
-				// Kiểm tra xem cursor đã được sử dụng hay chưa
-				if (!cursor || ratings.length === size) {
-					newCursor = ratings[ratings.length - 1]._id
+				if (ratings.length > size) {
+					newCursor = ratings[size]._id
+					ratings.splice(size)
 				}
 				const listRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
@@ -90,7 +95,7 @@ export class AdminRatingController {
 				return {
 					paginationData: {
 						listRating: [],
-						cursor: null,
+						cursor: cursor !== null ? null : cursor,
 						size,
 					},
 				}

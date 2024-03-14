@@ -135,13 +135,12 @@ export class RatingRepository {
 			const query: any = { status }
 
 			if (cursor) {
-				// Kiểm tra xem cursor đã được sử dụng hay chưa
-				query['_id'] = cursor ? { $gte: cursor } : null // Thay đổi $gt thành $gte để bao gồm cả cursor
+				query['_id'] = { $gte: cursor }
 			}
 
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
-				.limit(size)
+				.limit(size + 1)
 
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
