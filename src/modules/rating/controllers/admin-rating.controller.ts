@@ -69,13 +69,32 @@ export class AdminRatingController {
 				size,
 			)
 
-			const paginationData: PaginationFilteredByStatusDTO<RatingDTO> = {
-				data: ratings.map((rating) => new RatingDTO(rating)),
-				cursor,
-				size,
-			}
+			let newCursor: string | null = null
 
-			return { paginationData }
+			if (ratings.length > 0) {
+				// Kiểm tra xem cursor đã được sử dụng hay chưa
+				if (!cursor || ratings.length === size) {
+					newCursor = ratings[ratings.length - 1]._id
+				}
+				const listRating: RatingDTO[] = ratings.map(
+					(rating) => new RatingDTO(rating),
+				)
+				return {
+					paginationData: {
+						listRating,
+						cursor: newCursor,
+						size,
+					},
+				}
+			} else {
+				return {
+					paginationData: {
+						listRating: [],
+						cursor: null,
+						size,
+					},
+				}
+			}
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException(

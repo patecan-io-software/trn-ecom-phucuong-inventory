@@ -25,7 +25,7 @@ export class FilteredByStatusResponseDTO {
 }
 
 export class PaginationFilteredByStatusDTO<S> {
-	data: S[]
-	cursor: string
+	listRating: S[]
+	cursor: string | null
 	size: number
 }

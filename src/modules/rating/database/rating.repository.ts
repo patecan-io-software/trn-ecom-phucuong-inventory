@@ -5,6 +5,7 @@ import { Logger } from '@nestjs/common'
 import { FilteredByStatusResponseDTO } from '../controllers/dtos/filtered-rating-by-status.dtos'
 import { RatingDTO } from '../controllers/dtos/rating.dtos'
 import { retry } from 'rxjs'
+import { Types } from 'mongoose'
 export class RatingRepository {
 	[x: string]: any
 	private logger: Logger = new Logger(RatingRepository.name)
@@ -127,17 +128,21 @@ export class RatingRepository {
 
 	async getByStatus(
 		status: string,
-		cursor: string,
+		cursor: string | null,
 		size: number,
 	): Promise<Rating[]> {
 		try {
 			const query: any = { status }
+
 			if (cursor) {
-				query['_id'] = { $gt: cursor }
+				// Kiểm tra xem cursor đã được sử dụng hay chưa
+				query['_id'] = cursor ? { $gte: cursor } : null // Thay đổi $gt thành $gte để bao gồm cả cursor
 			}
+
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
 				.limit(size)
+
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
