@@ -5,6 +5,15 @@ export const ratingSchema = new Schema(
 		product_id: {
 			type: String,
 		},
+		product_name: {
+			type: String,
+		},
+		product_image: {
+			type: String,
+		},
+		product_code: {
+			type: String,
+		},
 		rating: {
 			type: Number,
 		},
@@ -46,6 +55,9 @@ export const ratingSchema = new Schema(
 export interface Rating {
 	_id: string
 	product_id: string
+	product_name: string
+	product_image: string
+	product_code: string
 	rating: number
 	comment: string
 	name: string

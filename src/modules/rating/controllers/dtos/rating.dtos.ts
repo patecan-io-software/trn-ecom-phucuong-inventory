@@ -5,6 +5,15 @@ export class RatingDTO {
 	@ApiProperty()
 	product_id: string
 
+	@ApiProperty()
+	product_name: string
+
+	@ApiProperty()
+	product_image: string
+
+	@ApiProperty()
+	product_code: string
+
 	@ApiProperty({ type: 'number' })
 	rating: number
 
