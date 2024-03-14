@@ -53,7 +53,7 @@ export class AdminRatingController {
 	@Get('')
 	@ApiResponse({
 		status: 200,
-		type: PaginationFilteredByStatusDTO,
+		type: PaginationFilteredByStatusDTO<RatingDTO>,
 	})
 	async getRatingsByStatus(
 		@Query('status') status: string,
