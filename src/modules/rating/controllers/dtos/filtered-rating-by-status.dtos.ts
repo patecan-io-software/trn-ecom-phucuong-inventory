@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsIn, IsNotEmpty } from 'class-validator'
+import { RatingDTO } from './rating.dtos'
 
 export class FilteredByStatusDTO {
 	@ApiProperty({
@@ -15,10 +16,16 @@ export class FilteredByStatusDTO {
 }
 
 export class FilteredByStatusResponseDTO {
-	@ApiProperty({ type: [FilteredByStatusDTO] })
+	@ApiProperty({ type: [RatingDTO] })
 	items: FilteredByStatusDTO[]
 
 	constructor(items: FilteredByStatusDTO[]) {
 		this.items = items
 	}
+}
+
+export class PaginationFilteredByStatusDTO<S> {
+	data: S[]
+	cursor: string
+	size: number
 }

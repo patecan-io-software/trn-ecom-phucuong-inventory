@@ -125,9 +125,23 @@ export class RatingRepository {
 		}
 	}
 
-	async getByStatus(status: string): Promise<Rating[]> {
-		const query: any = { status }
-		const ratings = await RatingModel.find(query)
-		return ratings.map((rating) => rating.toObject() as Rating)
+	async getByStatus(
+		status: string,
+		cursor: string,
+		size: number,
+	): Promise<Rating[]> {
+		try {
+			const query: any = { status }
+			if (cursor) {
+				query['_id'] = { $gt: cursor }
+			}
+			const ratings = await RatingModel.find(query)
+				.sort({ _id: 1 })
+				.limit(size)
+			return ratings.map((rating) => rating.toObject() as Rating)
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to retrieve ratings')
+		}
 	}
 }

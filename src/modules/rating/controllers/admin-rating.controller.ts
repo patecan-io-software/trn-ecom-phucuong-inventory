@@ -3,10 +3,12 @@ import {
 	Body,
 	Controller,
 	Get,
+	InternalServerErrorException,
 	Logger,
 	NotFoundException,
 	Param,
 	Put,
+	Query,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RatingRepository } from '../database/rating.repository'
@@ -15,7 +17,11 @@ import {
 	UpdateStatusRatingResponseDTO,
 } from './dtos/update-status-rating.dto'
 import { Rating } from '../database/rating.model'
-import { FilteredByStatusResponseDTO } from './dtos/filtered-rating-by-status.dtos'
+import {
+	FilteredByStatusResponseDTO,
+	PaginationFilteredByStatusDTO,
+} from './dtos/filtered-rating-by-status.dtos'
+import { RatingDTO } from './dtos/rating.dtos'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
@@ -51,15 +57,30 @@ export class AdminRatingController {
 	})
 	async getRatingsByStatus(
 		@Param('status') status: string,
-	): Promise<{ listRatings: Rating[] }> {
+		@Query('cursor') cursor: string,
+		@Query('size') size: number = 10,
+	): Promise<{
+		paginationData: PaginationFilteredByStatusDTO<RatingDTO>
+	}> {
 		try {
-			const ratings = await this.ratingRepo.getByStatus(status)
-			if (!ratings || ratings.length === 0) {
-				return { listRatings: [] }
+			const ratings = await this.ratingRepo.getByStatus(
+				status,
+				cursor,
+				size,
+			)
+
+			const paginationData: PaginationFilteredByStatusDTO<RatingDTO> = {
+				data: ratings.map((rating) => new RatingDTO(rating)),
+				cursor,
+				size,
 			}
-			return { listRatings: ratings }
+
+			return { paginationData }
 		} catch (error) {
-			throw error
+			this.logger.error(error)
+			throw new BadRequestException(
+				`Failed to filter with status ${status}`,
+			)
 		}
 	}
 }
