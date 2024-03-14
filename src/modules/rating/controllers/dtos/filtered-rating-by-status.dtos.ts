@@ -16,8 +16,9 @@ export class FilteredByStatusDTO {
 }
 
 export class FilteredByStatusResponseDTO {
-	@ApiProperty({ type: [RatingDTO] })
-	items: FilteredByStatusDTO[]
+	@ApiProperty({ description: 'Status of Rating', type: [RatingDTO] })
+	@IsNotEmpty()
+	items: any
 
 	constructor(items: FilteredByStatusDTO[]) {
 		this.items = items

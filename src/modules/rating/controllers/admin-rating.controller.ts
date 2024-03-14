@@ -50,18 +50,13 @@ export class AdminRatingController {
 		}
 	}
 
-	@Get('/status/:status')
+	@Get('')
 	@ApiResponse({
 		status: 200,
-		type: FilteredByStatusResponseDTO,
-	})
-	@Get('/status/:status')
-	@ApiResponse({
-		status: 200,
-		type: FilteredByStatusResponseDTO,
+		type: () => FilteredByStatusResponseDTO,
 	})
 	async getRatingsByStatus(
-		@Param('status') status: string,
+		@Query('status') status: string,
 		@Query('cursor') cursor: string,
 		@Query('size') size: number = 10,
 	): Promise<{
