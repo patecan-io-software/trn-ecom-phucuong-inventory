@@ -53,15 +53,13 @@ export class AdminRatingController {
 	@Get('')
 	@ApiResponse({
 		status: 200,
-		type: PaginationFilteredByStatusDTO<RatingDTO>,
+		type: FilteredByStatusResponseDTO,
 	})
 	async getRatingsByStatus(
 		@Query('status') status: string,
 		@Query('cursor') cursor: string,
 		@Query('size') size: number = 10,
-	): Promise<{
-		paginationData: PaginationFilteredByStatusDTO<RatingDTO>
-	}> {
+	): Promise<FilteredByStatusResponseDTO> {
 		try {
 			const ratings = await this.ratingRepo.getByStatus(
 				status,
@@ -79,21 +77,21 @@ export class AdminRatingController {
 				const listRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
 				)
-				return {
-					paginationData: {
+				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
+					{
 						listRating,
 						cursor: newCursor,
 						size,
-					},
-				}
+					}
+				return new FilteredByStatusResponseDTO([paginationData])
 			} else {
-				return {
-					paginationData: {
+				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
+					{
 						listRating: [],
 						cursor: cursor !== null ? null : cursor,
 						size,
-					},
-				}
+					}
+				return new FilteredByStatusResponseDTO([paginationData])
 			}
 		} catch (error) {
 			this.logger.error(error)

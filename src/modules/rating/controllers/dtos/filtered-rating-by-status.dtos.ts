@@ -2,6 +2,12 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsIn, IsNotEmpty } from 'class-validator'
 import { RatingDTO } from './rating.dtos'
 
+export class PaginationFilteredByStatusDTO<S> {
+	listRating: S[]
+	cursor: string | null
+	size: number
+}
+
 export class FilteredByStatusDTO {
 	@ApiProperty({
 		description: 'Status for the rating (Approved, Pending, or Refused)',
@@ -16,17 +22,14 @@ export class FilteredByStatusDTO {
 }
 
 export class FilteredByStatusResponseDTO {
-	@ApiProperty({ description: 'Status of Rating', type: [RatingDTO] })
+	@ApiProperty({
+		description: 'Status of Rating',
+		type: [PaginationFilteredByStatusDTO],
+	})
 	@IsNotEmpty()
-	items: any
+	items: any[]
 
-	constructor(items: FilteredByStatusDTO[]) {
+	constructor(items: any[]) {
 		this.items = items
 	}
-}
-
-export class PaginationFilteredByStatusDTO<S> {
-	listRating: S[]
-	cursor: string | null
-	size: number
 }
