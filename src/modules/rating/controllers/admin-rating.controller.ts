@@ -10,7 +10,7 @@ import {
 	Put,
 	Query,
 } from '@nestjs/common'
-import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RatingRepository } from '../database/rating.repository'
 import {
 	UpdateStatusRatingDTO,
@@ -55,17 +55,28 @@ export class AdminRatingController {
 		status: 200,
 		type: FilteredByStatusResponseDTO,
 	})
+	@ApiQuery({
+		name: 'cursor',
+		type: String,
+		required: false,
+	})
 	async getRatingsByStatus(
 		@Query('status') status: string,
-		@Query('cursor') cursor: string,
+		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
 	): Promise<FilteredByStatusResponseDTO> {
 		try {
-			const ratings = await this.ratingRepo.getByStatus(
-				status,
-				cursor,
-				size,
-			)
+			let ratings: Rating[]
+
+			if (cursor === '') {
+				ratings = await this.ratingRepo.getByStatus(status, null, size)
+			} else {
+				ratings = await this.ratingRepo.getByStatus(
+					status,
+					cursor,
+					size,
+				)
+			}
 
 			let newCursor: string | null = null
 
@@ -88,7 +99,7 @@ export class AdminRatingController {
 				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
 					{
 						listRating: [],
-						cursor: cursor !== null ? null : cursor,
+						cursor: cursor !== null ? cursor : null,
 						size,
 					}
 				return new FilteredByStatusResponseDTO(paginationData)
