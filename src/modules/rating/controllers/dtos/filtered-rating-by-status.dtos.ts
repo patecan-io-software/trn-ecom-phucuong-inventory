@@ -6,6 +6,12 @@ export class PaginationFilteredByStatusDTO<S> {
 	listRating: S[]
 	cursor: string | null
 	size: number
+
+	constructor(listRating: S[], cursor: string | null, size: number) {
+		this.listRating = listRating
+		this.cursor = cursor
+		this.size = size
+	}
 }
 
 export class FilteredByStatusDTO {
@@ -24,12 +30,12 @@ export class FilteredByStatusDTO {
 export class FilteredByStatusResponseDTO {
 	@ApiProperty({
 		description: 'Status of Rating',
-		type: [PaginationFilteredByStatusDTO],
+		type: PaginationFilteredByStatusDTO<RatingDTO>,
 	})
 	@IsNotEmpty()
-	items: any[]
+	data: PaginationFilteredByStatusDTO<RatingDTO>
 
-	constructor(items: any[]) {
-		this.items = items
+	constructor(data: PaginationFilteredByStatusDTO<RatingDTO>) {
+		this.data = data
 	}
 }

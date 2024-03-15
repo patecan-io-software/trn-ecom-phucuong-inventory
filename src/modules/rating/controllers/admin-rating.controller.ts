@@ -83,7 +83,7 @@ export class AdminRatingController {
 						cursor: newCursor,
 						size,
 					}
-				return new FilteredByStatusResponseDTO([paginationData])
+				return new FilteredByStatusResponseDTO(paginationData)
 			} else {
 				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
 					{
@@ -91,7 +91,7 @@ export class AdminRatingController {
 						cursor: cursor !== null ? null : cursor,
 						size,
 					}
-				return new FilteredByStatusResponseDTO([paginationData])
+				return new FilteredByStatusResponseDTO(paginationData)
 			}
 		} catch (error) {
 			this.logger.error(error)
