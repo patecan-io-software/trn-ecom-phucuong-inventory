@@ -2,13 +2,18 @@ import mongoose, { Model } from 'mongoose'
 import { RatingModule } from '../rating.module'
 import { Rating, RatingModel } from './rating.model'
 import { Logger } from '@nestjs/common'
-
+import { FilteredByStatusResponseDTO } from '../controllers/dtos/filtered-rating-by-status.dtos'
+import { RatingDTO } from '../controllers/dtos/rating.dtos'
+import { retry } from 'rxjs'
+import { Types } from 'mongoose'
 export class RatingRepository {
 	[x: string]: any
 	private logger: Logger = new Logger(RatingRepository.name)
 	genId() {
 		return new mongoose.Types.ObjectId().toHexString()
 	}
+
+	constructor(private readonly ratingModel: Model<Rating>) {}
 
 	async createRating(rating: Rating) {
 		const rat = new RatingModel({
@@ -118,6 +123,29 @@ export class RatingRepository {
 		} catch (error) {
 			this.logger.error(error)
 			throw new Error('Failed to update rating status')
+		}
+	}
+
+	async getByStatus(
+		status: string,
+		cursor: string | null,
+		size: number,
+	): Promise<Rating[]> {
+		try {
+			const query: any = { status }
+
+			if (cursor) {
+				query['_id'] = { $gte: cursor }
+			}
+
+			const ratings = await RatingModel.find(query)
+				.sort({ _id: 1 })
+				.limit(size + 1)
+
+			return ratings.map((rating) => rating.toObject() as Rating)
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to retrieve ratings')
 		}
 	}
 }
