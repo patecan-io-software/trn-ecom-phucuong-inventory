@@ -57,13 +57,13 @@ export class AdminRatingController {
 	})
 	async getRatingsByStatus(
 		@Query('status') status: string,
-		@Query('cursor') cursor: string | null,
+		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
 	): Promise<FilteredByStatusResponseDTO> {
 		try {
 			let ratings: Rating[]
 
-			if (cursor === 'null') {
+			if (cursor === ' ') {
 				// If cursor is "null", fetch the first entries in the database
 				ratings = await this.ratingRepo.getByStatus(status, null, size)
 			} else {
