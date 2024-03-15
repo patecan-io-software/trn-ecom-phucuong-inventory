@@ -69,7 +69,6 @@ export class AdminRatingController {
 			let ratings: Rating[]
 
 			if (cursor === ' ') {
-				// If cursor is "null", fetch the first entries in the database
 				ratings = await this.ratingRepo.getByStatus(status, null, size)
 			} else {
 				ratings = await this.ratingRepo.getByStatus(
