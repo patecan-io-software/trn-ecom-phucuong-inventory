@@ -57,15 +57,22 @@ export class AdminRatingController {
 	})
 	async getRatingsByStatus(
 		@Query('status') status: string,
-		@Query('cursor') cursor: string,
+		@Query('cursor') cursor: string | null,
 		@Query('size') size: number = 10,
 	): Promise<FilteredByStatusResponseDTO> {
 		try {
-			const ratings = await this.ratingRepo.getByStatus(
-				status,
-				cursor,
-				size,
-			)
+			let ratings: Rating[]
+
+			if (cursor === 'null') {
+				// If cursor is "null", fetch the first entries in the database
+				ratings = await this.ratingRepo.getByStatus(status, null, size)
+			} else {
+				ratings = await this.ratingRepo.getByStatus(
+					status,
+					cursor,
+					size,
+				)
+			}
 
 			let newCursor: string | null = null
 
@@ -88,7 +95,7 @@ export class AdminRatingController {
 				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
 					{
 						listRating: [],
-						cursor: cursor !== null ? null : cursor,
+						cursor: cursor !== null ? cursor : null,
 						size,
 					}
 				return new FilteredByStatusResponseDTO(paginationData)
