@@ -68,7 +68,7 @@ export class AdminRatingController {
 		try {
 			let ratings: Rating[]
 
-			if (cursor === ' ') {
+			if (cursor === '') {
 				ratings = await this.ratingRepo.getByStatus(status, null, size)
 			} else {
 				ratings = await this.ratingRepo.getByStatus(
