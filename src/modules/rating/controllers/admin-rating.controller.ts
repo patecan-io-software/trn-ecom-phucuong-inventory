@@ -7,6 +7,7 @@ import {
 	Logger,
 	NotFoundException,
 	Param,
+	Post,
 	Put,
 	Query,
 } from '@nestjs/common'
@@ -22,6 +23,7 @@ import {
 	PaginationFilteredByStatusDTO,
 } from './dtos/filtered-rating-by-status.dtos'
 import { RatingDTO } from './dtos/rating.dtos'
+import { get } from 'http'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
@@ -49,7 +51,6 @@ export class AdminRatingController {
 			throw new BadRequestException('Failed to update rating status')
 		}
 	}
-
 	@Get('')
 	@ApiResponse({
 		status: 200,

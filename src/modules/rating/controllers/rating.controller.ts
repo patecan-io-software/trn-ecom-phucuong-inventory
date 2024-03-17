@@ -3,6 +3,7 @@ import {
 	Body,
 	Controller,
 	Get,
+	Delete,
 	Logger,
 	Post,
 	InternalServerErrorException,
@@ -145,5 +146,15 @@ export class RatingController {
 			this.logger.error(error)
 			throw new BadRequestException('Failed to update rating status')
 		}
+	}
+	@Delete('/:ratingId')
+	@ApiResponse({
+		status: 200,
+		description: 'Delete rating Successfully',
+		type: UpdateStatusRatingDTO,
+	})
+	async delete(@Param() { id }: ObjectIdParam): Promise<void> {
+		const ratingId = await this.ratingRepo.deleteById(id)
+		return
 	}
 }
