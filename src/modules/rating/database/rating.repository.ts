@@ -148,4 +148,13 @@ export class RatingRepository {
 			throw new Error('Failed to retrieve ratings')
 		}
 	}
+	async ratingDelete(ratingId: string): Promise<void> {
+		try {
+			const rating = await RatingModel.findById(ratingId)
+
+			await this.ratingModel.findByIdAndDelete(ratingId)
+		}catch (error){
+			throw new Error('delete failed')
+		}
+	}
 }

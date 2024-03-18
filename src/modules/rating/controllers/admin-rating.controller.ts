@@ -3,6 +3,7 @@ import {
 	Body,
 	Controller,
 	Get,
+	Delete,
 	InternalServerErrorException,
 	Logger,
 	NotFoundException,
@@ -24,6 +25,7 @@ import {
 } from './dtos/filtered-rating-by-status.dtos'
 import { RatingDTO } from './dtos/rating.dtos'
 import { get } from 'http'
+import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
@@ -50,6 +52,15 @@ export class AdminRatingController {
 			this.logger.error(error)
 			throw new BadRequestException('Failed to update rating status')
 		}
+	}
+	@Delete('/:ratingId')
+	@ApiResponse({
+		status: 200,
+		description: 'Delete rating Successfully',
+	})
+	async delete(@Param() { id }: ObjectIdParam): Promise<void> {
+		const ratingId = await this.ratingRepo.deleteById(id)
+		return
 	}
 	@Get('')
 	@ApiResponse({
@@ -113,3 +124,4 @@ export class AdminRatingController {
 		}
 	}
 }
+
