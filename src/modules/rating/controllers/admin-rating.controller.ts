@@ -27,7 +27,10 @@ import {
 import { RatingDTO } from './dtos/rating.dtos'
 import { get } from 'http'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
-import { DeleteRatingDTO } from './dtos/delete-rating.dtos'
+import {
+	DeleteRatingDTO,
+	DeleteRatingResponseDTO,
+} from './dtos/delete-rating.dtos'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
@@ -116,25 +119,23 @@ export class AdminRatingController {
 			)
 		}
 	}
-	@Delete('/:ratingId')
+	@Delete('/:id')
 	@ApiResponse({
-		status: HttpStatus.OK,
-		description: 'Delete rating Successfully',
+		status: 200,
+		type: DeleteRatingResponseDTO,
 	})
-	@ApiResponse({
-		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		description: 'Failed to delete rating',
-	})
-	async deleteRating(
-		@Param('ratingId') _id: string,
-	): Promise<DeleteRatingDTO> {
+	async deleteRatingById(
+		@Param('id') _id: string,
+	): Promise<DeleteRatingResponseDTO> {
 		try {
-			await this.ratingRepo.ratingDelete(_id)
-			// Return a DeleteRatingDTO instance with appropriate properties
-			return new DeleteRatingDTO({
-				resultCode: '00', // or any other success code
-				resultMessage: 'Rating deleted successfully',
-			})
+			const deletedRatingId = await this.ratingRepo.deleteRatingById(_id)
+			if (!deletedRatingId) {
+				throw new Error('Rating not found')
+			}
+			return new DeleteRatingResponseDTO(
+				deletedRatingId,
+				'Rating deleted successfully',
+			)
 		} catch (error) {
 			console.error('Error deleting rating:', error)
 			throw new Error('Failed to delete rating')

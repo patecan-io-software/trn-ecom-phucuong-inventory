@@ -2,20 +2,28 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class DeleteRatingDTO {
 	@ApiProperty({
-		description:
-			'Result code indicating the outcome of the delete operation',
-		example: '00', // Example values based on your application's conventions
+		description: 'ID of the deleted rating',
 	})
-	resultCode: string
+	deletedRatingId: string
+
+	constructor(deletedRatingId: string) {
+		this.deletedRatingId = deletedRatingId
+	}
+}
+
+export class DeleteRatingResponseDTO {
+	@ApiProperty({
+		description: 'ID of the deleted rating',
+	})
+	deletedRatingId: string
 
 	@ApiProperty({
-		description:
-			'Result message providing additional details about the outcome',
-		example: 'Rating deleted successfully', // Example values based on your application's conventions
+		description: 'Message indicating the success of the deletion',
 	})
-	resultMessage: string
+	message: string
 
-	constructor(data: Partial<DeleteRatingDTO>) {
-		Object.assign(this, data)
+	constructor(deletedRatingId: string, message: string) {
+		this.deletedRatingId = deletedRatingId
+		this.message = message
 	}
 }

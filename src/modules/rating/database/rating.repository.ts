@@ -6,6 +6,7 @@ import { FilteredByStatusResponseDTO } from '../controllers/dtos/filtered-rating
 import { RatingDTO } from '../controllers/dtos/rating.dtos'
 import { retry } from 'rxjs'
 import { Types } from 'mongoose'
+import { ObjectId } from 'mongodb'
 import { DeleteRatingDTO } from '../controllers/dtos/delete-rating.dtos'
 import { ApiResponse } from '@nestjs/swagger'
 export class RatingRepository {
@@ -150,18 +151,14 @@ export class RatingRepository {
 			throw new Error('Failed to retrieve ratings')
 		}
 	}
-	async ratingDelete(_id: string): Promise<Rating> {
-		try {
-			// Find the rating by ID
-			const rating = await this.ratingModel.findById(_id)
-			// Check if rating exists
-			if (!rating) {
-				throw new Error('Rating not found')
-			}
-			// Delete the rating
-			await this.ratingModel.findByIdAndDelete(_id)
-		} catch (error) {
-			throw new Error('Delete failed')
+	async deleteRatingById(_id: string): Promise<string> {
+		const rating = await RatingModel.findByIdAndDelete(_id).exec()
+		if (!rating) {
+			return null
 		}
+
+		return rating._id instanceof ObjectId
+			? rating._id.toHexString()
+			: String(rating._id)
 	}
 }
