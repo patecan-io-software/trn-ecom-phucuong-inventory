@@ -11,6 +11,7 @@ import {
 	Post,
 	Put,
 	Query,
+	HttpStatus,
 } from '@nestjs/common'
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RatingRepository } from '../database/rating.repository'
@@ -26,6 +27,7 @@ import {
 import { RatingDTO } from './dtos/rating.dtos'
 import { get } from 'http'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
+import { DeleteRatingDTO } from './dtos/delete-rating.dtos'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
@@ -52,15 +54,6 @@ export class AdminRatingController {
 			this.logger.error(error)
 			throw new BadRequestException('Failed to update rating status')
 		}
-	}
-	@Delete('/:ratingId')
-	@ApiResponse({
-		status: 200,
-		description: 'Delete rating Successfully',
-	})
-	async delete(@Param() { id }: ObjectIdParam): Promise<void> {
-		const ratingId = await this.ratingRepo.deleteById(id)
-		return
 	}
 	@Get('')
 	@ApiResponse({
@@ -123,5 +116,28 @@ export class AdminRatingController {
 			)
 		}
 	}
+	@Delete('/:ratingId')
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Delete rating Successfully',
+	})
+	@ApiResponse({
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		description: 'Failed to delete rating',
+	})
+	async deleteRating(
+		@Param('ratingId') _id: string,
+	): Promise<DeleteRatingDTO> {
+		try {
+			await this.ratingRepo.ratingDelete(_id)
+			// Return a DeleteRatingDTO instance with appropriate properties
+			return new DeleteRatingDTO({
+				resultCode: '00', // or any other success code
+				resultMessage: 'Rating deleted successfully',
+			})
+		} catch (error) {
+			console.error('Error deleting rating:', error)
+			throw new Error('Failed to delete rating')
+		}
+	}
 }
-

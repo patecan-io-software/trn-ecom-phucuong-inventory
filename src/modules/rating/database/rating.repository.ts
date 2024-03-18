@@ -1,11 +1,13 @@
 import mongoose, { Model } from 'mongoose'
 import { RatingModule } from '../rating.module'
 import { Rating, RatingModel } from './rating.model'
-import { Logger } from '@nestjs/common'
+import { Delete, Logger, Param } from '@nestjs/common'
 import { FilteredByStatusResponseDTO } from '../controllers/dtos/filtered-rating-by-status.dtos'
 import { RatingDTO } from '../controllers/dtos/rating.dtos'
 import { retry } from 'rxjs'
 import { Types } from 'mongoose'
+import { DeleteRatingDTO } from '../controllers/dtos/delete-rating.dtos'
+import { ApiResponse } from '@nestjs/swagger'
 export class RatingRepository {
 	[x: string]: any
 	private logger: Logger = new Logger(RatingRepository.name)
@@ -148,13 +150,18 @@ export class RatingRepository {
 			throw new Error('Failed to retrieve ratings')
 		}
 	}
-	async ratingDelete(ratingId: string): Promise<void> {
+	async ratingDelete(_id: string): Promise<Rating> {
 		try {
-			const rating = await RatingModel.findById(ratingId)
-
-			await this.ratingModel.findByIdAndDelete(ratingId)
-		}catch (error){
-			throw new Error('delete failed')
+			// Find the rating by ID
+			const rating = await this.ratingModel.findById(_id)
+			// Check if rating exists
+			if (!rating) {
+				throw new Error('Rating not found')
+			}
+			// Delete the rating
+			await this.ratingModel.findByIdAndDelete(_id)
+		} catch (error) {
+			throw new Error('Delete failed')
 		}
 	}
 }
