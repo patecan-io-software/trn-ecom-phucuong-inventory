@@ -35,7 +35,6 @@ import { RatingModule } from '@modules/rating'
 		BrandModule,
 		ProductModule,
 		RatingModule,
-
 		AdminAuthModule,
 		AdminProductModule,
 		InventoryModule,
