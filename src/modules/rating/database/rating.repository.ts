@@ -160,4 +160,15 @@ export class RatingRepository {
 			? rating._id.toHexString()
 			: String(rating._id)
 	}
+
+	async deleteUpdateRatingById(_id: string): Promise<string> {
+		const rating = await RatingModel.findByIdAndDelete(_id).exec()
+		if (!rating) {
+			return null
+		}
+
+		return rating._id instanceof ObjectId
+			? rating._id.toHexString()
+			: String(rating._id)
+	}
 }
