@@ -7,7 +7,6 @@ import { RatingDTO } from '../controllers/dtos/rating.dtos'
 import { retry } from 'rxjs'
 import { Types } from 'mongoose'
 import { ObjectId } from 'mongodb'
-import { DeleteRatingDTO } from '../controllers/dtos/delete-rating.dtos'
 import { ApiResponse } from '@nestjs/swagger'
 export class RatingRepository {
 	[x: string]: any

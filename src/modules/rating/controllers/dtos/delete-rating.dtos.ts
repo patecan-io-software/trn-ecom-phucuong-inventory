@@ -1,16 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-export class DeleteRatingDTO {
-	@ApiProperty({
-		description: 'ID of the deleted rating',
-	})
-	deletedRatingId: string
-
-	constructor(deletedRatingId: string) {
-		this.deletedRatingId = deletedRatingId
-	}
-}
-
 export class DeleteRatingResponseDTO {
 	@ApiProperty({
 		description: 'ID of the deleted rating',

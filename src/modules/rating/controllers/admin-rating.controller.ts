@@ -27,10 +27,7 @@ import {
 import { RatingDTO } from './dtos/rating.dtos'
 import { get } from 'http'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
-import {
-	DeleteRatingDTO,
-	DeleteRatingResponseDTO,
-} from './dtos/delete-rating.dtos'
+import { DeleteRatingResponseDTO } from './dtos/delete-rating.dtos'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
