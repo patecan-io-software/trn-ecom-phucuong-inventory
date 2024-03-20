@@ -160,4 +160,31 @@ export class RatingRepository {
 			? rating._id.toHexString()
 			: String(rating._id)
 	}
+
+	async updateRating(
+		ratingId: string,
+		newRating: number,
+		newComment: string,
+	): Promise<Rating> {
+		try {
+			const rating = await RatingModel.findById(ratingId)
+
+			if (!rating) {
+				throw new Error('Rating not found')
+			}
+
+			rating.rating = newRating
+			rating.comment = newComment
+			rating.status = 'Pending'
+			await rating.save()
+
+			return rating.toObject({
+				versionKey: false,
+				flattenObjectIds: true,
+			})
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to update rating status')
+		}
+	}
 }
