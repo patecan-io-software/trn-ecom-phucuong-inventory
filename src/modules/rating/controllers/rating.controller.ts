@@ -143,7 +143,7 @@ export class RatingController {
 				dto.newRating,
 				dto.newComment,
 			)
-			return new UpdateStatusRatingResponseDTO(updateRating)
+			return new UpdateRatingResponseDTO(updateRating)
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException('Failed to update rating')
