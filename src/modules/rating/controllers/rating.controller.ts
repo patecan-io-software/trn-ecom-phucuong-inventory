@@ -3,6 +3,7 @@ import {
 	Body,
 	Controller,
 	Get,
+	Delete,
 	Logger,
 	Post,
 	InternalServerErrorException,

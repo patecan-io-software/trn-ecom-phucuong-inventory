@@ -3,12 +3,15 @@ import {
 	Body,
 	Controller,
 	Get,
+	Delete,
 	InternalServerErrorException,
 	Logger,
 	NotFoundException,
 	Param,
+	Post,
 	Put,
 	Query,
+	HttpStatus,
 } from '@nestjs/common'
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RatingRepository } from '../database/rating.repository'
@@ -22,6 +25,8 @@ import {
 	PaginationFilteredByStatusDTO,
 } from './dtos/filtered-rating-by-status.dtos'
 import { RatingDTO } from './dtos/rating.dtos'
+import { get } from 'http'
+import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
@@ -49,7 +54,6 @@ export class AdminRatingController {
 			throw new BadRequestException('Failed to update rating status')
 		}
 	}
-
 	@Get('')
 	@ApiResponse({
 		status: 200,
@@ -109,6 +113,21 @@ export class AdminRatingController {
 			throw new BadRequestException(
 				`Failed to filter with status ${status}`,
 			)
+		}
+	}
+	@Delete('/:id')
+	@ApiResponse({
+		status: 200,
+	})
+	async deleteRatingById(@Param('id') _id: string): Promise<void> {
+		try {
+			const deletedRatingId = await this.ratingRepo.deleteRatingById(_id)
+			if (!deletedRatingId) {
+				throw new Error('Rating not found')
+			}
+		} catch (error) {
+			console.error('Error deleting rating:', error)
+			throw new Error('Failed to delete rating')
 		}
 	}
 }
