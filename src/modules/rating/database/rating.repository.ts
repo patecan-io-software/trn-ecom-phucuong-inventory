@@ -187,4 +187,15 @@ export class RatingRepository {
 			throw new Error('Failed to update rating status')
 		}
 	}
+
+	async deleteUpdateRatingById(_id: string): Promise<string> {
+		const rating = await RatingModel.findByIdAndDelete(_id).exec()
+		if (!rating) {
+			return null
+		}
+
+		return rating._id instanceof ObjectId
+			? rating._id.toHexString()
+			: String(rating._id)
+	}
 }

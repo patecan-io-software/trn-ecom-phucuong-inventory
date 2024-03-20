@@ -150,4 +150,21 @@ export class RatingController {
 			throw new BadRequestException('Failed to update rating')
 		}
 	}
+
+	@Delete('/:id')
+	@ApiResponse({
+		status: 200,
+	})
+	async deleteUpdateRatingById(@Param('id') _id: string): Promise<void> {
+		try {
+			const deletedRatingId =
+				await this.ratingRepo.deleteUpdateRatingById(_id)
+			if (!deletedRatingId) {
+				throw new Error('Rating not found')
+			}
+		} catch (error) {
+			console.error('Error deleting rating:', error)
+			throw new Error('Failed to delete rating')
+		}
+	}
 }
