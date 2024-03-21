@@ -59,10 +59,3 @@ export class RatingDTO {
 		Object.assign(this, data)
 	}
 }
-
-export class PaginationDTO<T> {
-	data: T[]
-	cursor: string
-	size: number
-	totalCount: number
-}
