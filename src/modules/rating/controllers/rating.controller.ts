@@ -128,9 +128,7 @@ export class RatingController {
 			}
 		} catch (error) {
 			this.logger.error(error)
-			throw new BadRequestException(
-				`Failed to filter with product ${product_id}`,
-			)
+			throw new InternalServerErrorException()
 		}
 	}
 	@Get('/overview/:productId')
