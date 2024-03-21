@@ -78,7 +78,7 @@ export class RatingController {
 		type: String,
 		required: false,
 	})
-	async getRatingsByStatus(
+	async getRatingsByProductId(
 		@Query('Product Id') product_id: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
@@ -129,7 +129,7 @@ export class RatingController {
 		} catch (error) {
 			this.logger.error(error)
 			throw new BadRequestException(
-				`Failed to filter with status ${status}`,
+				`Failed to filter with product ${product_id}`,
 			)
 		}
 	}
