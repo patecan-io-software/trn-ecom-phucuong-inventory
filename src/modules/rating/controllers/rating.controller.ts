@@ -17,20 +17,27 @@ import {
 	CreateRatingRequestDTO,
 	CreateRatingResponseDTO,
 } from './dtos/create-rating.dtos'
-import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Rating } from '../database/rating.model'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
-import { PaginationDTO, RatingDTO } from './dtos/rating.dtos'
+import { RatingDTO } from './dtos/rating.dtos'
 import { retry } from 'rxjs'
 import { OverviewRatingResponseDTO } from './dtos/overview-rating.dtos'
 import { error } from 'console'
-import { FilteredByStatusResponseDTO } from './dtos/filtered-rating-by-status.dtos'
+import {
+	FilteredByStatusResponseDTO,
+	PaginationFilteredByStatusDTO,
+} from './dtos/filtered-rating-by-status.dtos'
 import {
 	UpdateRatingDTO,
 	UpdateRatingResponseDTO,
 	UpdateStatusRatingDTO,
 	UpdateStatusRatingResponseDTO,
 } from './dtos/update-status-rating.dto'
+import {
+	ListRatingByProductIdResponseDTO,
+	PaginationListRatingByProductIdDTO,
+} from './dtos/list-rating-by-productId.dtos'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
@@ -64,35 +71,66 @@ export class RatingController {
 	@Get('')
 	@ApiResponse({
 		status: 200,
-		type: PaginationDTO,
+		type: ListRatingByProductIdResponseDTO,
 	})
-	async getListRating(
-		@Query('productId') product_id: string,
-		@Query('cursor') cursor: string,
+	@ApiQuery({
+		name: 'cursor',
+		type: String,
+		required: false,
+	})
+	async getRatingsByProductId(
+		@Query('Product Id') product_id: string,
+		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
-	): Promise<PaginationDTO<RatingDTO>> {
+	): Promise<ListRatingByProductIdResponseDTO> {
 		try {
-			const ratings = await this.ratingRepo.getAllListRating(
-				product_id,
-				cursor,
-				size,
-			)
-			const totalCount = await this.ratingRepo.getTotalCount(product_id)
+			let ratings: Rating[]
 
-			const paginationData: PaginationDTO<RatingDTO> = {
-				data: ratings.map((rating) => new RatingDTO(rating)),
-				cursor,
-				size,
-				totalCount,
+			if (cursor === '') {
+				ratings = await this.ratingRepo.getByProductId(
+					product_id,
+					null,
+					size,
+				)
+			} else {
+				ratings = await this.ratingRepo.getByProductId(
+					product_id,
+					cursor,
+					size,
+				)
 			}
 
-			return paginationData
+			let newCursor: string | null = null
+
+			if (ratings.length > 0) {
+				if (ratings.length > size) {
+					newCursor = ratings[size]._id
+					ratings.splice(size)
+				}
+				const listRating: RatingDTO[] = ratings.map(
+					(rating) => new RatingDTO(rating),
+				)
+				const paginationData: PaginationListRatingByProductIdDTO<RatingDTO> =
+					{
+						listRating,
+						cursor: newCursor,
+						size,
+					}
+				return new ListRatingByProductIdResponseDTO(paginationData)
+			} else {
+				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
+					{
+						listRating: [],
+						cursor: cursor !== null ? cursor : null,
+						size,
+					}
+				return new ListRatingByProductIdResponseDTO(paginationData)
+			}
 		} catch (error) {
 			this.logger.error(error)
 			throw new InternalServerErrorException()
 		}
 	}
-
 	@Get('/overview/:productId')
 	@ApiResponse({
 		status: 200,

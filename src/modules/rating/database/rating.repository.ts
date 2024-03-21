@@ -37,31 +37,26 @@ export class RatingRepository {
 		}
 	}
 
-	async getAllListRating(product_id: string, cursor: string, size: number) {
+	async getByProductId(
+		product_id: string,
+		cursor: string | null,
+		size: number,
+	): Promise<Rating[]> {
 		try {
-			const query = { product_id }
+			const query: any = { product_id }
+
 			if (cursor) {
-				query['_id'] = { $gt: cursor }
+				query['_id'] = { $gte: cursor }
 			}
+
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
-				.limit(size)
-			return ratings.map((rating) =>
-				rating.toObject({ versionKey: false, flattenObjectIds: true }),
-			)
+				.limit(size + 1)
+
+			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
 			throw new Error('Failed to retrieve ratings')
-		}
-	}
-
-	async getTotalCount(product_id: string) {
-		try {
-			const totalCount = await RatingModel.countDocuments({ product_id })
-			return totalCount
-		} catch (error) {
-			this.logger.error(error)
-			throw new Error('Failed to retrieve total count')
 		}
 	}
 
