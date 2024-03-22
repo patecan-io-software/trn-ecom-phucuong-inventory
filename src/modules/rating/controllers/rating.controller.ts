@@ -79,7 +79,7 @@ export class RatingController {
 		required: false,
 	})
 	async getRatingsByProductId(
-		@Query('Product Id') product_id: string,
+		@Query('productId') product_id: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
 	): Promise<ListRatingByProductIdResponseDTO> {
