@@ -35,7 +35,6 @@ export class UpdateRatingDTO {
 		description: 'New comment for the rating',
 		example: 'Great product!',
 	})
-	@IsNotEmpty()
 	@IsString()
 	newComment: string
 }
