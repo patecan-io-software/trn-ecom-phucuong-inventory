@@ -20,16 +20,8 @@ export class ListRatingByProductIdDTO {
 	})
 	product_id: string
 
-	@ApiProperty({
-		description: 'Status for the rating is Approved',
-		enum: ['Approved'],
-	})
-	@IsIn(['Approved', 'Pending'])
-	status: 'Approved'
-
-	constructor(product_id: string, status: 'Approved') {
+	constructor(product_id: string) {
 		this.product_id = product_id
-		this.status = status
 	}
 }
 
