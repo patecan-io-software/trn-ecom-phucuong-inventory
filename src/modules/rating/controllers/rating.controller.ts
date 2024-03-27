@@ -84,6 +84,8 @@ export class RatingController {
 		@Query('size') size: number = 10,
 	): Promise<ListRatingByProductIdResponseDTO> {
 		try {
+			const status: string = 'Approved'
+
 			let ratings: Rating[]
 
 			if (cursor === '') {
@@ -91,12 +93,14 @@ export class RatingController {
 					product_id,
 					null,
 					size,
+					status,
 				)
 			} else {
 				ratings = await this.ratingRepo.getByProductId(
 					product_id,
 					cursor,
 					size,
+					status,
 				)
 			}
 
@@ -131,6 +135,7 @@ export class RatingController {
 			throw new InternalServerErrorException()
 		}
 	}
+
 	@Get('/overview/:productId')
 	@ApiResponse({
 		status: 200,

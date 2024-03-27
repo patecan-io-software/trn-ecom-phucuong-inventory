@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { RatingDTO } from './rating.dtos'
-import { IsNotEmpty } from 'class-validator'
+import { IsIn, IsNotEmpty } from 'class-validator'
 
 export class PaginationListRatingByProductIdDTO<L> {
 	listRating: L[]
