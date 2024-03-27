@@ -174,7 +174,7 @@ export class RatingRepository {
 			}
 
 			rating.rating = newRating
-			rating.comment = newComment
+			rating.comment = newComment || ''
 			rating.status = 'Pending'
 			await rating.save()
 
