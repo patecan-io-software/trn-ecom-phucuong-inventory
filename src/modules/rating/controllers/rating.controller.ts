@@ -78,18 +78,14 @@ export class RatingController {
 		type: String,
 		required: false,
 	})
-	@ApiQuery({
-		name: 'status',
-		type: String,
-		required: false,
-	})
 	async getRatingsByProductId(
 		@Query('productId') product_id: string,
-		@Query('status') status?: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
 	): Promise<ListRatingByProductIdResponseDTO> {
 		try {
+			const status: string = 'Approved'
+
 			let ratings: Rating[]
 
 			if (cursor === '') {
