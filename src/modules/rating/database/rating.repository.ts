@@ -41,9 +41,10 @@ export class RatingRepository {
 		product_id: string,
 		cursor: string | null,
 		size: number,
+		status: string,
 	): Promise<Rating[]> {
 		try {
-			const query: any = { product_id }
+			const query: any = { product_id, status }
 
 			if (cursor) {
 				query['_id'] = { $gte: cursor }

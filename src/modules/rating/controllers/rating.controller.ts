@@ -78,8 +78,14 @@ export class RatingController {
 		type: String,
 		required: false,
 	})
+	@ApiQuery({
+		name: 'status',
+		type: String,
+		required: false,
+	})
 	async getRatingsByProductId(
 		@Query('productId') product_id: string,
+		@Query('status') status?: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
 	): Promise<ListRatingByProductIdResponseDTO> {
@@ -91,12 +97,14 @@ export class RatingController {
 					product_id,
 					null,
 					size,
+					status,
 				)
 			} else {
 				ratings = await this.ratingRepo.getByProductId(
 					product_id,
 					cursor,
 					size,
+					status,
 				)
 			}
 
@@ -131,6 +139,7 @@ export class RatingController {
 			throw new InternalServerErrorException()
 		}
 	}
+
 	@Get('/overview/:productId')
 	@ApiResponse({
 		status: 200,

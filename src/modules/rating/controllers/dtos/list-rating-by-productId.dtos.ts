@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { RatingDTO } from './rating.dtos'
-import { IsNotEmpty } from 'class-validator'
+import { IsIn, IsNotEmpty } from 'class-validator'
 
 export class PaginationListRatingByProductIdDTO<L> {
 	listRating: L[]
@@ -20,8 +20,19 @@ export class ListRatingByProductIdDTO {
 	})
 	product_id: string
 
-	constructor(product_id: string) {
+	@ApiProperty({
+		description: 'Status for the rating (Approved or Pending)',
+		enum: ['Approved', 'Pending'],
+	})
+	@IsIn(['Approved', 'Pending'])
+	status: 'Approved' | 'Pending' | 'Refused'
+
+	constructor(
+		product_id: string,
+		status: 'Approved' | 'Pending' | 'Refused',
+	) {
 		this.product_id = product_id
+		this.status = status
 	}
 }
 
