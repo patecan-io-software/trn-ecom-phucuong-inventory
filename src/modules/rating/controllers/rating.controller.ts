@@ -189,7 +189,7 @@ export class RatingController {
 			const updateRating = await this.ratingRepo.updateRating(
 				ratingId,
 				dto.newRating,
-				dto.newComment,
+				dto.newComment || '',
 			)
 			return new UpdateRatingResponseDTO(updateRating)
 		} catch (error) {
