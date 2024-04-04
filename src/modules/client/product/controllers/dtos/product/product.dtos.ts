@@ -116,6 +116,12 @@ export class ClientProductDTO {
 	product_description: string
 
 	@ApiProperty()
+	product_specifications: string
+
+	@ApiProperty()
+	product_storage_instructions: string
+
+	@ApiProperty()
 	product_banner_image: string
 
 	@ApiProperty()
@@ -181,6 +187,12 @@ export class ProductDetailResponseDTO {
 
 	@ApiProperty()
 	product_description: string
+
+	@ApiProperty()
+	product_specifications: string
+
+	@ApiProperty()
+	product_storage_instructions: string
 
 	@ApiProperty()
 	product_banner_image: string
