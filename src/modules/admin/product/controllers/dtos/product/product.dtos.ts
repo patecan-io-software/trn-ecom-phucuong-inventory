@@ -204,6 +204,12 @@ export class ProductDTO {
 	@ApiProperty()
 	product_description: string
 
+	@ApiProperty()
+	product_specifications: string
+
+	@ApiProperty()
+	product_storage_instructions: string
+
 	@ApiProperty({
 		type: String,
 	})

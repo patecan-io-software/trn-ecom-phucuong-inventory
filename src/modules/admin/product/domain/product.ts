@@ -23,6 +23,8 @@ export interface ProductProps {
 	_id?: string
 	product_name: string
 	product_description: string
+	product_specifications: string
+	product_storage_instructions: string
 	product_banner_image: string
 	product_brand: string
 	product_categories: string[]
@@ -61,6 +63,9 @@ export class Product {
 
 		this.props.product_name = dto.product_name
 		this.props.product_description = dto.product_description
+		this.props.product_specifications = dto.product_specifications
+		this.props.product_storage_instructions =
+			dto.product_storage_instructions
 		this.props.product_banner_image = dto.product_banner_image
 		this.props.product_brand = dto.product_brand
 		this.props.product_categories = dto.product_categories
