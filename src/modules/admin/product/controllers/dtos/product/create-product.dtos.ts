@@ -28,6 +28,20 @@ export class CreateProductRequestDTO {
 	product_description: string
 
 	@ApiProperty({
+		description: 'Specifications of the product',
+		example: 'This is test specifications product',
+	})
+	@IsNotEmpty()
+	product_specifications: string
+
+	@ApiProperty({
+		description: 'Storage instructions of the product',
+		example: 'This is test storage instructions product',
+	})
+	@IsNotEmpty()
+	product_storage_instructions: string
+
+	@ApiProperty({
 		description: 'ID of brand',
 		example: '653e4c45c2c90dd459bb8976',
 	})

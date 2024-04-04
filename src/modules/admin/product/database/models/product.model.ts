@@ -15,6 +15,14 @@ export const productSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		product_specifications: {
+			type: String,
+			required: true,
+		},
+		product_storage_instructions: {
+			type: String,
+			required: true,
+		},
 		product_banner_image: {
 			type: String,
 			required: true,
