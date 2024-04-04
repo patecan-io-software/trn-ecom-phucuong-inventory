@@ -132,7 +132,7 @@ export class RatingRepository {
 		status: string,
 		cursor: string | null,
 		size: number,
-		sortOrder: 'asc' | 'desc' = 'asc' // Default to ascending order if not provided
+		sortOrder: 'asc' | 'desc' = 'asc'
 	): Promise<Rating[]> {
 		try {
 			const query: any = { status };
@@ -141,8 +141,8 @@ export class RatingRepository {
 				query['_id'] = { $gte: cursor };
 			}
 	
-			const sortCriteria: Record<string, SortOrder> = { _id: sortOrder === 'desc' ? -1 : 1 };
-			
+			const sortCriteria: Record<string, SortOrder> = { createdAt: sortOrder === 'desc' ? -1 : 1 };
+	
 			const ratings = await RatingModel.find(query)
 				.sort(sortCriteria)
 				.limit(size + 1);

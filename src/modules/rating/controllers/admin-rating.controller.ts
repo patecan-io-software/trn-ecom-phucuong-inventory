@@ -68,7 +68,7 @@ export class AdminRatingController {
 		@Query('status') status: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
-		@Query('sortOrder') sortOrder: 'asc' | 'desc' = 'asc' // Default to ascending order if not provided
+		@Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc' // Default to descending order for newest to oldest
 	): Promise<FilteredByStatusResponseDTO> {
 		try {
 			let ratings: Rating[];
@@ -83,7 +83,7 @@ export class AdminRatingController {
 	
 			if (ratings.length > 0) {
 				if (ratings.length > size) {
-					newCursor = ratings[size]._id;
+					newCursor = ratings[size].createdAt.toISOString(); // Convert createdAt Date to ISO string
 					ratings.splice(size);
 				}
 				const listRating: RatingDTO[] = ratings.map(
