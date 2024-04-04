@@ -31,14 +31,12 @@ export class CreateProductRequestDTO {
 		description: 'Specifications of the product',
 		example: 'This is test specifications product',
 	})
-	@IsNotEmpty()
 	product_specifications: string
 
 	@ApiProperty({
 		description: 'Storage instructions of the product',
 		example: 'This is test storage instructions product',
 	})
-	@IsNotEmpty()
 	product_storage_instructions: string
 
 	@ApiProperty({
