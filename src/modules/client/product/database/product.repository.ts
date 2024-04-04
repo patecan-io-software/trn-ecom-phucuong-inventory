@@ -178,11 +178,19 @@ export class ProductRepository {
 			return null
 		}
 
-		return this.filterActiveVariants(
-			result.toObject({
-				flattenObjectIds: true,
-			}),
-		)
+		const productData = result.toObject({
+			flattenObjectIds: true,
+		})
+
+		if (!productData.product_specifications) {
+			productData.product_specifications = 'Product has no specifications'
+		}
+		if (!productData.product_storage_instructions) {
+			productData.product_storage_instructions =
+				'Product has no storage instructions'
+		}
+
+		return this.filterActiveVariants(productData)
 	}
 
 	async getBySlug(slug: string) {
