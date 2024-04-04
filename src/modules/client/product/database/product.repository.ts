@@ -183,11 +183,11 @@ export class ProductRepository {
 		})
 
 		if (!productData.product_specifications) {
-			productData.product_specifications = 'Product has no specifications'
+			productData.product_specifications = ''
 		}
+
 		if (!productData.product_storage_instructions) {
-			productData.product_storage_instructions =
-				'Product has no storage instructions'
+			productData.product_storage_instructions = ''
 		}
 
 		return this.filterActiveVariants(productData)
