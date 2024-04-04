@@ -68,9 +68,8 @@ export class ProductRepository extends BaseRepository {
 			}),
 			product_name: raw.product_name,
 			product_description: raw.product_description,
-			product_specifications: raw.product_specifications || '',
-			product_storage_instructions:
-				raw.product_storage_instructions || '',
+			product_specifications: raw.product_specifications,
+			product_storage_instructions: raw.product_storage_instructions,
 			product_banner_image: raw.product_banner_image,
 			product_brand: brand.toObject({}),
 			product_categories: categoryList.map((cate) => cate.toObject()),
