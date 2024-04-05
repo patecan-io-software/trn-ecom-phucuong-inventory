@@ -13,6 +13,14 @@ export const productSchema = new Schema(
 			type: String,
 			required: true,
 		},
+
+		product_specifications: {
+			type: String,
+		},
+		product_storage_instructions: {
+			type: String,
+		},
+
 		product_banner_image: {
 			type: String,
 			required: true,
