@@ -68,45 +68,47 @@ export class AdminRatingController {
 		@Query('status') status: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
+		@Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc', // Default to descending order for newest to oldest
 	): Promise<FilteredByStatusResponseDTO> {
 		try {
 			let ratings: Rating[]
-
-			if (cursor === '') {
-				ratings = await this.ratingRepo.getByStatus(status, null, size)
+			if (!cursor) {
+				// If cursor is not provided, fetch the first page
+				ratings = await this.ratingRepo.getByStatus(
+					status,
+					null, // Start from the beginning
+					size,
+					sortOrder,
+				)
 			} else {
+				// If cursor is provided, fetch the next page using the cursor
 				ratings = await this.ratingRepo.getByStatus(
 					status,
 					cursor,
-					size,
+					size + 1, // Fetch one extra rating to check if there are more ratings available
+					sortOrder,
 				)
 			}
-
 			let newCursor: string | null = null
-
 			if (ratings.length > 0) {
 				if (ratings.length > size) {
-					newCursor = ratings[size]._id
-					ratings.splice(size)
+					newCursor = ratings[size]._id.toString() // Use the ID of the last rating in the current page
+					ratings.splice(size) // Remove the last rating from the current page
 				}
 				const listRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
 				)
-				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
-					{
-						listRating,
-						cursor: newCursor,
-						size,
-					}
-				return new FilteredByStatusResponseDTO(paginationData)
+				return new FilteredByStatusResponseDTO({
+					listRating,
+					cursor: newCursor,
+					size,
+				})
 			} else {
-				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
-					{
-						listRating: [],
-						cursor: cursor !== null ? cursor : null,
-						size,
-					}
-				return new FilteredByStatusResponseDTO(paginationData)
+				return new FilteredByStatusResponseDTO({
+					listRating: [],
+					cursor: cursor || null, // Return the provided cursor if exists, otherwise null
+					size,
+				})
 			}
 		} catch (error) {
 			this.logger.error(error)
