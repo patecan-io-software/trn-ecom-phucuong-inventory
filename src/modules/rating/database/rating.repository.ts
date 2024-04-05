@@ -52,7 +52,6 @@ export class RatingRepository {
 			if (cursor) {
 				query['_id'] = { $gte: cursor }
 			}
-			const sortCriteria = { _id: sortOrder === 'desc' ? -1 : 1 } // Sort by _id in descending order if sortOrder is 'desc', otherwise in ascending order
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
 				.limit(size + 1)
