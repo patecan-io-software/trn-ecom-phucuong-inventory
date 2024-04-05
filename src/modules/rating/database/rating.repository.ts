@@ -114,6 +114,27 @@ export class RatingRepository {
 			rating.status = newStatus
 			await rating.save()
 
+			if (newStatus === 'Refused') {
+				setTimeout(
+					async () => {
+						try {
+							const existingRating =
+								await RatingModel.findById(ratingId)
+							if (
+								existingRating &&
+								existingRating.status === 'Refused'
+							) {
+								await RatingModel.findByIdAndDelete(ratingId)
+							}
+						} catch (error) {
+							this.logger.error(error)
+							throw new Error('Failed to delete rating')
+						}
+					},
+					7 * 24 * 60 * 60 * 1000,
+				)
+			}
+
 			return rating.toObject({
 				versionKey: false,
 				flattenObjectIds: true,
