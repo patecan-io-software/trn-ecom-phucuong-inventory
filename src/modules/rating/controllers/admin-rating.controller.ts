@@ -81,38 +81,34 @@ export class AdminRatingController {
 					sortOrder,
 				)
 			} else {
-				// If cursor is provided, fetch the next page
+				// If cursor is provided, fetch the next page using the cursor
 				ratings = await this.ratingRepo.getByStatus(
 					status,
 					cursor,
-					size,
+					size + 1, // Fetch one extra rating to check if there are more ratings available
 					sortOrder,
 				)
 			}
 			let newCursor: string | null = null
 			if (ratings.length > 0) {
 				if (ratings.length > size) {
-					newCursor = ratings[size - 1]._id.toString() // Use the ID of the last rating in the current page
-					ratings.splice(size) // Remove ratings beyond the current page
+					newCursor = ratings[size]._id.toString() // Use the ID of the last rating in the current page
+					ratings.splice(size) // Remove the last rating from the current page
 				}
 				const listRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
 				)
-				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
-					{
-						listRating,
-						cursor: newCursor,
-						size,
-					}
-				return new FilteredByStatusResponseDTO(paginationData)
+				return new FilteredByStatusResponseDTO({
+					listRating,
+					cursor: newCursor,
+					size,
+				})
 			} else {
-				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
-					{
-						listRating: [],
-						cursor: cursor || null, // Return the provided cursor if exists, otherwise null
-						size,
-					}
-				return new FilteredByStatusResponseDTO(paginationData)
+				return new FilteredByStatusResponseDTO({
+					listRating: [],
+					cursor: cursor || null, // Return the provided cursor if exists, otherwise null
+					size,
+				})
 			}
 		} catch (error) {
 			this.logger.error(error)
