@@ -129,7 +129,7 @@ export class RatingRepository {
 		status: string,
 		cursor: string | null,
 		size: number,
-		sortOrder: 'asc' | 'desc' = 'asc',
+		sortOrder: 'asc' | 'desc' = 'desc',
 	): Promise<Rating[]> {
 		try {
 			const query: any = { status }

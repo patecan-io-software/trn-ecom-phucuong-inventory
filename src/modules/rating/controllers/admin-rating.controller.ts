@@ -72,14 +72,16 @@ export class AdminRatingController {
 	): Promise<FilteredByStatusResponseDTO> {
 		try {
 			let ratings: Rating[]
-			if (cursor === '') {
+			if (!cursor) {
+				// If cursor is not provided, fetch the first page
 				ratings = await this.ratingRepo.getByStatus(
 					status,
-					null,
+					null, // Start from the beginning
 					size,
 					sortOrder,
 				)
 			} else {
+				// If cursor is provided, fetch the next page
 				ratings = await this.ratingRepo.getByStatus(
 					status,
 					cursor,
@@ -90,8 +92,8 @@ export class AdminRatingController {
 			let newCursor: string | null = null
 			if (ratings.length > 0) {
 				if (ratings.length > size) {
-					newCursor = ratings[size].createdAt.toISOString() // Convert createdAt Date to ISO string
-					ratings.splice(size)
+					newCursor = ratings[size - 1]._id.toString() // Use the ID of the last rating in the current page
+					ratings.splice(size) // Remove ratings beyond the current page
 				}
 				const listRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
@@ -107,7 +109,7 @@ export class AdminRatingController {
 				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
 					{
 						listRating: [],
-						cursor: cursor !== null ? cursor : null,
+						cursor: cursor || null, // Return the provided cursor if exists, otherwise null
 						size,
 					}
 				return new FilteredByStatusResponseDTO(paginationData)
