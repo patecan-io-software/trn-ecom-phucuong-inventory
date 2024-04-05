@@ -68,48 +68,55 @@ export class AdminRatingController {
 		@Query('status') status: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
-		@Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc' // Default to descending order for newest to oldest
+		@Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc', // Default to descending order for newest to oldest
 	): Promise<FilteredByStatusResponseDTO> {
 		try {
-			let ratings: Rating[];
-			
+			let ratings: Rating[]
 			if (cursor === '') {
-				ratings = await this.ratingRepo.getByStatus(status, null, size, sortOrder);
+				ratings = await this.ratingRepo.getByStatus(
+					status,
+					null,
+					size,
+					sortOrder,
+				)
 			} else {
-				ratings = await this.ratingRepo.getByStatus(status, cursor, size, sortOrder);
+				ratings = await this.ratingRepo.getByStatus(
+					status,
+					cursor,
+					size,
+					sortOrder,
+				)
 			}
-	
-			let newCursor: string | null = null;
-	
+			let newCursor: string | null = null
 			if (ratings.length > 0) {
 				if (ratings.length > size) {
-					newCursor = ratings[size].createdAt.toISOString(); // Convert createdAt Date to ISO string
-					ratings.splice(size);
+					newCursor = ratings[size].createdAt.toISOString() // Convert createdAt Date to ISO string
+					ratings.splice(size)
 				}
 				const listRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
-				);
+				)
 				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
 					{
 						listRating,
 						cursor: newCursor,
 						size,
-					};
-				return new FilteredByStatusResponseDTO(paginationData);
+					}
+				return new FilteredByStatusResponseDTO(paginationData)
 			} else {
 				const paginationData: PaginationFilteredByStatusDTO<RatingDTO> =
 					{
 						listRating: [],
 						cursor: cursor !== null ? cursor : null,
 						size,
-					};
-				return new FilteredByStatusResponseDTO(paginationData);
+					}
+				return new FilteredByStatusResponseDTO(paginationData)
 			}
 		} catch (error) {
-			this.logger.error(error);
+			this.logger.error(error)
 			throw new BadRequestException(
 				`Failed to filter with status ${status}`,
-			);
+			)
 		}
 	}
 	@Delete('/:id')

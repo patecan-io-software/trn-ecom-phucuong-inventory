@@ -44,7 +44,7 @@ export class RatingRepository {
 		cursor: string | null,
 		size: number,
 		status: string,
-		sortOrder: 'asc' | 'desc' = 'asc'
+		sortOrder: 'asc' | 'desc' = 'asc',
 	): Promise<Rating[]> {
 		try {
 			const query: any = { product_id, status }
@@ -52,12 +52,10 @@ export class RatingRepository {
 			if (cursor) {
 				query['_id'] = { $gte: cursor }
 			}
-			const sortCriteria = { _id: sortOrder === 'desc' ? -1 : 1 }; // Sort by _id in descending order if sortOrder is 'desc', otherwise in ascending order
+			const sortCriteria = { _id: sortOrder === 'desc' ? -1 : 1 } // Sort by _id in descending order if sortOrder is 'desc', otherwise in ascending order
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
 				.limit(size + 1)
-				
-
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
@@ -132,25 +130,23 @@ export class RatingRepository {
 		status: string,
 		cursor: string | null,
 		size: number,
-		sortOrder: 'asc' | 'desc' = 'asc'
+		sortOrder: 'asc' | 'desc' = 'asc',
 	): Promise<Rating[]> {
 		try {
-			const query: any = { status };
-	
+			const query: any = { status }
 			if (cursor) {
-				query['_id'] = { $gte: cursor };
+				query['_id'] = { $gte: cursor }
 			}
-	
-			const sortCriteria: Record<string, SortOrder> = { createdAt: sortOrder === 'desc' ? -1 : 1 };
-	
+			const sortCriteria: Record<string, SortOrder> = {
+				createdAt: sortOrder === 'desc' ? -1 : 1,
+			}
 			const ratings = await RatingModel.find(query)
 				.sort(sortCriteria)
-				.limit(size + 1);
-	
-			return ratings.map((rating) => rating.toObject() as Rating);
+				.limit(size + 1)
+			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
-			this.logger.error(error);
-			throw new Error('Failed to retrieve ratings');
+			this.logger.error(error)
+			throw new Error('Failed to retrieve ratings')
 		}
 	}
 	async deleteRatingById(_id: string): Promise<string> {
