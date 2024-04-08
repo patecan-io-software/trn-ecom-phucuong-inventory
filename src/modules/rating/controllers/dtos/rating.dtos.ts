@@ -54,4 +54,8 @@ export class RatingDTO {
 	})
 	@Transform(({ value }) => value?.getTime?.() || null)
 	updatedAt?: Date
+
+	constructor(data: Partial<RatingDTO>) {
+		Object.assign(this, data)
+	}
 }
