@@ -2,6 +2,7 @@ import { SuccessResponseDTO } from '@libs'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { Expose, Transform, Type } from 'class-transformer'
 import { RatingDTO } from './rating.dtos'
+import { MaxLength } from 'class-validator'
 
 export class CreateRatingRequestDTO {
 	@ApiProperty()
@@ -20,6 +21,7 @@ export class CreateRatingRequestDTO {
 	rating: number
 
 	@ApiProperty()
+	@MaxLength(700)
 	comment: string
 
 	@ApiProperty()
