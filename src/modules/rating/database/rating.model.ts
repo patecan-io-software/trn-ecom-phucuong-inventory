@@ -19,7 +19,7 @@ export const ratingSchema = new Schema(
 		},
 		comment: {
 			type: String,
-			maxLength: 200,
+			maxLength: 700,
 		},
 		name: {
 			type: String,
