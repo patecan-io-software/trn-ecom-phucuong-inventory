@@ -39,10 +39,13 @@ import {
 	MyRatingDTO,
 	MyRatingResponseDTO,
 	PaginationListRatingByProductIdDTO,
+	PaginationMyRatingDTO,
 } from './dtos/list-rating-by-productId.dtos'
+import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
+@AdminAuth('jwtToken')
 export class RatingController {
 	[x: string]: any
 	private readonly logger: Logger = new Logger(RatingController.name)
@@ -213,7 +216,7 @@ export class RatingController {
 		}
 	}
 
-	@Get('/myrating')
+	@Get('/me')
 	@ApiResponse({
 		status: 200,
 		type: MyRatingResponseDTO,
@@ -255,23 +258,21 @@ export class RatingController {
 					newCursor = ratings[size]._id
 					ratings.splice(size)
 				}
-				const listRating: RatingDTO[] = ratings.map(
+				const lisMyRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
 				)
-				const paginationData: PaginationListRatingByProductIdDTO<RatingDTO> =
-					{
-						listRating,
-						cursor: newCursor,
-						size,
-					}
+				const paginationData: PaginationMyRatingDTO<RatingDTO> = {
+					lisMyRating,
+					cursor: newCursor,
+					size,
+				}
 				return new MyRatingResponseDTO(paginationData)
 			} else {
-				const paginationData: PaginationListRatingByProductIdDTO<RatingDTO> =
-					{
-						listRating: [],
-						cursor: cursor !== null ? cursor : null,
-						size,
-					}
+				const paginationData: PaginationMyRatingDTO<RatingDTO> = {
+					lisMyRating: [],
+					cursor: cursor !== null ? cursor : null,
+					size,
+				}
 				return new MyRatingResponseDTO(paginationData)
 			}
 		} catch (error) {

@@ -38,6 +38,18 @@ export class ListRatingByProductIdResponseDTO {
 	}
 }
 
+export class PaginationMyRatingDTO<M> {
+	lisMyRating: M[]
+	cursor: string | null
+	size: number
+
+	constructor(lisMyRating: M[], cursor: string | null, size: number) {
+		this.lisMyRating = lisMyRating
+		this.cursor = cursor
+		this.size = size
+	}
+}
+
 export class MyRatingDTO {
 	@ApiProperty({
 		description: 'Product Id',
@@ -57,13 +69,20 @@ export class MyRatingDTO {
 
 export class MyRatingResponseDTO {
 	@ApiProperty({
-		description: 'List of my ratings',
-		type: PaginationListRatingByProductIdDTO<RatingDTO>,
+		description: 'List of ratings',
+		type: [RatingDTO],
 	})
 	@IsNotEmpty()
-	listRating: PaginationListRatingByProductIdDTO<RatingDTO>
+	lisMyRating: PaginationMyRatingDTO<RatingDTO>
 
-	constructor(listRating: PaginationListRatingByProductIdDTO<RatingDTO>) {
-		this.listRating = listRating
+	@ApiProperty()
+	cursor: string
+
+	@ApiProperty()
+	@IsNotEmpty()
+	size: number
+
+	constructor(lisMyRating: PaginationMyRatingDTO<RatingDTO>) {
+		this.lisMyRating = lisMyRating
 	}
 }
