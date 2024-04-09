@@ -4,6 +4,8 @@ import { RatingRepository } from './database/rating.repository'
 import { MongooseModule } from '@infras/mongoose'
 import { ratingSchema } from './database/rating.model'
 import { AdminRatingController } from './controllers/admin-rating.controller'
+import { ScheduleModule } from '@nestjs/schedule'
+import { RatingScheduler } from './database/ratingscheduler'
 
 @Module({
 	imports: [
@@ -13,8 +15,9 @@ import { AdminRatingController } from './controllers/admin-rating.controller'
 				schema: ratingSchema,
 			},
 		]),
+		ScheduleModule.forRoot(),
 	],
 	controllers: [RatingController, AdminRatingController],
-	providers: [RatingRepository],
+	providers: [RatingRepository, RatingScheduler],
 })
 export class RatingModule {}
