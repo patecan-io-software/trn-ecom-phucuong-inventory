@@ -8,6 +8,8 @@ import { retry } from 'rxjs'
 import { Types } from 'mongoose'
 import { ObjectId } from 'mongodb'
 import { ApiResponse } from '@nestjs/swagger'
+import { SortOrder } from 'mongoose'
+
 export class RatingRepository {
 	[x: string]: any
 	private logger: Logger = new Logger(RatingRepository.name)
@@ -42,6 +44,7 @@ export class RatingRepository {
 		cursor: string | null,
 		size: number,
 		status: string,
+		sortOrder: 'asc' | 'desc' = 'asc',
 	): Promise<Rating[]> {
 		try {
 			const query: any = { product_id, status }
@@ -49,11 +52,9 @@ export class RatingRepository {
 			if (cursor) {
 				query['_id'] = { $gte: cursor }
 			}
-
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
 				.limit(size + 1)
-
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
@@ -149,18 +150,19 @@ export class RatingRepository {
 		status: string,
 		cursor: string | null,
 		size: number,
+		sortOrder: 'asc' | 'desc' = 'desc',
 	): Promise<Rating[]> {
 		try {
 			const query: any = { status }
-
 			if (cursor) {
 				query['_id'] = { $gte: cursor }
 			}
-
+			const sortCriteria: Record<string, SortOrder> = {
+				createdAt: sortOrder === 'desc' ? -1 : 1,
+			}
 			const ratings = await RatingModel.find(query)
-				.sort({ _id: 1 })
+				.sort(sortCriteria)
 				.limit(size + 1)
-
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
