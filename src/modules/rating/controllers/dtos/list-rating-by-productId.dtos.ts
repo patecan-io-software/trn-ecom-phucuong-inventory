@@ -37,3 +37,33 @@ export class ListRatingByProductIdResponseDTO {
 		this.listRating = listRating
 	}
 }
+
+export class MyRatingDTO {
+	@ApiProperty({
+		description: 'Product Id',
+	})
+	product_id: string
+
+	@ApiProperty({
+		description: 'User Id',
+	})
+	user_id: string
+
+	constructor(product_id: string, user_id: string) {
+		this.product_id = product_id
+		this.user_id = user_id
+	}
+}
+
+export class MyRatingResponseDTO {
+	@ApiProperty({
+		description: 'List of my ratings',
+		type: PaginationListRatingByProductIdDTO<RatingDTO>,
+	})
+	@IsNotEmpty()
+	listRating: PaginationListRatingByProductIdDTO<RatingDTO>
+
+	constructor(listRating: PaginationListRatingByProductIdDTO<RatingDTO>) {
+		this.listRating = listRating
+	}
+}

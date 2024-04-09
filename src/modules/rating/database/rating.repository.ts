@@ -196,4 +196,26 @@ export class RatingRepository {
 			? rating._id.toHexString()
 			: String(rating._id)
 	}
+
+	async getMyRating(
+		product_id: string,
+		cursor: string | null,
+		size: number,
+		user_id: string,
+	): Promise<Rating[]> {
+		try {
+			const query: any = { product_id, user_id }
+
+			if (cursor) {
+				query['_id'] = { $gte: cursor }
+			}
+			const ratings = await RatingModel.find(query)
+				.sort({ _id: 1 })
+				.limit(size + 1)
+			return ratings.map((rating) => rating.toObject() as Rating)
+		} catch (error) {
+			this.logger.error(error)
+			throw new Error('Failed to retrieve ratings')
+		}
+	}
 }

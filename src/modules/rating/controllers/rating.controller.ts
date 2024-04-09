@@ -36,6 +36,8 @@ import {
 } from './dtos/update-status-rating.dto'
 import {
 	ListRatingByProductIdResponseDTO,
+	MyRatingDTO,
+	MyRatingResponseDTO,
 	PaginationListRatingByProductIdDTO,
 } from './dtos/list-rating-by-productId.dtos'
 
@@ -208,6 +210,73 @@ export class RatingController {
 		} catch (error) {
 			console.error('Error deleting rating:', error)
 			throw new Error('Failed to delete rating')
+		}
+	}
+
+	@Get('/myrating')
+	@ApiResponse({
+		status: 200,
+		type: MyRatingResponseDTO,
+	})
+	@ApiQuery({
+		name: 'cursor',
+		type: String,
+		required: false,
+	})
+	async getMyRating(
+		@Query('productId') product_id: string,
+		@Query('user_id') user_id: string,
+		@Query('cursor') cursor?: string | null,
+		@Query('size') size: number = 10,
+	): Promise<MyRatingResponseDTO> {
+		try {
+			let ratings: Rating[]
+
+			if (cursor === '') {
+				ratings = await this.ratingRepo.getMyRating(
+					product_id,
+					null,
+					size,
+					user_id,
+				)
+			} else {
+				ratings = await this.ratingRepo.getMyRating(
+					product_id,
+					cursor,
+					size,
+					user_id,
+				)
+			}
+
+			let newCursor: string | null = null
+
+			if (ratings.length > 0) {
+				if (ratings.length > size) {
+					newCursor = ratings[size]._id
+					ratings.splice(size)
+				}
+				const listRating: RatingDTO[] = ratings.map(
+					(rating) => new RatingDTO(rating),
+				)
+				const paginationData: PaginationListRatingByProductIdDTO<RatingDTO> =
+					{
+						listRating,
+						cursor: newCursor,
+						size,
+					}
+				return new MyRatingResponseDTO(paginationData)
+			} else {
+				const paginationData: PaginationListRatingByProductIdDTO<RatingDTO> =
+					{
+						listRating: [],
+						cursor: cursor !== null ? cursor : null,
+						size,
+					}
+				return new MyRatingResponseDTO(paginationData)
+			}
+		} catch (error) {
+			this.logger.error(error)
+			throw new InternalServerErrorException()
 		}
 	}
 }
