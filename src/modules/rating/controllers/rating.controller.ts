@@ -36,10 +36,9 @@ import {
 } from './dtos/update-status-rating.dto'
 import {
 	ListRatingByProductIdResponseDTO,
-	MyRatingDTO,
-	MyRatingResponseDTO,
 	PaginationListRatingByProductIdDTO,
-	PaginationMyRatingDTO,
+	PaginationUserRatingDTO,
+	UserRatingResponseDTO,
 } from './dtos/list-rating-by-productId.dtos'
 import { AdminAuth } from '@modules/admin/auth'
 
@@ -219,31 +218,31 @@ export class RatingController {
 	@Get('/me')
 	@ApiResponse({
 		status: 200,
-		type: MyRatingResponseDTO,
+		type: UserRatingResponseDTO,
 	})
 	@ApiQuery({
 		name: 'cursor',
 		type: String,
 		required: false,
 	})
-	async getMyRating(
+	async getUserRatings(
 		@Query('productId') product_id: string,
 		@Query('user_id') user_id: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
-	): Promise<MyRatingResponseDTO> {
+	): Promise<UserRatingResponseDTO> {
 		try {
 			let ratings: Rating[]
 
 			if (cursor === '') {
-				ratings = await this.ratingRepo.getMyRating(
+				ratings = await this.ratingRepo.getUserRatings(
 					product_id,
 					null,
 					size,
 					user_id,
 				)
 			} else {
-				ratings = await this.ratingRepo.getMyRating(
+				ratings = await this.ratingRepo.getUserRatings(
 					product_id,
 					cursor,
 					size,
@@ -261,19 +260,19 @@ export class RatingController {
 				const listMyRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
 				)
-				const paginationData: PaginationMyRatingDTO<RatingDTO> = {
+				const paginationData: PaginationUserRatingDTO<RatingDTO> = {
 					listMyRating,
 					cursor: newCursor,
 					size,
 				}
-				return new MyRatingResponseDTO(paginationData)
+				return new UserRatingResponseDTO(paginationData)
 			} else {
-				const paginationData: PaginationMyRatingDTO<RatingDTO> = {
+				const paginationData: PaginationUserRatingDTO<RatingDTO> = {
 					listMyRating: [],
 					cursor: cursor !== null ? cursor : null,
 					size,
 				}
-				return new MyRatingResponseDTO(paginationData)
+				return new UserRatingResponseDTO(paginationData)
 			}
 		} catch (error) {
 			this.logger.error(error)

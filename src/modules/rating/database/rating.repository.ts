@@ -197,7 +197,7 @@ export class RatingRepository {
 			: String(rating._id)
 	}
 
-	async getMyRating(
+	async getUserRatings(
 		product_id: string,
 		cursor: string | null,
 		size: number,
