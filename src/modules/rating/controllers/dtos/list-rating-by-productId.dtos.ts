@@ -40,13 +40,13 @@ export class ListRatingByProductIdResponseDTO {
 
 export class PaginationMyRatingDTO<M> {
 	lisMyRating: M[]
-	cursor: string | null
 	size: number
+	cursor: string | null
 
 	constructor(lisMyRating: M[], cursor: string | null, size: number) {
 		this.lisMyRating = lisMyRating
-		this.cursor = cursor
 		this.size = size
+		this.cursor = cursor
 	}
 }
 
@@ -76,11 +76,11 @@ export class MyRatingResponseDTO {
 	lisMyRating: PaginationMyRatingDTO<RatingDTO>
 
 	@ApiProperty()
-	cursor: string
-
-	@ApiProperty()
 	@IsNotEmpty()
 	size: number
+
+	@ApiProperty()
+	cursor: string
 
 	constructor(lisMyRating: PaginationMyRatingDTO<RatingDTO>) {
 		this.lisMyRating = lisMyRating
