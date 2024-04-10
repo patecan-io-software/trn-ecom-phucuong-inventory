@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
-import { RatingRepository } from '../database/rating.repository'
+import { RatingRepository } from './rating.repository'
 
 @Injectable()
 export class RatingScheduler {
@@ -8,10 +8,10 @@ export class RatingScheduler {
 
 	constructor(private readonly ratingRepository: RatingRepository) {}
 
-	@Cron('0 0 * * *')
+	@Cron('0 * * * *')
 	async deleteExpiredRejectedRatings() {
 		try {
-			const expiredTime = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+			const expiredTime = new Date(Date.now() - 10 * 60 * 1000)
 			const rejectedRatings =
 				await this.ratingRepository.getRejectedRatings(expiredTime)
 
