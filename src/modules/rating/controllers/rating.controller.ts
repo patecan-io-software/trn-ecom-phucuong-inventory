@@ -11,6 +11,7 @@ import {
 	Param,
 	NotFoundException,
 	Put,
+	Req,
 } from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
@@ -44,7 +45,6 @@ import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
-@AdminAuth('jwtToken')
 export class RatingController {
 	[x: string]: any
 	private readonly logger: Logger = new Logger(RatingController.name)
@@ -216,6 +216,7 @@ export class RatingController {
 	}
 
 	@Get('/me')
+	@AdminAuth('jwtToken')
 	@ApiResponse({
 		status: 200,
 		type: UserRatingResponseDTO,
@@ -227,7 +228,6 @@ export class RatingController {
 	})
 	async getUserRatings(
 		@Query('productId') product_id: string,
-		@Query('user_id') user_id: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
 	): Promise<UserRatingResponseDTO> {
@@ -239,14 +239,12 @@ export class RatingController {
 					product_id,
 					null,
 					size,
-					user_id,
 				)
 			} else {
 				ratings = await this.ratingRepo.getUserRatings(
 					product_id,
 					cursor,
 					size,
-					user_id,
 				)
 			}
 
@@ -265,14 +263,24 @@ export class RatingController {
 					cursor: newCursor,
 					size,
 				}
-				return new UserRatingResponseDTO(paginationData)
+				const responseDTO = new UserRatingResponseDTO(
+					paginationData,
+					size,
+					newCursor,
+				)
+				return responseDTO
 			} else {
 				const paginationData: PaginationUserRatingDTO<RatingDTO> = {
 					listMyRating: [],
 					cursor: cursor !== null ? cursor : null,
 					size,
 				}
-				return new UserRatingResponseDTO(paginationData)
+				const responseDTO = new UserRatingResponseDTO(
+					paginationData,
+					size,
+					newCursor,
+				)
+				return responseDTO
 			}
 		} catch (error) {
 			this.logger.error(error)

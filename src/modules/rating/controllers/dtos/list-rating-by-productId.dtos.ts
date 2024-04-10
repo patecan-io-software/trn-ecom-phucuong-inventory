@@ -50,23 +50,6 @@ export class PaginationUserRatingDTO<M> {
 	}
 }
 
-export class UserRatingDTO {
-	@ApiProperty({
-		description: 'Product Id',
-	})
-	product_id: string
-
-	@ApiProperty({
-		description: 'User Id',
-	})
-	user_id: string
-
-	constructor(product_id: string, user_id: string) {
-		this.product_id = product_id
-		this.user_id = user_id
-	}
-}
-
 export class UserRatingResponseDTO {
 	@ApiProperty({
 		description: 'List of ratings',
@@ -82,7 +65,13 @@ export class UserRatingResponseDTO {
 	@ApiProperty()
 	cursor: string
 
-	constructor(listMyRating: PaginationUserRatingDTO<RatingDTO>) {
+	constructor(
+		listMyRating: PaginationUserRatingDTO<RatingDTO>,
+		size: number,
+		cursor: string,
+	) {
 		this.listMyRating = listMyRating
+		this.size = size
+		this.cursor = cursor
 	}
 }

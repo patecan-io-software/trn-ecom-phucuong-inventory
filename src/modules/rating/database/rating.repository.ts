@@ -9,6 +9,7 @@ import { Types } from 'mongoose'
 import { ObjectId } from 'mongodb'
 import { ApiResponse } from '@nestjs/swagger'
 import { SortOrder } from 'mongoose'
+import { verify } from 'jsonwebtoken'
 
 export class RatingRepository {
 	[x: string]: any
@@ -201,10 +202,9 @@ export class RatingRepository {
 		product_id: string,
 		cursor: string | null,
 		size: number,
-		user_id: string,
 	): Promise<Rating[]> {
 		try {
-			const query: any = { product_id, user_id }
+			const query: any = { product_id }
 
 			if (cursor) {
 				query['_id'] = { $gte: cursor }
