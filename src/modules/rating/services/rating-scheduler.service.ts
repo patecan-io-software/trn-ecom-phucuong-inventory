@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
-import { RatingRepository } from './rating.repository'
+import { RatingRepository } from '../database/rating.repository'
 
 @Injectable()
 export class RatingScheduler {
