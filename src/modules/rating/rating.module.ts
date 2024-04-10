@@ -5,7 +5,7 @@ import { MongooseModule } from '@infras/mongoose'
 import { ratingSchema } from './database/rating.model'
 import { AdminRatingController } from './controllers/admin-rating.controller'
 import { ScheduleModule } from '@nestjs/schedule'
-import { RatingScheduler } from './services/ratingscheduler'
+import { RatingScheduler } from './services/rating-scheduler.service'
 
 @Module({
 	imports: [
