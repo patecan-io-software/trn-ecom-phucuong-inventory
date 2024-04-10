@@ -258,18 +258,18 @@ export class RatingController {
 					newCursor = ratings[size]._id
 					ratings.splice(size)
 				}
-				const lisMyRating: RatingDTO[] = ratings.map(
+				const listMyRating: RatingDTO[] = ratings.map(
 					(rating) => new RatingDTO(rating),
 				)
 				const paginationData: PaginationMyRatingDTO<RatingDTO> = {
-					lisMyRating,
+					listMyRating,
 					cursor: newCursor,
 					size,
 				}
 				return new MyRatingResponseDTO(paginationData)
 			} else {
 				const paginationData: PaginationMyRatingDTO<RatingDTO> = {
-					lisMyRating: [],
+					listMyRating: [],
 					cursor: cursor !== null ? cursor : null,
 					size,
 				}
