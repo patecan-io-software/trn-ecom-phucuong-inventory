@@ -33,6 +33,7 @@ import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dt
 export class AdminRatingController {
 	private readonly logger: Logger = new Logger(AdminRatingController.name)
 	constructor(private readonly ratingRepo: RatingRepository) {}
+
 	@Put('/:ratingId')
 	@ApiResponse({
 		status: 200,
