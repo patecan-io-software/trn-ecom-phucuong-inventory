@@ -229,7 +229,7 @@ export class RatingController {
 	async getUserRatings(
 		@Query('productId') product_id: string,
 		@Query('cursor') cursor?: string | null,
-		@Query('size') size: number = 10,
+		@Query('pageSize') pageSize: number = 10,
 	): Promise<UserRatingResponseDTO> {
 		try {
 			let ratings: Rating[]
@@ -238,49 +238,39 @@ export class RatingController {
 				ratings = await this.ratingRepo.getUserRatings(
 					product_id,
 					null,
-					size,
+					pageSize,
 				)
 			} else {
 				ratings = await this.ratingRepo.getUserRatings(
 					product_id,
 					cursor,
-					size,
+					pageSize,
 				)
 			}
 
 			let newCursor: string | null = null
+			const listMyRating: RatingDTO[] = ratings.map(
+				(rating) => new RatingDTO(rating),
+			)
 
 			if (ratings.length > 0) {
-				if (ratings.length > size) {
-					newCursor = ratings[size]._id
-					ratings.splice(size)
+				if (ratings.length > pageSize) {
+					newCursor = ratings[pageSize]._id
+					ratings.splice(pageSize)
 				}
-				const listMyRating: RatingDTO[] = ratings.map(
-					(rating) => new RatingDTO(rating),
-				)
 				const paginationData: PaginationUserRatingDTO<RatingDTO> = {
 					listMyRating,
+					pageSize,
 					cursor: newCursor,
-					size,
 				}
-				const responseDTO = new UserRatingResponseDTO(
-					paginationData,
-					size,
-					newCursor,
-				)
-				return responseDTO
+				return new UserRatingResponseDTO(paginationData)
 			} else {
 				const paginationData: PaginationUserRatingDTO<RatingDTO> = {
 					listMyRating: [],
 					cursor: cursor !== null ? cursor : null,
-					size,
+					pageSize,
 				}
-				const responseDTO = new UserRatingResponseDTO(
-					paginationData,
-					size,
-					newCursor,
-				)
-				return responseDTO
+				return new UserRatingResponseDTO(paginationData)
 			}
 		} catch (error) {
 			this.logger.error(error)

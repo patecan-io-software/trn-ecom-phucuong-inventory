@@ -201,7 +201,7 @@ export class RatingRepository {
 	async getUserRatings(
 		product_id: string,
 		cursor: string | null,
-		size: number,
+		pageSize: number,
 	): Promise<Rating[]> {
 		try {
 			const query: any = { product_id }
@@ -211,7 +211,7 @@ export class RatingRepository {
 			}
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
-				.limit(size + 1)
+				.limit(pageSize + 1)
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
