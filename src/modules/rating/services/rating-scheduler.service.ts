@@ -1,30 +1,31 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { CronJob } from 'cron'
 import { SchedulerRegistry } from '@nestjs/schedule'
-import { ConfigService } from '@nestjs/config'
 import { RatingRepository } from '../database/rating.repository'
-import { RatingConfig } from 'src/config/rating.config'
+import { RATING_MODULE_CONFIG } from '../constants'
+import { RatingModuleConfig } from '../interfaces'
 
 @Injectable()
 export class RatingScheduler implements OnModuleInit {
 	private readonly logger = new Logger(RatingScheduler.name)
-	private readonly cronSchedule: string
 
 	constructor(
 		private readonly ratingRepository: RatingRepository,
 		private readonly schedulerRegistry: SchedulerRegistry,
-		private readonly configService: ConfigService<RatingConfig>,
-	) {
-		this.cronSchedule = this.configService.get<string>('cronSchedule')
-	}
+		@Inject(RATING_MODULE_CONFIG)
+		private readonly config: RatingModuleConfig,
+	) {}
 
 	onModuleInit() {
-		if (!this.cronSchedule) {
+		if (!this.config.cronScheduleTime) {
 			this.logger.error('cronSchedule is not defined in the config.')
 			return
 		}
 
-		this.addCronJob('deleteExpiredRejectedRatings', this.cronSchedule)
+		this.addCronJob(
+			'deleteExpiredRejectedRatings',
+			this.config.cronScheduleTime,
+		)
 	}
 
 	private addCronJob(name: string, cronSchedule: string) {
@@ -45,8 +46,7 @@ export class RatingScheduler implements OnModuleInit {
 		try {
 			const expiredTime = new Date(
 				Date.now() -
-					parseInt(this.configService.get<string>('expiredTime')) *
-						1000,
+					parseInt(this.config.ratingDurationInSecond) * 1000,
 			)
 
 			const rejectedRatings =

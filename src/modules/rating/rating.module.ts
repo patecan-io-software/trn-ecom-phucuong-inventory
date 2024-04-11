@@ -6,8 +6,8 @@ import { ratingSchema } from './database/rating.model'
 import { AdminRatingController } from './controllers/admin-rating.controller'
 import { ScheduleModule } from '@nestjs/schedule'
 import { RatingScheduler } from './services/rating-scheduler.service'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import ratingConfig from 'src/config/rating.config'
+import { ConfigService } from '@nestjs/config'
+import { RATING_MODULE_CONFIG } from './constants'
 
 @Module({
 	imports: [
@@ -18,22 +18,17 @@ import ratingConfig from 'src/config/rating.config'
 			},
 		]),
 		ScheduleModule.forRoot(),
-		ConfigModule.forRoot({
-			load: [ratingConfig],
-		}),
 	],
 	controllers: [RatingController, AdminRatingController],
 	providers: [
 		RatingRepository,
 		RatingScheduler,
-		ConfigService,
 		{
-			provide: ratingConfig,
+			provide: RATING_MODULE_CONFIG,
 			useFactory: (configService: ConfigService) =>
-				configService.get('ratingConfig'),
+				configService.get(RATING_MODULE_CONFIG),
 			inject: [ConfigService],
 		},
 	],
-	exports: [ratingConfig],
 })
 export class RatingModule {}

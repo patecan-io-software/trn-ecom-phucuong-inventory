@@ -27,15 +27,11 @@ import {
 import { RatingDTO } from './dtos/rating.dtos'
 import { get } from 'http'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
-import { ConfigService } from '@nestjs/config'
-import { createClient } from '@supabase/supabase-js'
-import { RatingConfig } from 'src/config/rating.config'
 
 @Controller('v1/admin/ratings')
 @ApiTags('Admin - Rating')
 export class AdminRatingController {
 	private readonly logger: Logger = new Logger(AdminRatingController.name)
-	supabase: any
 	constructor(private readonly ratingRepo: RatingRepository) {}
 
 	@Put('/:ratingId')
