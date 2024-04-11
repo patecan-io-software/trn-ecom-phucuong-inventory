@@ -17,6 +17,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { CacheModule } from '@nestjs/cache-manager'
 import { RatingModule } from '@modules/rating'
 import { ScheduleModule } from '@nestjs/schedule'
+import config from '@modules/rating/config/rating.config'
 
 @Module({
 	imports: [
@@ -28,7 +29,9 @@ import { ScheduleModule } from '@nestjs/schedule'
 		}),
 		EventEmitterModule.forRoot(),
 		ScheduleModule.forRoot(),
-		ConfigModule.forRoot(),
+		ConfigModule.forRoot({
+			load: [config],
+		}),
 
 		UtilityModule,
 

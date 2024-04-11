@@ -6,37 +6,21 @@ import { ConfigService } from '@nestjs/config'
 @Injectable()
 export class RatingScheduler {
 	private readonly logger = new Logger(RatingScheduler.name)
-	private cronSchedule: string | undefined
 
 	constructor(
 		private readonly ratingRepository: RatingRepository,
 		private readonly configService: ConfigService,
-	) {
-		this.cronSchedule = this.configService.get('CRON_SCHEDULE')
-	}
+	) {}
 
-	scheduleCronJob() {
-		if (this.cronSchedule) {
-			this.deleteExpiredRejectedRatings()
-		} else {
-			this.logger.error('Cron schedule is not defined.')
-		}
-	}
-
-	@Cron(CronExpression.EVERY_MINUTE)
+	@Cron(CronExpression.EVERY_HOUR)
 	async deleteExpiredRejectedRatings() {
 		try {
-			if (!this.cronSchedule) {
-				this.cronSchedule =
-					this.configService.get('CRON_SCHEDULE') ||
-					CronExpression.EVERY_MINUTE
-			}
-
 			const expiredTime = new Date(
 				Date.now() -
-					parseInt(this.configService.get('EXPIRED_TIME') || '0') *
+					parseInt(this.configService.get<string>('EXPIRED_TIME')) *
 						1000,
 			)
+
 			const rejectedRatings =
 				await this.ratingRepository.getRejectedRatings(expiredTime)
 
