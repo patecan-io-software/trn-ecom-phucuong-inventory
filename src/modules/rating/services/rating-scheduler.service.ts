@@ -12,7 +12,7 @@ export class RatingScheduler {
 		private readonly configService: ConfigService,
 	) {}
 
-	@Cron(CronExpression.EVERY_HOUR)
+	@Cron(CronExpression.EVERY_MINUTE)
 	async deleteExpiredRejectedRatings() {
 		try {
 			const expiredTime = new Date(

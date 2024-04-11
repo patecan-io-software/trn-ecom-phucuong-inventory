@@ -10,6 +10,13 @@ export interface AuthModuleConfig {
 	}
 }
 
+export interface RatingModuleConfig {
+	supabaseConfig: {
+		url: string
+		serviceRoleKey: string
+	}
+}
+
 export type AuthType =
 	| 'apiKey'
 	| 'supabase'
