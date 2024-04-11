@@ -203,4 +203,30 @@ export class RatingRepository {
 			? rating._id.toHexString()
 			: String(rating._id)
 	}
+
+	async getRejectedRatings(expiredTime: Date): Promise<Rating[]> {
+		try {
+			return await RatingModel.find({
+				status: 'Refused',
+				updatedAt: { $lt: expiredTime },
+			})
+		} catch (error) {
+			this.logger.error(
+				`Failed to get rejected ratings: ${error.message}`,
+			)
+			throw new Error('Failed to get rejected ratings')
+		}
+	}
+
+	async batchDeleteRatings(ratingIds: string[]): Promise<void> {
+		try {
+			await RatingModel.deleteMany({ _id: { $in: ratingIds } })
+			this.logger.log(`Deleted ${ratingIds.length} rejected ratings.`)
+		} catch (error) {
+			this.logger.error(
+				`Failed to delete rejected ratings: ${error.message}`,
+			)
+			throw new Error('Failed to delete rejected ratings')
+		}
+	}
 }

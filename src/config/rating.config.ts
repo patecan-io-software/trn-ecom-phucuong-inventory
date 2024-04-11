@@ -1,7 +1,9 @@
 export default () => ({
-	EXPIRED_TIME: process.env.EXPIRED_TIME || '600',
+	cronSchedule: process.env.cronSchedule || '* * * * *',
+	expiredTime: process.env.expiredTime || '120',
 })
 
 export interface RatingConfig {
-	EXPIRED_TIME: string
+	expiredTime: string
+	cronSchedule: string
 }

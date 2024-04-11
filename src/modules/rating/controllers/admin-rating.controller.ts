@@ -27,7 +27,6 @@ import {
 import { RatingDTO } from './dtos/rating.dtos'
 import { get } from 'http'
 import { ObjectIdParam } from '@modules/admin/product/controllers/dtos/common.dto'
-import { RatingModuleConfig } from '@modules/admin/auth'
 import { ConfigService } from '@nestjs/config'
 import { createClient } from '@supabase/supabase-js'
 import { RatingConfig } from 'src/config/rating.config'
@@ -37,13 +36,7 @@ import { RatingConfig } from 'src/config/rating.config'
 export class AdminRatingController {
 	private readonly logger: Logger = new Logger(AdminRatingController.name)
 	supabase: any
-	constructor(
-		private readonly ratingRepo: RatingRepository,
-		private readonly configService: ConfigService<RatingConfig>,
-	) {
-		const expiredTime = this.configService.get<string>('EXPIRED_TIME')
-		console.log('EXPIRED_TIME:', expiredTime)
-	}
+	constructor(private readonly ratingRepo: RatingRepository) {}
 
 	@Put('/:ratingId')
 	@ApiResponse({
