@@ -41,7 +41,6 @@ import {
 	PaginationUserRatingDTO,
 	UserRatingResponseDTO,
 } from './dtos/list-rating-by-productId.dtos'
-import { AdminAuth } from '@modules/admin/auth'
 
 @Controller('v1/ratings')
 @ApiTags('Rating')
@@ -216,7 +215,6 @@ export class RatingController {
 	}
 
 	@Get('/me')
-	@AdminAuth('jwtToken')
 	@ApiResponse({
 		status: 200,
 		type: UserRatingResponseDTO,
@@ -227,14 +225,12 @@ export class RatingController {
 		required: false,
 	})
 	async getUserRatings(
-		@Req() req: any,
+		@Query('userId') user_id: string,
 		@Query('productId') product_id: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
 	): Promise<UserRatingResponseDTO> {
 		try {
-			const user_id = req.user_id
-
 			let ratings: Rating[]
 
 			if (cursor === '') {
