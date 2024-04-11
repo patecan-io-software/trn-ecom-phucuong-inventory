@@ -119,7 +119,6 @@ export class RatingRepository {
 			}
 
 			rating.status = newStatus
-			rating.updatedAt = new Date()
 			await rating.save()
 
 			return rating.toObject({
