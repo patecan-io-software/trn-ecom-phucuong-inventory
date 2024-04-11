@@ -235,21 +235,48 @@ export class RatingController {
 		try {
 			const user_id = req.user_id
 
-			const { items, cursor: newCursor } =
-				await this.ratingRepo.getUserRating(
+			let ratings: Rating[]
+
+			if (cursor === '') {
+				ratings = await this.ratingRepo.getUserRating(
 					product_id,
 					user_id,
-					cursor || null,
+					null,
 					size,
 				)
-
-			const paginationData: PaginationUserRatingDTO = {
-				items: items.map((rating) => new RatingDTO(rating)),
-				pageSize: size,
-				cursor: newCursor,
+			} else {
+				ratings = await this.ratingRepo.getUserRating(
+					product_id,
+					user_id,
+					cursor,
+					size,
+				)
 			}
 
-			return new UserRatingResponseDTO(paginationData)
+			let newCursor: string | null = null
+			const items: RatingDTO[] = ratings.map(
+				(rating) => new RatingDTO(rating),
+			)
+
+			if (ratings.length > 0) {
+				if (ratings.length > size) {
+					newCursor = ratings[size]._id
+					ratings.splice(size)
+				}
+				const paginationData: PaginationUserRatingDTO = {
+					items,
+					pageSize: size,
+					cursor: newCursor,
+				}
+				return new UserRatingResponseDTO(paginationData)
+			} else {
+				const paginationData: PaginationUserRatingDTO = {
+					items,
+					pageSize: size,
+					cursor: cursor !== null ? cursor : null,
+				}
+				return new UserRatingResponseDTO(paginationData)
+			}
 		} catch (error) {
 			this.logger.error(error)
 			throw new InternalServerErrorException()

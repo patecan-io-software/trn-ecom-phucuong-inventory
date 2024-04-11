@@ -203,32 +203,20 @@ export class RatingRepository {
 		user_id: string,
 		cursor: string | null,
 		size: number,
-	): Promise<{ items: Rating[]; cursor: string | null }> {
+	): Promise<Rating[]> {
 		try {
 			const query: any = { product_id, user_id }
 
 			if (cursor) {
-				query['_id'] = { $gte: new Types.ObjectId(cursor) }
+				query['_id'] = { $gte: cursor }
 			}
-
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
 				.limit(size + 1)
-
-			let newCursor: string | null = null
-			const items: Rating[] = []
-
-			if (ratings.length > 0) {
-				if (ratings.length > size) {
-					newCursor = items[size]._id
-					ratings.splice(size)
-				}
-			}
-
-			return { items, cursor: newCursor }
+			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
-			throw new Error('Failed to retrieve user ratings')
+			throw new Error('Failed to retrieve ratings')
 		}
 	}
 }
