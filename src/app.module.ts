@@ -16,7 +16,6 @@ import { DynamicSectionModule } from '@modules/admin/dynamic-section'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { CacheModule } from '@nestjs/cache-manager'
 import { RatingModule } from '@modules/rating'
-import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
 	imports: [
@@ -27,7 +26,6 @@ import { ScheduleModule } from '@nestjs/schedule'
 			inject: [ConfigService],
 		}),
 		EventEmitterModule.forRoot(),
-		ScheduleModule.forRoot(),
 
 		UtilityModule,
 
