@@ -233,7 +233,7 @@ export class RatingController {
 		@Query('size') size: number = 10,
 	): Promise<UserRatingResponseDTO> {
 		try {
-			const user_id = req.user.id
+			const user_id = req.user_id
 
 			const { items, cursor: newCursor } =
 				await this.ratingRepo.getUserRating(

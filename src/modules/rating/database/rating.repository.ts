@@ -203,7 +203,7 @@ export class RatingRepository {
 		user_id: string,
 		cursor: string | null,
 		size: number,
-	): Promise<{ items: Rating[]; cursor: string }> {
+	): Promise<{ items: Rating[]; cursor: string | null }> {
 		try {
 			const query: any = { product_id, user_id }
 
@@ -220,12 +220,9 @@ export class RatingRepository {
 
 			if (ratings.length > 0) {
 				if (ratings.length > size) {
-					newCursor = ratings[size]._id.toHexString()
+					newCursor = items[size]._id
 					ratings.splice(size)
 				}
-				items.push(
-					...ratings.map((rating) => rating.toObject() as Rating),
-				)
 			}
 
 			return { items, cursor: newCursor }
