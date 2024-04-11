@@ -37,3 +37,33 @@ export class ListRatingByProductIdResponseDTO {
 		this.listRating = listRating
 	}
 }
+
+export class PaginationUserRatingDTO {
+	@ApiProperty()
+	items: RatingDTO[]
+
+	@ApiProperty()
+	pageSize: number
+
+	@ApiProperty({ required: false })
+	cursor?: string
+
+	constructor(data: PaginationUserRatingDTO) {
+		Object.assign(this, data)
+	}
+}
+
+export class UserRatingResponseDTO {
+	@ApiProperty()
+	items: RatingDTO[]
+
+	@ApiProperty()
+	pageSize: number
+
+	@ApiProperty()
+	cursor?: string
+
+	constructor(data: UserRatingResponseDTO) {
+		Object.assign(this, data)
+	}
+}
