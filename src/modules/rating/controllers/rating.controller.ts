@@ -11,6 +11,7 @@ import {
 	Param,
 	NotFoundException,
 	Put,
+	Req,
 } from '@nestjs/common'
 import { RatingRepository } from '../database/rating.repository'
 import {
@@ -37,6 +38,8 @@ import {
 import {
 	ListRatingByProductIdResponseDTO,
 	PaginationListRatingByProductIdDTO,
+	PaginationUserRatingDTO,
+	UserRatingResponseDTO,
 } from './dtos/list-rating-by-productId.dtos'
 
 @Controller('v1/ratings')
@@ -211,6 +214,71 @@ export class RatingController {
 		} catch (error) {
 			console.error('Error deleting rating:', error)
 			throw new Error('Failed to delete rating')
+		}
+	}
+
+	@Get('/me')
+	@ApiResponse({
+		status: 200,
+		type: UserRatingResponseDTO,
+	})
+	@ApiQuery({
+		name: 'cursor',
+		type: String,
+		required: false,
+	})
+	async getUserRatings(
+		@Query('userId') user_id: string,
+		@Query('productId') product_id: string,
+		@Query('cursor') cursor?: string | null,
+		@Query('size') size: number = 10,
+	): Promise<UserRatingResponseDTO> {
+		try {
+			let ratings: Rating[]
+
+			if (cursor === '') {
+				ratings = await this.ratingRepo.getUserRating(
+					product_id,
+					user_id,
+					null,
+					size,
+				)
+			} else {
+				ratings = await this.ratingRepo.getUserRating(
+					product_id,
+					user_id,
+					cursor,
+					size,
+				)
+			}
+
+			let newCursor: string | null = null
+			const items: RatingDTO[] = ratings.map(
+				(rating) => new RatingDTO(rating),
+			)
+
+			if (ratings.length > 0) {
+				if (ratings.length > size) {
+					newCursor = ratings[size]._id
+					ratings.splice(size)
+				}
+				const paginationData: PaginationUserRatingDTO = {
+					items,
+					pageSize: size,
+					cursor: newCursor,
+				}
+				return new UserRatingResponseDTO(paginationData)
+			} else {
+				const paginationData: PaginationUserRatingDTO = {
+					items,
+					pageSize: size,
+					cursor: cursor !== null ? cursor : null,
+				}
+				return new UserRatingResponseDTO(paginationData)
+			}
+		} catch (error) {
+			this.logger.error(error)
+			throw new InternalServerErrorException()
 		}
 	}
 }
