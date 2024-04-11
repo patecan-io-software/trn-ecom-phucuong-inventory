@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { ConfigService } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { MongooseModule } from '@infras/mongoose'
 import { AppConfigModule, DATABASE_CONFIG } from './config'
 import { AdminProductModule } from '@modules/admin/product'
@@ -28,6 +28,7 @@ import { ScheduleModule } from '@nestjs/schedule'
 		}),
 		EventEmitterModule.forRoot(),
 		ScheduleModule.forRoot(),
+		ConfigModule.forRoot(),
 
 		UtilityModule,
 

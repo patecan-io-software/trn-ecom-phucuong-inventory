@@ -6,6 +6,7 @@ import { ratingSchema } from './database/rating.model'
 import { AdminRatingController } from './controllers/admin-rating.controller'
 import { ScheduleModule } from '@nestjs/schedule'
 import { RatingScheduler } from './services/rating-scheduler.service'
+import { ConfigModule } from '@nestjs/config'
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { RatingScheduler } from './services/rating-scheduler.service'
 			},
 		]),
 		ScheduleModule.forRoot(),
+		ConfigModule.forRoot(),
 	],
 	controllers: [RatingController, AdminRatingController],
 	providers: [RatingRepository, RatingScheduler],

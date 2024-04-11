@@ -44,7 +44,7 @@ export class RatingRepository {
 		cursor: string | null,
 		size: number,
 		status: string,
-		sortOrder: 'asc' | 'desc' = 'desc',
+		sortOrder: 'asc' | 'desc' = 'asc',
 	): Promise<Rating[]> {
 		try {
 			const query: any = { product_id, status }
@@ -52,15 +52,9 @@ export class RatingRepository {
 			if (cursor) {
 				query['_id'] = { $gte: cursor }
 			}
-
-			const sortCriteria: Record<string, SortOrder> = {
-				updatedAt: sortOrder === 'desc' ? -1 : 1,
-			}
-
 			const ratings = await RatingModel.find(query)
-				.sort(sortCriteria)
+				.sort({ _id: 1 })
 				.limit(size + 1)
-
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)

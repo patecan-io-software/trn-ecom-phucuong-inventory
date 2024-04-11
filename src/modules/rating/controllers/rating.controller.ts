@@ -82,7 +82,6 @@ export class RatingController {
 		@Query('productId') product_id: string,
 		@Query('cursor') cursor?: string | null,
 		@Query('size') size: number = 10,
-		@Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
 	): Promise<ListRatingByProductIdResponseDTO> {
 		try {
 			const status: string = 'Approved'
@@ -95,7 +94,6 @@ export class RatingController {
 					null,
 					size,
 					status,
-					sortOrder,
 				)
 			} else {
 				ratings = await this.ratingRepo.getByProductId(
@@ -103,7 +101,6 @@ export class RatingController {
 					cursor,
 					size,
 					status,
-					sortOrder,
 				)
 			}
 
