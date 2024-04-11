@@ -198,24 +198,40 @@ export class RatingRepository {
 			: String(rating._id)
 	}
 
-	async getUserRatings(
+	async getUserRating(
 		product_id: string,
+		user_id: string,
 		cursor: string | null,
-		pageSize: number,
-	): Promise<Rating[]> {
+		size: number,
+	): Promise<{ items: Rating[]; cursor: string }> {
 		try {
-			const query: any = { product_id }
+			const query: any = { product_id, user_id }
 
 			if (cursor) {
-				query['_id'] = { $gte: cursor }
+				query['_id'] = { $gte: new Types.ObjectId(cursor) }
 			}
+
 			const ratings = await RatingModel.find(query)
 				.sort({ _id: 1 })
-				.limit(pageSize + 1)
-			return ratings.map((rating) => rating.toObject() as Rating)
+				.limit(size + 1)
+
+			let newCursor: string | null = null
+			const items: Rating[] = []
+
+			if (ratings.length > 0) {
+				if (ratings.length > size) {
+					newCursor = ratings[size]._id.toHexString()
+					ratings.splice(size)
+				}
+				items.push(
+					...ratings.map((rating) => rating.toObject() as Rating),
+				)
+			}
+
+			return { items, cursor: newCursor }
 		} catch (error) {
 			this.logger.error(error)
-			throw new Error('Failed to retrieve ratings')
+			throw new Error('Failed to retrieve user ratings')
 		}
 	}
 }
