@@ -10,15 +10,14 @@ export class RatingScheduler {
 
 	constructor(
 		private readonly ratingRepository: RatingRepository,
-		private readonly configService: ConfigService, // Inject ConfigService
+		private readonly configService: ConfigService,
 	) {
 		this.cronSchedule = this.configService.get('CRON_SCHEDULE')
 	}
 
-	// Define a separate method to handle dynamic scheduling
 	scheduleCronJob() {
 		if (this.cronSchedule) {
-			this.deleteExpiredRejectedRatings() // Call the method directly
+			this.deleteExpiredRejectedRatings()
 		} else {
 			this.logger.error('Cron schedule is not defined.')
 		}
