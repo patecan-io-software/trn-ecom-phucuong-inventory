@@ -59,6 +59,7 @@ export class RatingRepository {
 			}
 
 			const ratings = await RatingModel.find(query)
+				.sort({ _id: 1 })
 				.sort(sortCriteria)
 				.limit(size + 1)
 
