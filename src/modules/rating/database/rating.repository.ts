@@ -51,21 +51,40 @@ export class RatingRepository {
 			const query: any = { product_id, status }
 
 			if (cursor) {
-				query['_id'] = { $gte: cursor }
+				if (sortOrder === 'desc') {
+					query['_id'] = { $lte: new mongoose.Types.ObjectId(cursor) } // Sử dụng $lte ở đây
+				} else {
+					query['_id'] = { $gte: new mongoose.Types.ObjectId(cursor) }
+				}
+			} else {
+				// Xác định cursor khi không có giá trị
+				if (sortOrder === 'desc') {
+					const latestRating = await RatingModel.findOne({
+						product_id,
+						status,
+					})
+						.sort({ updatedAt: -1, _id: -1 })
+						.exec()
+
+					if (latestRating) {
+						cursor = latestRating._id.toString()
+					}
+				}
 			}
 
-			const sortCriteria: Record<string, SortOrder> = {
+			const sortCriteria: any = {
 				updatedAt: sortOrder,
+				_id: 1,
 			}
 
 			const ratings = await RatingModel.find(query)
-				.sort({ _id: 1 })
 				.sort(sortCriteria)
 				.limit(size + 1)
+				.exec()
 
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
-			this.logger.error(error)
+			console.error(error)
 			throw new Error('Failed to retrieve ratings')
 		}
 	}
