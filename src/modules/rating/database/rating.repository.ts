@@ -9,7 +9,6 @@ import { Types } from 'mongoose'
 import { ObjectId } from 'mongodb'
 import { ApiResponse } from '@nestjs/swagger'
 import { SortOrder } from 'mongoose'
-import { verify } from 'jsonwebtoken'
 
 export class RatingRepository {
 	[x: string]: any
@@ -120,7 +119,6 @@ export class RatingRepository {
 			}
 
 			rating.status = newStatus
-			rating.updatedAt = new Date()
 			await rating.save()
 
 			return rating.toObject({
@@ -203,53 +201,5 @@ export class RatingRepository {
 		return rating._id instanceof ObjectId
 			? rating._id.toHexString()
 			: String(rating._id)
-	}
-
-	async getRejectedRatings(expiredTime: Date): Promise<Rating[]> {
-		try {
-			return await RatingModel.find({
-				status: 'Refused',
-				updatedAt: { $lt: expiredTime },
-			})
-		} catch (error) {
-			this.logger.error(
-				`Failed to get rejected ratings: ${error.message}`,
-			)
-			throw new Error('Failed to get rejected ratings')
-		}
-	}
-
-	async batchDeleteRatings(ratingIds: string[]): Promise<void> {
-		try {
-			await RatingModel.deleteMany({ _id: { $in: ratingIds } })
-			this.logger.log(`Deleted ${ratingIds.length} rejected ratings.`)
-		} catch (error) {
-			this.logger.error(
-				`Failed to delete rejected ratings: ${error.message}`,
-			)
-			throw new Error('Failed to delete rejected ratings')
-		}
-	}
-
-	async getUserRating(
-		product_id: string,
-		user_id: string,
-		cursor: string | null,
-		size: number,
-	): Promise<Rating[]> {
-		try {
-			const query: any = { product_id, user_id }
-
-			if (cursor) {
-				query['_id'] = { $gte: cursor }
-			}
-			const ratings = await RatingModel.find(query)
-				.sort({ _id: 1 })
-				.limit(size + 1)
-			return ratings.map((rating) => rating.toObject() as Rating)
-		} catch (error) {
-			this.logger.error(error)
-			throw new Error('Failed to retrieve ratings')
-		}
 	}
 }
