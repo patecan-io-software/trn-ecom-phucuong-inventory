@@ -44,7 +44,7 @@ export class RatingRepository {
 		product_id: string,
 		cursor: string | null,
 		size: number,
-		status: string,
+		status: string = 'Approved',
 		sortOrder: 'asc' | 'desc' = 'desc',
 	): Promise<Rating[]> {
 		try {
@@ -55,7 +55,7 @@ export class RatingRepository {
 			}
 
 			const sortCriteria: Record<string, SortOrder> = {
-				updatedAt: sortOrder === 'desc' ? -1 : 1,
+				updatedAt: sortOrder,
 			}
 
 			const ratings = await RatingModel.find(query)
