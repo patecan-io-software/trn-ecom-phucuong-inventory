@@ -52,12 +52,11 @@ export class RatingRepository {
 
 			if (cursor) {
 				if (sortOrder === 'desc') {
-					query['_id'] = { $lte: new mongoose.Types.ObjectId(cursor) } // Sử dụng $lte ở đây
+					query['_id'] = { $lte: new mongoose.Types.ObjectId(cursor) }
 				} else {
 					query['_id'] = { $gte: new mongoose.Types.ObjectId(cursor) }
 				}
 			} else {
-				// Xác định cursor khi không có giá trị
 				if (sortOrder === 'desc') {
 					const latestRating = await RatingModel.findOne({
 						product_id,
