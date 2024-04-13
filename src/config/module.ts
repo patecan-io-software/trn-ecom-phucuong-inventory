@@ -7,6 +7,7 @@ import authConfig from './auth.config'
 import adminProductConfig from './admin-product.config'
 import dynamicSectionConfig from './dynamic-section.config'
 import clientCategoryConfig from './client-category.config'
+import ratingConfig from './rating.config'
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import clientCategoryConfig from './client-category.config'
 				adminProductConfig,
 				dynamicSectionConfig,
 				clientCategoryConfig,
+				ratingConfig,
 			],
 			validate: validateConfig,
 			envFilePath: '.env',

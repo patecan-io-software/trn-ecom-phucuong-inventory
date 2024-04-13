@@ -1,0 +1,1 @@
+export const RATING_MODULE_CONFIG = 'RATING.CONFIG'

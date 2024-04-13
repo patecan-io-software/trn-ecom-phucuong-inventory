@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { ConfigService } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { MongooseModule } from '@infras/mongoose'
 import { AppConfigModule, DATABASE_CONFIG } from './config'
 import { AdminProductModule } from '@modules/admin/product'
@@ -15,6 +15,7 @@ import { AdminAuthModule } from '@modules/admin/auth'
 import { DynamicSectionModule } from '@modules/admin/dynamic-section'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { CacheModule } from '@nestjs/cache-manager'
+import { RatingModule } from '@modules/rating'
 
 @Module({
 	imports: [
@@ -33,7 +34,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 		CategoryModule,
 		BrandModule,
 		ProductModule,
-
+		RatingModule,
 		AdminAuthModule,
 		AdminProductModule,
 		InventoryModule,
