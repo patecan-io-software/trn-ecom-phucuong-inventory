@@ -4,6 +4,8 @@ import { ProductImage, ProductVariantStatus } from './types'
 export interface CreateProductDTO {
 	product_name: string
 	product_description: string
+	product_specifications: string
+	product_storage_instructions: string
 	product_banner_image: string
 	product_brand: string
 	product_categories: string[]
@@ -16,6 +18,8 @@ export interface CreateProductDTO {
 export interface UpdateProductDTO {
 	product_name: string
 	product_description: string
+	product_specifications: string
+	product_storage_instructions: string
 	product_banner_image: string
 	product_brand: string
 	product_categories: string[]

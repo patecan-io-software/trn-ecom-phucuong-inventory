@@ -24,6 +24,16 @@ export class UpdateProductRequestDTO {
 	product_description: string
 
 	@ApiProperty({
+		description: 'This is test new specifications product',
+	})
+	product_specifications: string
+
+	@ApiProperty({
+		description: 'This is test new storage instructions product',
+	})
+	product_storage_instructions: string
+
+	@ApiProperty({
 		description: 'Path of banner image in temp folder',
 		example: 'temp/5001698574720731',
 	})
