@@ -56,24 +56,21 @@ export class RatingRepository {
 				} else {
 					query['_id'] = { $gte: new mongoose.Types.ObjectId(cursor) }
 				}
-			} else {
-				if (sortOrder === 'desc') {
-					const latestRating = await RatingModel.findOne({
-						product_id,
-						status,
-					})
-						.sort({ updatedAt: -1, _id: -1 })
-						.exec()
-
-					if (latestRating) {
-						cursor = latestRating._id.toString()
-					}
-				}
 			}
 
 			const sortCriteria: any = {
 				updatedAt: sortOrder,
 				_id: 1,
+			}
+
+			if (!cursor && sortOrder === 'desc') {
+				const latestRating = await RatingModel.findOne(query)
+					.sort({ updatedAt: -1, _id: -1 })
+					.exec()
+
+				if (latestRating) {
+					cursor = latestRating._id.toString()
+				}
 			}
 
 			const ratings = await RatingModel.find(query)
