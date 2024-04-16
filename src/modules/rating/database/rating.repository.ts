@@ -48,8 +48,6 @@ export class RatingRepository {
 		sortOrder: 'asc' | 'desc' = 'desc',
 	): Promise<Rating[]> {
 		try {
-			let queryLatestRating = false
-
 			const query: any = { product_id, status }
 
 			if (cursor) {
@@ -58,8 +56,6 @@ export class RatingRepository {
 				} else {
 					query['_id'] = { $gte: new mongoose.Types.ObjectId(cursor) }
 				}
-			} else {
-				queryLatestRating = true
 			}
 
 			const sortCriteria: any = {
@@ -67,24 +63,19 @@ export class RatingRepository {
 				_id: 1,
 			}
 
-			if (queryLatestRating) {
-				const latestRating = await RatingModel.findOne(query)
-					.sort({ updatedAt: -1, _id: -1 })
-					.exec()
-
-				if (latestRating) {
-					cursor = latestRating._id.toString()
-				}
-			}
-
 			const ratings = await RatingModel.find(query)
 				.sort(sortCriteria)
 				.limit(size + 1)
 				.exec()
 
+			let latestRatingId = null
+			if (ratings.length > 0) {
+				latestRatingId = ratings[0]._id.toString()
+			}
+
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
-			console.error(error)
+			this.logger.error(error)
 			throw new Error('Failed to retrieve ratings')
 		}
 	}
