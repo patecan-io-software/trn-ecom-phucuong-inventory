@@ -51,16 +51,22 @@ export class RatingRepository {
 			const query: any = { product_id, status }
 
 			if (cursor) {
-				query['_id'] = { $gte: cursor }
+				if (sortOrder === 'desc') {
+					query['_id'] = { $lte: new mongoose.Types.ObjectId(cursor) }
+				} else {
+					query['_id'] = { $gte: new mongoose.Types.ObjectId(cursor) }
+				}
 			}
 
-			const sortCriteria: Record<string, SortOrder> = {
+			const sortCriteria: any = {
 				updatedAt: sortOrder,
+				_id: 1,
 			}
 
 			const ratings = await RatingModel.find(query)
 				.sort(sortCriteria)
 				.limit(size + 1)
+				.exec()
 
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {

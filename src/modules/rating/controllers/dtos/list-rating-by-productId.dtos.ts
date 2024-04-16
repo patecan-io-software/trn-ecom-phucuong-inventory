@@ -3,8 +3,14 @@ import { RatingDTO } from './rating.dtos'
 import { IsIn, IsNotEmpty } from 'class-validator'
 
 export class PaginationListRatingByProductIdDTO<L> {
+	@ApiProperty({ type: [RatingDTO], description: 'List of ratings' })
+	@IsNotEmpty()
 	listRating: L[]
+
+	@ApiProperty({ description: 'Cursor for pagination' })
 	cursor: string | null
+
+	@ApiProperty({ description: 'Number of items in the list' })
 	size: number
 
 	constructor(listRating: L[], cursor: string | null, size: number) {
@@ -27,25 +33,25 @@ export class ListRatingByProductIdDTO {
 
 export class ListRatingByProductIdResponseDTO {
 	@ApiProperty({
-		description: 'List of ratings by product ID',
+		description: 'Response data',
 		type: PaginationListRatingByProductIdDTO<RatingDTO>,
 	})
 	@IsNotEmpty()
-	listRating: PaginationListRatingByProductIdDTO<RatingDTO>
+	data: PaginationListRatingByProductIdDTO<RatingDTO>
 
-	constructor(listRating: PaginationListRatingByProductIdDTO<RatingDTO>) {
-		this.listRating = listRating
+	constructor(data: PaginationListRatingByProductIdDTO<RatingDTO>) {
+		this.data = data
 	}
 }
 
 export class PaginationUserRatingDTO {
-	@ApiProperty()
+	@ApiProperty({ type: [RatingDTO], description: 'List of ratings' })
 	items: RatingDTO[]
 
-	@ApiProperty()
+	@ApiProperty({ description: 'Number of items in the list' })
 	pageSize: number
 
-	@ApiProperty({ required: false })
+	@ApiProperty({ description: 'Cursor for pagination', required: false })
 	cursor?: string
 
 	constructor(data: PaginationUserRatingDTO) {
@@ -54,13 +60,13 @@ export class PaginationUserRatingDTO {
 }
 
 export class UserRatingResponseDTO {
-	@ApiProperty()
+	@ApiProperty({ type: [RatingDTO], description: 'List of ratings' })
 	items: RatingDTO[]
 
-	@ApiProperty()
+	@ApiProperty({ description: 'Number of items in the list' })
 	pageSize: number
 
-	@ApiProperty()
+	@ApiProperty({ description: 'Cursor for pagination', required: false })
 	cursor?: string
 
 	constructor(data: UserRatingResponseDTO) {
