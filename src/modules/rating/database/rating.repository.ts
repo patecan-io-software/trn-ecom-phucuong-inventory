@@ -48,6 +48,7 @@ export class RatingRepository {
 		sortOrder: 'asc' | 'desc' = 'desc',
 	): Promise<Rating[]> {
 		try {
+			let queryLatestRating = false
 			const query: any = { product_id, status }
 
 			if (cursor) {
@@ -56,6 +57,8 @@ export class RatingRepository {
 				} else {
 					query['_id'] = { $gte: new mongoose.Types.ObjectId(cursor) }
 				}
+			} else {
+				queryLatestRating = true
 			}
 
 			const sortCriteria: any = {
@@ -63,7 +66,7 @@ export class RatingRepository {
 				_id: 1,
 			}
 
-			if (!cursor && sortOrder === 'desc') {
+			if (queryLatestRating) {
 				const latestRating = await RatingModel.findOne(query)
 					.sort({ updatedAt: -1, _id: -1 })
 					.exec()
