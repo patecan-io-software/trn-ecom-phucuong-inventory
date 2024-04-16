@@ -68,11 +68,6 @@ export class RatingRepository {
 				.limit(size + 1)
 				.exec()
 
-			let latestRatingId = null
-			if (ratings.length > 0) {
-				latestRatingId = ratings[0]._id.toString()
-			}
-
 			return ratings.map((rating) => rating.toObject() as Rating)
 		} catch (error) {
 			this.logger.error(error)
